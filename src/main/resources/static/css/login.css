@@ -1,0 +1,332 @@
+:root {
+    --bg-dark-green: #0c382b;
+    --input-bg: #4b7467;
+    --input-focus: #558576;
+    --input-placeholder: rgba(255, 255, 255, 0.72);
+    --btn-sage: #5b8c7b;
+    --btn-sage-hover: #699e8c;
+    --btn-sage-active: #4e7a6b;
+    --text-white: #ffffff;
+    --text-muted: #d1e2db;
+    --error-bg: rgba(220, 38, 38, 0.35);
+    --error-border: rgba(239, 68, 68, 0.55);
+    --error-text: #fecaca;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+html, body {
+    width: 100%;
+    min-height: 100vh;
+    overflow-x: hidden;
+}
+
+body {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 30px 20px;
+    background-color: #1a2a20;
+    background-image: url('/images/BGlogin.jpg');
+    background-repeat: no-repeat;
+    background-position: center right;
+    background-size: 100% 100%;
+    background-attachment: fixed;
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: high-quality;
+}
+
+body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    background: rgba(10, 24, 18, 0.25);
+    z-index: 1;
+}
+
+@media (max-width: 900px) {
+    body {
+        background-size: cover;
+        background-position: right center;
+    }
+}
+
+.center-floating-card {
+    position: relative;
+    z-index: 2;
+    width: 100%;
+    max-width: 780px;
+    min-height: 440px;
+    background-color: var(--bg-dark-green);
+    background-image: url('/images/login.png');
+    background-repeat: no-repeat;
+    background-position: center left;
+    background-size: cover;
+    border-radius: 20px;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.55),
+                0 8px 20px rgba(0, 0, 0, 0.35),
+                0 0 0 1px rgba(255, 255, 255, 0.12);
+    display: grid;
+    grid-template-columns: 1.15fr 0.85fr;
+    overflow: hidden;
+    animation: cardPopIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.center-floating-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.65),
+                0 10px 25px rgba(0, 0, 0, 0.4),
+                0 0 0 1px rgba(255, 255, 255, 0.18);
+}
+
+.card-illustration-area {
+    pointer-events: none;
+    width: 100%;
+    height: 100%;
+}
+
+.card-form-area {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-end;
+    padding: 14px 44px 54px 16px;
+    width: 100%;
+}
+
+.form-content-box {
+    width: 100%;
+    max-width: 270px;
+}
+
+.login-title {
+    font-size: 26px;
+    font-weight: 800;
+    color: var(--text-white);
+    text-align: center;
+    letter-spacing: 1.5px;
+    margin-bottom: 20px;
+    text-transform: uppercase;
+    line-height: 1.2;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+}
+
+.error-alert {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--error-bg);
+    border: 1px solid var(--error-border);
+    color: var(--error-text);
+    padding: 7px 14px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 600;
+    margin-bottom: 16px;
+    backdrop-filter: blur(8px);
+    animation: shake 0.35s ease-in-out;
+}
+
+.error-icon {
+    flex-shrink: 0;
+    width: 16px;
+    height: 16px;
+}
+
+.input-group {
+    margin-bottom: 14px;
+}
+
+.pill-input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    background: var(--input-bg);
+    border-radius: 10px;
+    padding: 2px 6px;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
+    transition: all 0.25s ease;
+}
+
+.pill-input-wrapper:focus-within {
+    background: var(--input-focus);
+    box-shadow: 0 0 0 2.5px rgba(158, 200, 180, 0.38),
+                inset 0 1px 3px rgba(0, 0, 0, 0.2);
+    transform: translateY(-1px);
+}
+
+.pill-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    color: rgba(255, 255, 255, 0.9);
+    flex-shrink: 0;
+    padding-left: 4px;
+}
+
+.pill-icon svg {
+    width: 19px;
+    height: 19px;
+}
+
+.pill-input {
+    width: 100%;
+    height: 42px;
+    background: transparent;
+    border: none;
+    outline: none;
+    font-size: 14.5px;
+    font-weight: 500;
+    color: var(--text-white);
+    padding-right: 8px;
+}
+
+.pill-input::placeholder {
+    color: var(--input-placeholder);
+    font-weight: 400;
+}
+
+input[type="password"]::-ms-reveal,
+input[type="password"]::-ms-clear {
+    display: none;
+    width: 0;
+    height: 0;
+}
+
+input[type="password"]::-webkit-contacts-auto-fill-button,
+input[type="password"]::-webkit-credentials-auto-fill-button {
+    visibility: hidden;
+    display: none !important;
+    pointer-events: none;
+    height: 0;
+    width: 0;
+    margin: 0;
+}
+
+.toggle-password-btn {
+    background: transparent;
+    border: none;
+    color: rgba(255, 255, 255, 0.7);
+    cursor: pointer;
+    padding: 6px 10px 6px 2px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.2s;
+    flex-shrink: 0;
+}
+
+.toggle-password-btn:hover {
+    color: var(--text-white);
+}
+
+.toggle-password-btn svg {
+    width: 16px;
+    height: 16px;
+}
+
+.pill-submit-btn {
+    width: 130px;
+    height: 38px;
+    margin: 8px auto 0 auto;
+    background-color: var(--btn-sage);
+    border: none;
+    border-radius: 10px;
+    color: var(--text-white);
+    font-size: 13.5px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    cursor: pointer;
+    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.3),
+                0 2px 4px rgba(0, 0, 0, 0.18);
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.pill-submit-btn:hover {
+    background-color: var(--btn-sage-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 18px rgba(0, 0, 0, 0.4),
+                0 3px 6px rgba(0, 0, 0, 0.2);
+}
+
+.pill-submit-btn:active {
+    background-color: var(--btn-sage-active);
+    transform: translateY(0);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
+}
+
+@keyframes cardPopIn {
+    from {
+        opacity: 0;
+        transform: scale(0.97) translateY(14px);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    20%, 60% { transform: translateX(-5px); }
+    40%, 80% { transform: translateX(5px); }
+}
+
+@media (max-width: 820px) {
+    .center-floating-card {
+        grid-template-columns: 1fr;
+        max-width: 360px;
+        min-height: auto;
+        background-position: top center;
+    }
+
+    .card-illustration-area {
+        height: 180px;
+        background-image: url('/images/login.png');
+        background-repeat: no-repeat;
+        background-position: left center;
+        background-size: cover;
+    }
+
+    .card-form-area {
+        padding: 24px 20px 28px 20px;
+        background-color: var(--bg-dark-green);
+    }
+
+    .login-title {
+        font-size: 22px;
+        margin-bottom: 16px;
+    }
+}
+
+@media (max-width: 480px) {
+    body {
+        padding: 16px 12px;
+    }
+    .center-floating-card {
+        border-radius: 18px;
+    }
+    .card-illustration-area {
+        height: 150px;
+    }
+    .card-form-area {
+        padding: 20px 16px 24px 16px;
+    }
+}

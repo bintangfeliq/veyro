@@ -1,3 +1,4 @@
+
 package com.example.veyro.service;
 
 import java.util.List;
@@ -41,6 +42,22 @@ public class UserService {
             return user;
         }
         return Optional.empty();
+    }
+
+    public void updateFoto(Long id, String foto) {
+        User user = userRepository.findById(id).orElseThrow();
+        user.setFoto(foto);
+        userRepository.save(user);
+    }
+
+    public User updateKasir(Long id, String name, String username, String newPassword) {
+        User user = userRepository.findById(id).orElseThrow();
+        user.setName(name);
+        user.setUsername(username);
+        if (newPassword != null && !newPassword.isBlank()) {
+            user.setPassword(passwordEncoder.encode(newPassword));
+        }
+        return userRepository.save(user);
     }
 
     public void hapusUser(Long id) {

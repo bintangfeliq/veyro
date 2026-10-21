@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="id" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kelola Kasir - Veyro</title>
+    <link rel="icon" type="image/png" th:href="@{/images/logoBrow.png}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" th:href="@{/css/admin.css}">
+</head>
+
+<body>
+
+    <div class="admin-layout">
+        <div th:replace="~{admin/fragments :: sidebar('pegawai')}"></div>
+        <div th:replace="~{admin/fragments :: overlay}"></div>
+
+        <div class="admin-main">
+            <div th:replace="~{admin/fragments :: header('Kelola Kasir', 'Manajemen akun kasir dan staf toko')}"></div>
+
+            <div class="admin-content">
+                <div th:if="${pesanSukses}" class="alert alert-success alert-dismissible fade show" role="alert"
+                    style="border-radius: 12px; margin-bottom: 20px;">
+                    <i class="bi bi-check-circle-fill me-2"></i>
+                    <span th:text="${pesanSukses}">Sukses</span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+
+                <div th:if="${pesanError}" class="alert alert-danger alert-dismissible fade show" role="alert"
+                    style="border-radius: 12px; margin-bottom: 20px;">
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                    <span th:text="${pesanError}">Gagal</span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+
+                <div class="content-card">
+                    <div class="card-header-clean">
+                        <div class="card-title-group">
+                            <h3 class="card-title">Daftar Akun Kasir</h3>
+                            <p class="card-subtitle">Pengguna yang memiliki akses ke sistem kasir</p>
+                        </div>
+                        <button type="button" class="btn-banner btn-banner-primary" data-bs-toggle="modal"
+                            data-bs-target="#modalTambahKasir" style="padding: 8px 16px; font-size: 13px;">
+                            <i class="bi bi-person-plus"></i>
+                            <span>Tambah Kasir</span>
+                        </button>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="veyro-table">
+                            <thead>
+                                <tr>
+                                    <th>Kasir</th>
+                                    <th>Nama Lengkap</th>
+                                    <th>Role</th>
+                                    <th style="width: 80px; text-align: center;">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:if="${#lists.isEmpty(semuaUser)}">
+                                    <td colspan="4" class="text-center py-4 text-muted">
+                                        Belum ada akun kasir terdaftar.
+                                    </td>
+                                </tr>
+                                <tr th:each="user : ${semuaUser}">
+                                    <td>
+                                        <div style="display: flex; align-items: center; gap: 10px;">
+                                            <img th:if="${user.foto != null && !user.foto.isEmpty()}"
+                                                th:src="@{'/uploads/profil/' + ${user.foto}}"
+                                                alt="Foto Kasir" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover;">
+                                            <div th:unless="${user.foto != null && !user.foto.isEmpty()}"
+                                                style="width: 32px; height: 32px; border-radius: 50%; background: var(--veyro-sidebar-green); color: #ffffff; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700;"
+                                                th:text="${user.username != null ? #strings.substring(user.username, 0, 1).toUpperCase() : 'K'}">K</div>
+                                            <span class="fw-semibold" th:text="${user.username}">kasir1</span>
+                                        </div>
+                                    </td>
+                                    <td th:text="${user.name != null && !user.name.isBlank() ? user.name : '-'}">-</td>
+                                    <td>
+                                        <span class="badge-status"
+                                            th:classappend="${user.role == 'admin' ? 'warning' : 'success'}">
+                                            <i class="bi"
+                                                th:classappend="${user.role == 'admin' ? 'bi-shield-check' : 'bi-person-badge'}"></i>
+                                            <span th:text="${user.role}">kasir</span>
+                                        </span>
+                                    </td>
+                                    <td style="text-align: center;">
+                                        <div class="dropdown">
+                                            <button class="btn-dots mx-auto" type="button" data-bs-toggle="dropdown" aria-expanded="false" title="Menu Aksi">
+                                                <i class="bi bi-three-dots-vertical"></i>
+                                            </button>
+                                            <ul class="dropdown-menu dropdown-menu-end shadow-sm">
+                                                <li>
+                                                    <button type="button" class="dropdown-item" data-bs-toggle="modal"
+                                                        th:data-bs-target="'#modalLihatKasir_' + ${user.id}">
+                                                        <i class="bi bi-eye text-info"></i>
+                                                        <span>Lihat</span>
+                                                    </button>
+                                                </li>
+                                                <li>
+                                                    <button type="button" class="dropdown-item" data-bs-toggle="modal"
+                                                        th:data-bs-target="'#modalEditKasir_' + ${user.id}">
+                                                        <i class="bi bi-pencil text-primary"></i>
+                                                        <span>Update</span>
+                                                    </button>
+                                                </li>
+                                                <li>
+                                                    <hr class="dropdown-divider my-1">
+                                                </li>
+                                                <li>
+                                                    <form th:action="@{/admin/pegawai/hapus/{id}(id=${user.id})}" method="post" style="margin: 0;"
+                                                        th:data-name="${user.name != null && !user.name.isBlank() ? user.name : user.username}"
+                                                        onsubmit="return confirm('Apakah Anda yakin ingin menghapus akun kasir ' + this.getAttribute('data-name') + '?');">
+                                                        <button type="submit" class="dropdown-item text-danger">
+                                                            <i class="bi bi-trash3"></i>
+                                                            <span>Delete</span>
+                                                        </button>
+                                                    </form>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="modalTambahKasir" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content" style="border-radius: 16px; border: 1px solid var(--veyro-border);">
+                <div class="modal-header" style="border-bottom: 1px solid var(--veyro-border-light); padding: 18px 24px;">
+                    <h5 class="modal-title fw-bold" style="font-size: 16px;">
+                        <i class="bi bi-person-plus me-2" style="color: var(--veyro-sidebar-green);"></i>Tambah Kasir Baru
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form th:action="@{/admin/pegawai/simpan}" method="post" enctype="multipart/form-data">
+                    <div class="modal-body" style="padding: 24px;">
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold" style="font-size: 13px;">Nama Lengkap</label>
+                            <input type="text" class="form-control" name="name" placeholder="Contoh: Budi Santoso" required
+                                style="border-radius: 10px; padding: 10px 14px; font-size: 13px;">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold" style="font-size: 13px;">Username</label>
+                            <input type="text" class="form-control" name="username" placeholder="Contoh: budi_kasir" required
+                                style="border-radius: 10px; padding: 10px 14px; font-size: 13px;">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold" style="font-size: 13px;">Password</label>
+                            <input type="password" class="form-control" name="password" placeholder="Masukkan password kasir" required
+                                style="border-radius: 10px; padding: 10px 14px; font-size: 13px;">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold" style="font-size: 13px;">Role Akses</label>
+                            <input type="text" class="form-control" value="Kasir (Point of Sale)" disabled
+                                style="border-radius: 10px; padding: 10px 14px; font-size: 13px; background-color: #f8fafc; color: #64748b;">
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label fw-semibold" style="font-size: 13px;">Foto Profil (Opsional, Maks 2MB)</label>
+                            <input type="file" class="form-control" name="foto" accept="image/jpeg,image/png"
+                                style="border-radius: 10px; padding: 10px 14px; font-size: 13px;">
+                        </div>
+                    </div>
+                    <div class="modal-footer" style="border-top: 1px solid var(--veyro-border-light); padding: 14px 24px;">
+                        <button type="button" class="btn btn-light" data-bs-dismiss="modal"
+                            style="border-radius: 8px; font-size: 13px;">Batal</button>
+                        <button type="submit" class="btn-banner btn-banner-primary"
+                            style="padding: 9px 18px; font-size: 13px;">
+                            <i class="bi bi-check-lg"></i>
+                            <span>Simpan Kasir</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <th:block th:each="user : ${semuaUser}">
+        <div class="modal fade" th:id="'modalLihatKasir_' + ${user.id}" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content" style="border-radius: 16px; border: 1px solid var(--veyro-border);">
+                    <div class="modal-header" style="border-bottom: 1px solid var(--veyro-border-light); padding: 18px 24px;">
+                        <h5 class="modal-title fw-bold" style="font-size: 16px;">
+                            <i class="bi bi-person-badge me-2" style="color: var(--veyro-sidebar-green);"></i>Detail Akun Kasir
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body" style="padding: 24px; text-align: center;">
+                        <div style="width: 96px; height: 96px; border-radius: 50%; margin: 0 auto 16px; overflow: hidden; background: var(--veyro-sidebar-green); display: flex; align-items: center; justify-content: center; border: 3px solid var(--veyro-border);">
+                            <img th:if="${user.foto != null && !user.foto.isEmpty()}"
+                                th:src="@{'/uploads/profil/' + ${user.foto}}"
+                                alt="Foto" style="width: 100%; height: 100%; object-fit: cover;">
+                            <span th:unless="${user.foto != null && !user.foto.isEmpty()}"
+                                style="font-size: 38px; font-weight: 700; color: #ffffff;"
+                                th:text="${user.username != null ? #strings.substring(user.username, 0, 1).toUpperCase() : 'K'}">K</span>
+                        </div>
+                        <h5 class="fw-bold mb-1" th:text="${user.name != null && !user.name.isBlank() ? user.name : user.username}">Nama Kasir</h5>
+                        <p class="text-muted mb-3" style="font-size: 13px;" th:text="'@' + ${user.username}">@kasir</p>
+
+                        <div style="background: #f8fafc; border: 1px solid var(--veyro-border); border-radius: 12px; padding: 14px 18px; text-align: left; display: flex; flex-direction: column; gap: 10px;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; font-size: 13px;">
+                                <span class="text-muted">ID Kasir</span>
+                                <span class="fw-semibold font-mono" th:text="'#' + ${user.id}">#1</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; align-items: center; font-size: 13px;">
+                                <span class="text-muted">Nama Lengkap</span>
+                                <span class="fw-semibold" th:text="${user.name != null && !user.name.isBlank() ? user.name : '-'}">-</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; align-items: center; font-size: 13px;">
+                                <span class="text-muted">Username</span>
+                                <span class="fw-semibold" th:text="${user.username}">kasir</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; align-items: center; font-size: 13px;">
+                                <span class="text-muted">Peran / Role</span>
+                                <span class="badge-status success">
+                                    <i class="bi bi-person-badge"></i>
+                                    <span th:text="${user.role}">kasir</span>
+                                </span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; align-items: center; font-size: 13px;">
+                                <span class="text-muted">Status Akun</span>
+                                <span class="badge-status success">
+                                    <i class="bi bi-check2-circle"></i>
+                                    <span>Aktif</span>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer" style="border-top: 1px solid var(--veyro-border-light); padding: 14px 24px;">
+                        <button type="button" class="btn btn-light w-100" data-bs-dismiss="modal"
+                            style="border-radius: 8px; font-size: 13px;">Tutup</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal fade" th:id="'modalEditKasir_' + ${user.id}" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content" style="border-radius: 16px; border: 1px solid var(--veyro-border);">
+                    <div class="modal-header" style="border-bottom: 1px solid var(--veyro-border-light); padding: 18px 24px;">
+                        <h5 class="modal-title fw-bold" style="font-size: 16px;">
+                            <i class="bi bi-pencil-square me-2" style="color: var(--veyro-sidebar-green);"></i>Update Akun Kasir
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <form th:action="@{/admin/pegawai/update}" method="post" enctype="multipart/form-data">
+                        <input type="hidden" name="id" th:value="${user.id}">
+                        <div class="modal-body" style="padding: 24px;">
+                            <div style="display: flex; align-items: center; gap: 14px; margin-bottom: 20px; padding: 12px; background: #f8fafc; border-radius: 10px; border: 1px solid var(--veyro-border);">
+                                <div style="width: 52px; height: 52px; border-radius: 50%; overflow: hidden; background: var(--veyro-sidebar-green); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                                    <img th:if="${user.foto != null && !user.foto.isEmpty()}"
+                                        th:src="@{'/uploads/profil/' + ${user.foto}}"
+                                        alt="Foto" style="width: 100%; height: 100%; object-fit: cover;">
+                                    <span th:unless="${user.foto != null && !user.foto.isEmpty()}"
+                                        style="font-size: 20px; font-weight: 700; color: #ffffff;"
+                                        th:text="${user.username != null ? #strings.substring(user.username, 0, 1).toUpperCase() : 'K'}">K</span>
+                                </div>
+                                <div style="flex: 1; min-width: 0;">
+                                    <div class="fw-bold text-truncate" th:text="${user.name != null && !user.name.isBlank() ? user.name : user.username}">Nama</div>
+                                    <div class="text-muted" style="font-size: 12px;" th:text="'@' + ${user.username}">@kasir</div>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold" style="font-size: 13px;">Nama Lengkap</label>
+                                <input type="text" class="form-control" name="name" th:value="${user.name}" required
+                                    style="border-radius: 10px; padding: 10px 14px; font-size: 13px;">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold" style="font-size: 13px;">Username</label>
+                                <input type="text" class="form-control" name="username" th:value="${user.username}" required
+                                    style="border-radius: 10px; padding: 10px 14px; font-size: 13px;">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold" style="font-size: 13px;">Password Baru (Opsional)</label>
+                                <input type="password" class="form-control" name="password" placeholder="Kosongkan jika tidak diubah"
+                                    style="border-radius: 10px; padding: 10px 14px; font-size: 13px;">
+                            </div>
+                            <div class="mb-2">
+                                <label class="form-label fw-semibold" style="font-size: 13px;">Ganti Foto Profil (Opsional, Maks 2MB)</label>
+                                <input type="file" class="form-control" name="foto" accept="image/jpeg,image/png"
+                                    style="border-radius: 10px; padding: 10px 14px; font-size: 13px;">
+                            </div>
+                        </div>
+                        <div class="modal-footer" style="border-top: 1px solid var(--veyro-border-light); padding: 14px 24px; display: flex; justify-content: space-between;">
+                            <button type="button" class="btn btn-light" data-bs-dismiss="modal"
+                                style="border-radius: 8px; font-size: 13px;">Batal</button>
+                            <button type="submit" class="btn-banner btn-banner-primary"
+                                style="padding: 9px 18px; font-size: 13px;">
+                                <i class="bi bi-check-lg"></i>
+                                <span>Simpan Perubahan</span>
+                            </button>
+                        </div>
+                    </form>
+
+                    <div th:if="${user.foto != null && !user.foto.isEmpty()}" style="padding: 0 24px 16px;">
+                        <form th:action="@{/admin/pegawai/{id}/foto/hapus(id=${user.id})}" method="post"
+                            onsubmit="return confirm('Apakah Anda yakin ingin menghapus foto kasir ini?');">
+                            <button type="submit" class="btn btn-outline-danger w-100" style="border-radius: 8px; font-size: 12px; padding: 6px 12px;">
+                                <i class="bi bi-trash3 me-1"></i>Hapus Foto Kasir Saat Ini
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </th:block>
+
+    <th:block th:replace="~{admin/fragments :: scripts}"></th:block>
+
+</body>
+
+</html>

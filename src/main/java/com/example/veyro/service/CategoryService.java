@@ -8,14 +8,17 @@ import org.springframework.stereotype.Service;
 
 import com.example.veyro.model.Category;
 import com.example.veyro.repository.CategoryRepository;
+import com.example.veyro.repository.ProductRepository;
 
 @Service
 public class CategoryService {
 
     private final CategoryRepository categoryRepository;
+    private final ProductRepository productRepository;
 
-    public CategoryService(CategoryRepository categoryRepository) {
+    public CategoryService(CategoryRepository categoryRepository, ProductRepository productRepository) {
         this.categoryRepository = categoryRepository;
+        this.productRepository = productRepository;
     }
 
     public Category simpanCategory(Category category) {
@@ -38,7 +41,11 @@ public class CategoryService {
         return categoryRepository.findByNameIgnoreCaseAndIdNot(name, id);
     }
 
-    public void hapusCategory(Long id) {
+    public boolean hapusCategory(Long id) {
+        if (productRepository.existsByCategoryId(id)) {
+            return false;
+        }
         categoryRepository.deleteById(id);
+        return true;
     }
 }

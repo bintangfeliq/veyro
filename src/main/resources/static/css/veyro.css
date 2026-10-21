@@ -1,0 +1,134 @@
+:root {
+    --veyro-black: #0b0b0b;
+    --veyro-dark: #111111;
+    --veyro-dark-2: #171717;
+    --veyro-card: #1a1a1a;
+    --veyro-mint: #65E6AD;
+    --veyro-mint-dark: #4cd69a;
+    --veyro-white: #ffffff;
+    --veyro-text: #f5f5f5;
+    --veyro-muted: #a3a3a3;
+    --veyro-border: #2a2a2a;
+    --veyro-success: #55d68a;
+    --veyro-danger: #ff5c5c;
+    --veyro-warning: #f5c451;
+    --font-sans: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+body {
+    background-color: var(--veyro-black);
+    color: var(--veyro-text);
+    font-family: var(--font-sans);
+    font-size: 14px;
+    margin: 0;
+    padding: 0;
+    -webkit-font-smoothing: antialiased;
+}
+h1, .h1 { font-size: 32px; font-weight: 700; color: var(--veyro-white); }
+h2, .h2 { font-size: 24px; font-weight: 600; color: var(--veyro-white); }
+h3, .h3 { font-size: 18px; font-weight: 600; color: var(--veyro-white); }
+p { color: var(--veyro-text); line-height: 1.5; }
+.text-muted { color: var(--veyro-muted) !important; }
+.text-mint { color: var(--veyro-mint) !important; }
+.veyro-card {
+    background-color: var(--veyro-card);
+    border: 1px solid var(--veyro-border);
+    border-radius: 14px;
+    padding: 24px;
+    transition: border-color 0.2s ease;
+}
+.veyro-card:hover {
+    border-color: rgba(143, 255, 210, 0.25);
+}
+.btn-primary, .btn-veyro-primary {
+    background-color: var(--veyro-mint);
+    color: var(--veyro-black);
+    font-weight: 600;
+    border: none;
+    border-radius: 8px;
+    padding: 8px 16px;
+    transition: all 0.2s ease;
+}
+.btn-primary:hover, .btn-veyro-primary:hover {
+    background-color: var(--veyro-mint-dark);
+    color: var(--veyro-black);
+}
+.btn-secondary, .btn-veyro-secondary {
+    background-color: var(--veyro-dark-2);
+    color: var(--veyro-text);
+    border: 1px solid var(--veyro-border);
+    border-radius: 8px;
+    padding: 8px 16px;
+    transition: all 0.2s ease;
+}
+.btn-secondary:hover, .btn-veyro-secondary:hover {
+    background-color: #222222;
+    color: var(--veyro-white);
+    border-color: #3a3a3a;
+}
+.btn-danger, .btn-veyro-danger {
+    background-color: rgba(255, 92, 92, 0.12);
+    color: var(--veyro-danger);
+    border: 1px solid rgba(255, 92, 92, 0.2);
+    border-radius: 8px;
+    padding: 8px 16px;
+    transition: all 0.2s ease;
+}
+.btn-danger:hover, .btn-veyro-danger:hover {
+    background-color: rgba(255, 92, 92, 0.2);
+    color: #ff7575;
+}
+.form-label {
+    display: block;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--veyro-text);
+    margin-bottom: 6px;
+}
+.form-control {
+    background-color: var(--veyro-dark-2);
+    color: var(--veyro-white);
+    border: 1px solid var(--veyro-border);
+    border-radius: 10px;
+    padding: 10px 14px;
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.form-control:focus {
+    background-color: var(--veyro-dark-2);
+    color: var(--veyro-white);
+    border-color: var(--veyro-mint);
+    box-shadow: 0 0 0 3px rgba(143, 255, 210, 0.1);
+}
+.badge-veyro {
+    padding: 5px 9px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+}
+.badge-success { background-color: rgba(85, 214, 138, 0.15); color: var(--veyro-success); }
+.badge-danger { background-color: rgba(255, 92, 92, 0.15); color: var(--veyro-danger); }
+.badge-warning { background-color: rgba(245, 196, 81, 0.15); color: var(--veyro-warning); }
+.table-veyro {
+    width: 100%;
+    color: var(--veyro-text);
+    border-collapse: collapse;
+}
+.table-veyro th {
+    background-color: var(--veyro-dark);
+    color: var(--veyro-muted);
+    font-weight: 600;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--veyro-border);
+}
+.table-veyro td {
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--veyro-border);
+    vertical-align: middle;
+}
+.table-veyro tbody tr:hover {
+    background-color: rgba(255, 255, 255, 0.02);
+}

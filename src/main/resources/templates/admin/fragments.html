@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<body>
+
+    <aside th:fragment="sidebar(activeMenu)" class="admin-sidebar" id="adminSidebar">
+        <div class="sidebar-top-header">
+            <a th:href="@{/admin/dashboard}" class="sidebar-logo-link">
+                <img th:src="@{/images/sideAtas.png}" alt="Veyro Logo" class="sidebar-logo-img">
+            </a>
+        </div>
+
+        <div class="sidebar-curve-body">
+            <div>
+
+                <div class="sidebar-nav">
+                    <ul class="sidebar-menu">
+                        <li class="sidebar-item" th:classappend="${activeMenu == 'dashboard' ? 'active' : ''}">
+                            <a th:href="@{/admin/dashboard}">
+                                <i class="bi bi-grid-1x2"></i>
+                                <span>Dashboard</span>
+                            </a>
+                        </li>
+                        <li class="sidebar-item" th:classappend="${activeMenu == 'transaksi' ? 'active' : ''}">
+                            <a th:href="@{/admin/transaksi}">
+                                <i class="bi bi-receipt"></i>
+                                <span>Riwayat Transaksi</span>
+                            </a>
+                        </li>
+                        <li class="sidebar-item" th:classappend="${activeMenu == 'produk' ? 'active' : ''}">
+                            <a th:href="@{/product}">
+                                <i class="bi bi-box-seam"></i>
+                                <span>Daftar Produk</span>
+                            </a>
+                        </li>
+                        <li class="sidebar-item" th:classappend="${activeMenu == 'kategori' ? 'active' : ''}">
+                            <a th:href="@{/category}">
+                                <i class="bi bi-tags"></i>
+                                <span>Kategori Produk</span>
+                            </a>
+                        </li>
+                        <li class="sidebar-item" th:classappend="${activeMenu == 'pegawai' ? 'active' : ''}">
+                            <a th:href="@{/admin/pegawai}">
+                                <i class="bi bi-people"></i>
+                                <span>Kelola Kasir</span>
+                            </a>
+                        </li>
+                        <li class="sidebar-item" th:classappend="${activeMenu == 'laporan' ? 'active' : ''}">
+                            <a th:href="@{/admin/laporan}">
+                                <i class="bi bi-bar-chart-line"></i>
+                                <span>Laporan</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="sidebar-details-section">
+                <form th:action="@{/logout}" method="post" style="margin: 0; width: 100%;">
+                    <button type="submit" class="sidebar-upgrade-link">
+                        <span>Logout</span>
+                        <i class="bi bi-box-arrow-up-right"></i>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </aside>
+
+    <div th:fragment="overlay" class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <header th:fragment="header(pageTitle=null, pageSubtitle=null)" class="admin-header">
+        <div class="header-left">
+            <button class="btn-hamburger" id="hamburgerBtn" type="button" aria-label="Menu">
+                <i class="bi bi-list"></i>
+            </button>
+        </div>
+        <div class="header-right">
+            <div class="date-badge">
+                <i class="bi bi-calendar3"></i>
+                <span id="currentDateText"></span>
+            </div>
+            <div class="header-user-badge" data-bs-toggle="modal" data-bs-target="#modalFotoAdmin" role="button" title="Kelola Foto Profil">
+                <img th:if="${currentUser != null and currentUser.foto != null and !currentUser.foto.isEmpty()}"
+                    th:src="@{'/uploads/profil/' + ${currentUser.foto}}"
+                    alt="Foto Profil" class="user-avatar-mini-img">
+                <div th:unless="${currentUser != null and currentUser.foto != null and !currentUser.foto.isEmpty()}"
+                    class="user-avatar-mini"
+                    th:text="${currentUser != null and currentUser.username != null and !currentUser.username.isEmpty() ? #strings.substring(currentUser.username, 0, 1).toUpperCase() : 'A'}">
+                    A</div>
+                <span class="user-chip-name"
+                    th:text="${currentUser != null and currentUser.username != null ? currentUser.username : 'Admin'}">Admin</span>
+                <i class="bi bi-camera" style="font-size: 11px; color: var(--veyro-text-muted); margin-left: 2px;"></i>
+            </div>
+        </div>
+
+        <div class="modal fade" id="modalFotoAdmin" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content" style="border-radius: 16px; border: 1px solid var(--veyro-border);">
+                    <div class="modal-header" style="border-bottom: 1px solid var(--veyro-border-light); padding: 18px 24px;">
+                        <h5 class="modal-title fw-bold" style="font-size: 16px;">
+                            <i class="bi bi-person-circle me-2" style="color: var(--veyro-sidebar-green);"></i>Foto Profil Admin
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body" style="padding: 24px; text-align: center;">
+                        <div style="margin-bottom: 20px;">
+                            <div style="width: 100px; height: 100px; border-radius: 50%; margin: 0 auto; overflow: hidden; background: var(--veyro-sidebar-green); display: flex; align-items: center; justify-content: center; border: 3px solid var(--veyro-border);">
+                                <img id="previewFotoAdmin"
+                                    th:if="${currentUser != null and currentUser.foto != null and !currentUser.foto.isEmpty()}"
+                                    th:src="@{'/uploads/profil/' + ${currentUser.foto}}"
+                                    alt="Foto Profil" style="width: 100%; height: 100%; object-fit: cover;">
+                                <span id="previewInitialAdmin"
+                                    th:unless="${currentUser != null and currentUser.foto != null and !currentUser.foto.isEmpty()}"
+                                    style="font-size: 42px; font-weight: 700; color: #ffffff;"
+                                    th:text="${currentUser != null and currentUser.username != null and !currentUser.username.isEmpty() ? #strings.substring(currentUser.username, 0, 1).toUpperCase() : 'A'}">A</span>
+                            </div>
+                            <h6 class="fw-bold mt-3 mb-1" th:text="${currentUser != null and currentUser.username != null ? currentUser.username : 'Admin'}">Admin</h6>
+                            <span class="badge-status success" style="font-size: 11px;">Administrator</span>
+                        </div>
+
+                        <form th:action="@{/admin/profil/foto}" method="post" enctype="multipart/form-data" style="margin-bottom: 12px;">
+                            <input type="hidden" name="redirectUrl" class="adminFotoRedirectField">
+                            <div class="mb-3 text-start">
+                                <label for="inputFotoAdmin" class="form-label fw-semibold" style="font-size: 13px;">Pilih Foto Baru (JPG/PNG, Maks 2MB)</label>
+                                <input type="file" class="form-control" id="inputFotoAdmin" name="foto" accept="image/jpeg,image/png" required
+                                    style="border-radius: 10px; padding: 10px 14px; font-size: 13px;" onchange="pratinjauFotoAdmin(this)">
+                            </div>
+                            <button type="submit" class="btn-banner btn-banner-primary w-100" style="justify-content: center; padding: 10px 16px;">
+                                <i class="bi bi-upload"></i>
+                                <span>Simpan Foto</span>
+                            </button>
+                        </form>
+
+                        <form th:if="${currentUser != null and currentUser.foto != null and !currentUser.foto.isEmpty()}"
+                            th:action="@{/admin/profil/foto/hapus}" method="post"
+                            onsubmit="return confirm('Apakah Anda yakin ingin menghapus foto profil ini?');">
+                            <input type="hidden" name="redirectUrl" class="adminFotoRedirectField">
+                            <button type="submit" class="btn btn-outline-danger w-100" style="border-radius: 9px; font-size: 13px; font-weight: 600; padding: 9px 16px;">
+                                <i class="bi bi-trash3 me-1"></i>
+                                <span>Hapus Foto Profil</span>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <th:block th:fragment="scripts">
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+        <script>
+            function pratinjauFotoAdmin(input) {
+                if (input.files && input.files[0]) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        let img = document.getElementById('previewFotoAdmin');
+                        const initial = document.getElementById('previewInitialAdmin');
+                        if (!img) {
+                            img = document.createElement('img');
+                            img.id = 'previewFotoAdmin';
+                            img.style.width = '100%';
+                            img.style.height = '100%';
+                            img.style.objectFit = 'cover';
+                            if (initial && initial.parentNode) {
+                                initial.parentNode.appendChild(img);
+                            }
+                        }
+                        img.src = e.target.result;
+                        img.style.display = 'block';
+                        if (initial) {
+                            initial.style.display = 'none';
+                        }
+                    };
+                    reader.readAsDataURL(input.files[0]);
+                }
+            }
+
+            document.addEventListener('DOMContentLoaded', function () {
+                const hamburgerBtn = document.getElementById('hamburgerBtn');
+                const adminSidebar = document.getElementById('adminSidebar');
+                const sidebarOverlay = document.getElementById('sidebarOverlay');
+
+                if (hamburgerBtn && adminSidebar && sidebarOverlay) {
+                    hamburgerBtn.addEventListener('click', function () {
+                        adminSidebar.classList.toggle('show');
+                        sidebarOverlay.classList.toggle('show');
+                    });
+
+                    sidebarOverlay.addEventListener('click', function () {
+                        adminSidebar.classList.remove('show');
+                        sidebarOverlay.classList.remove('show');
+                    });
+                }
+
+                const dateEl = document.getElementById('currentDateText');
+                if (dateEl) {
+                    const options = { weekday: 'long', year: 'numeric', month: 'short', day: 'numeric' };
+                    dateEl.textContent = new Date().toLocaleDateString('id-ID', options);
+                }
+
+                const currentPath = window.location.pathname;
+                document.querySelectorAll('.adminFotoRedirectField').forEach(function(el) {
+                    el.value = currentPath;
+                });
+            });
+        </script>
+    </th:block>
+
+</body>
+
+</html>
