@@ -68,34 +68,36 @@
 
     <div th:fragment="overlay" class="sidebar-overlay" id="sidebarOverlay"></div>
 
-    <header th:fragment="header(pageTitle=null, pageSubtitle=null)" class="admin-header">
-        <div class="header-left">
-            <button class="btn-hamburger" id="hamburgerBtn" type="button" aria-label="Menu">
-                <i class="bi bi-list"></i>
-            </button>
-        </div>
-        <div class="header-right">
-            <div class="date-badge">
-                <i class="bi bi-calendar3"></i>
-                <span id="currentDateText"></span>
+    <th:block th:fragment="header(pageTitle=null, pageSubtitle=null)">
+        <header class="admin-header">
+            <div class="header-left">
+                <button class="btn-hamburger" id="hamburgerBtn" type="button" aria-label="Menu">
+                    <i class="bi bi-list"></i>
+                </button>
             </div>
-            <div class="header-user-badge" data-bs-toggle="modal" data-bs-target="#modalFotoAdmin" role="button" title="Kelola Foto Profil">
-                <img th:if="${currentUser != null and currentUser.foto != null and !currentUser.foto.isEmpty()}"
-                    th:src="@{'/uploads/profil/' + ${currentUser.foto}}"
-                    alt="Foto Profil" class="user-avatar-mini-img">
-                <div th:unless="${currentUser != null and currentUser.foto != null and !currentUser.foto.isEmpty()}"
-                    class="user-avatar-mini"
-                    th:text="${currentUser != null and currentUser.username != null and !currentUser.username.isEmpty() ? #strings.substring(currentUser.username, 0, 1).toUpperCase() : 'A'}">
-                    A</div>
-                <span class="user-chip-name"
-                    th:text="${currentUser != null and currentUser.username != null ? currentUser.username : 'Admin'}">Admin</span>
-                <i class="bi bi-camera" style="font-size: 11px; color: var(--veyro-text-muted); margin-left: 2px;"></i>
+            <div class="header-right">
+                <div class="date-badge">
+                    <i class="bi bi-calendar3"></i>
+                    <span id="currentDateText"></span>
+                </div>
+                <div class="header-user-badge" data-bs-toggle="modal" data-bs-target="#modalFotoAdmin" role="button" title="Kelola Foto Profil">
+                    <img th:if="${currentUser != null and currentUser.foto != null and !currentUser.foto.isEmpty()}"
+                        th:src="@{'/uploads/profil/' + ${currentUser.foto}}"
+                        alt="Foto Profil" class="user-avatar-mini-img">
+                    <div th:unless="${currentUser != null and currentUser.foto != null and !currentUser.foto.isEmpty()}"
+                        class="user-avatar-mini"
+                        th:text="${currentUser != null and currentUser.username != null and !currentUser.username.isEmpty() ? #strings.substring(currentUser.username, 0, 1).toUpperCase() : 'A'}">
+                        A</div>
+                    <span class="user-chip-name"
+                        th:text="${currentUser != null and currentUser.username != null ? currentUser.username : 'Admin'}">Admin</span>
+                    <i class="bi bi-camera" style="font-size: 11px; color: var(--veyro-text-muted); margin-left: 2px;"></i>
+                </div>
             </div>
-        </div>
+        </header>
 
         <div class="modal fade" id="modalFotoAdmin" tabindex="-1" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered">
-                <div class="modal-content" style="border-radius: 16px; border: 1px solid var(--veyro-border);">
+                <div class="modal-content" style="border-radius: 10px; border: 1px solid var(--veyro-border); background-color: var(--veyro-white);">
                     <div class="modal-header" style="border-bottom: 1px solid var(--veyro-border-light); padding: 18px 24px;">
                         <h5 class="modal-title fw-bold" style="font-size: 16px;">
                             <i class="bi bi-person-circle me-2" style="color: var(--veyro-sidebar-green);"></i>Foto Profil Admin
@@ -144,7 +146,50 @@
                 </div>
             </div>
         </div>
-    </header>
+    </th:block>
+
+    <div th:fragment="notifikasi" class="veyro-toast-container">
+        <th:block th:if="${pesanSukses != null or pesanError != null}">
+            <th:block th:if="${pesanSukses != null}">
+                <div th:with="tipeFinal=${tipeNotif != null ? tipeNotif : (#strings.contains(pesanSukses.toLowerCase(), 'hapus') ? 'hapus' : (#strings.contains(pesanSukses.toLowerCase(), 'perbarui') or #strings.contains(pesanSukses.toLowerCase(), 'update') ? 'update' : 'tambah'))}"
+                     class="veyro-toast"
+                     th:classappend="'toast-' + ${tipeFinal}">
+                    <div class="veyro-toast-icon">
+                        <i th:if="${tipeFinal == 'tambah'}" class="bi bi-check2-circle"></i>
+                        <i th:if="${tipeFinal == 'update'}" class="bi bi-pencil-square"></i>
+                        <i th:if="${tipeFinal == 'hapus'}" class="bi bi-trash3-fill"></i>
+                    </div>
+                    <div class="veyro-toast-body">
+                        <span class="veyro-toast-tag"
+                              th:text="${tipeFinal == 'tambah' ? 'Berhasil Ditambahkan' : (tipeFinal == 'update' ? 'Berhasil Diperbarui' : 'Berhasil Dihapus')}">
+                            Berhasil
+                        </span>
+                        <p class="veyro-toast-msg" th:text="${pesanSukses}">Pesan sukses</p>
+                    </div>
+                    <button type="button" class="veyro-toast-close" aria-label="Tutup">
+                        <i class="bi bi-x-lg"></i>
+                    </button>
+                    <div class="veyro-toast-progress"></div>
+                </div>
+            </th:block>
+
+            <th:block th:if="${pesanError != null}">
+                <div class="veyro-toast toast-error">
+                    <div class="veyro-toast-icon">
+                        <i class="bi bi-exclamation-triangle-fill"></i>
+                    </div>
+                    <div class="veyro-toast-body">
+                        <span class="veyro-toast-tag">Terjadi Kesalahan</span>
+                        <p class="veyro-toast-msg" th:text="${pesanError}">Pesan error</p>
+                    </div>
+                    <button type="button" class="veyro-toast-close" aria-label="Tutup">
+                        <i class="bi bi-x-lg"></i>
+                    </button>
+                    <div class="veyro-toast-progress"></div>
+                </div>
+            </th:block>
+        </th:block>
+    </div>
 
     <th:block th:fragment="scripts">
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
@@ -176,6 +221,11 @@
             }
 
             document.addEventListener('DOMContentLoaded', function () {
+                const modalFotoAdmin = document.getElementById('modalFotoAdmin');
+                if (modalFotoAdmin && modalFotoAdmin.parentNode !== document.body) {
+                    document.body.appendChild(modalFotoAdmin);
+                }
+
                 const hamburgerBtn = document.getElementById('hamburgerBtn');
                 const adminSidebar = document.getElementById('adminSidebar');
                 const sidebarOverlay = document.getElementById('sidebarOverlay');
@@ -202,6 +252,43 @@
                 document.querySelectorAll('.adminFotoRedirectField').forEach(function(el) {
                     el.value = currentPath;
                 });
+
+                document.querySelectorAll('.veyro-toast').forEach(function (toast) {
+                    let timer = setTimeout(function () {
+                        tutupToast(toast);
+                    }, 4000);
+
+                    toast.addEventListener('mouseenter', function () {
+                        clearTimeout(timer);
+                        const progress = toast.querySelector('.veyro-toast-progress');
+                        if (progress) progress.style.animationPlayState = 'paused';
+                    });
+
+                    toast.addEventListener('mouseleave', function () {
+                        const progress = toast.querySelector('.veyro-toast-progress');
+                        if (progress) progress.style.animationPlayState = 'running';
+                        timer = setTimeout(function () {
+                            tutupToast(toast);
+                        }, 1800);
+                    });
+
+                    const closeBtn = toast.querySelector('.veyro-toast-close');
+                    if (closeBtn) {
+                        closeBtn.addEventListener('click', function () {
+                            clearTimeout(timer);
+                            tutupToast(toast);
+                        });
+                    }
+                });
+
+                function tutupToast(toast) {
+                    toast.classList.add('hide');
+                    setTimeout(function () {
+                        if (toast && toast.parentNode) {
+                            toast.parentNode.removeChild(toast);
+                        }
+                    }, 350);
+                }
             });
         </script>
     </th:block>

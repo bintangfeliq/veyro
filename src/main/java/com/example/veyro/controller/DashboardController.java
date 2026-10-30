@@ -1,6 +1,7 @@
 package com.example.veyro.controller;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -10,6 +11,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import com.example.veyro.model.Category;
+import com.example.veyro.model.DetailTransaksi;
 import com.example.veyro.model.Product;
 import com.example.veyro.model.Transaksi;
 import com.example.veyro.model.User;
@@ -68,10 +70,28 @@ public class DashboardController {
         for (int i = transaksiList.size() - 1; i >= 0 && transaksiTerbaru.size() < 5; i--) {
             transaksiTerbaru.add(transaksiList.get(i));
         }
+        LocalDate hariIni = LocalDate.now();
+        int totalTransaksiHariIni = 0;
+        List<Transaksi> transaksiHariIniList = new ArrayList<>();
+        for (Transaksi t : transaksiList) {
+            if (t.getTanggalTransaksi() != null && t.getTanggalTransaksi().toLocalDate().isEqual(hariIni)) {
+                totalTransaksiHariIni++;
+                transaksiHariIniList.add(t);
+            }
+        }
+        int totalProdukTerjualHariIni = 0;
+        List<DetailTransaksi> detailHariIni = transaksiService.cariDetailByTransaksiIn(transaksiHariIniList);
+        for (DetailTransaksi d : detailHariIni) {
+            if (d.getJumlah() != null) {
+                totalProdukTerjualHariIni += d.getJumlah();
+            }
+        }
         model.addAttribute("totalProduk", produkList.size());
         model.addAttribute("totalKategori", kategoriList.size());
         model.addAttribute("totalKasir", totalKasir);
         model.addAttribute("totalTransaksi", transaksiList.size());
+        model.addAttribute("totalTransaksiHariIni", totalTransaksiHariIni);
+        model.addAttribute("totalProdukTerjualHariIni", totalProdukTerjualHariIni);
         model.addAttribute("totalPenjualan", totalPenjualan);
         model.addAttribute("produkStokMenipis", produkStokMenipis);
         model.addAttribute("transaksiTerbaru", transaksiTerbaru);

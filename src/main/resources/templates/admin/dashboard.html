@@ -26,19 +26,7 @@
             </div>
 
             <div class="admin-content">
-                <div th:if="${pesanSukses}" class="alert alert-success alert-dismissible fade show" role="alert"
-                    style="border-radius: 12px; margin-bottom: 20px;">
-                    <i class="bi bi-check-circle-fill me-2"></i>
-                    <span th:text="${pesanSukses}">Sukses</span>
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>
-
-                <div th:if="${pesanError}" class="alert alert-danger alert-dismissible fade show" role="alert"
-                    style="border-radius: 12px; margin-bottom: 20px;">
-                    <i class="bi bi-exclamation-triangle-fill me-2"></i>
-                    <span th:text="${pesanError}">Gagal</span>
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>
+                <div th:replace="~{admin/fragments :: notifikasi}"></div>
 
                 <div class="banner-card">
                     <div class="banner-content">
@@ -71,46 +59,46 @@
 
                 <div class="stats-grid">
                     <div class="stat-card">
-                        <div class="stat-icon-wrap mint">
-                            <i class="bi bi-box-seam"></i>
+                        <div class="stat-icon-wrap natural-mint">
+                            <i class="bi bi-boxes"></i>
                         </div>
                         <div class="stat-info">
                             <span class="stat-label">Total Produk</span>
                             <div class="stat-value" th:text="${totalProduk}">0</div>
-                            <span class="stat-helper">Terdaftar di katalog</span>
+                            <span class="stat-helper">Katalog aktif</span>
                         </div>
                     </div>
 
                     <div class="stat-card">
-                        <div class="stat-icon-wrap blue">
-                            <i class="bi bi-tags"></i>
+                        <div class="stat-icon-wrap natural-forest">
+                            <i class="bi bi-receipt-cutoff"></i>
                         </div>
                         <div class="stat-info">
-                            <span class="stat-label">Total Kategori</span>
-                            <div class="stat-value" th:text="${totalKategori}">0</div>
-                            <span class="stat-helper">Klasifikasi produk</span>
+                            <span class="stat-label">Transaksi Hari Ini</span>
+                            <div class="stat-value" th:text="${totalTransaksiHariIni}">0</div>
+                            <span class="stat-helper">Pesanan kasir</span>
                         </div>
                     </div>
 
                     <div class="stat-card">
-                        <div class="stat-icon-wrap purple">
-                            <i class="bi bi-people"></i>
+                        <div class="stat-icon-wrap natural-slate">
+                            <i class="bi bi-bag-check"></i>
                         </div>
                         <div class="stat-info">
-                            <span class="stat-label">Kasir / Pegawai</span>
-                            <div class="stat-value" th:text="${totalKasir}">0</div>
-                            <span class="stat-helper">Pengguna role kasir</span>
+                            <span class="stat-label">Terjual Hari Ini</span>
+                            <div class="stat-value" th:text="${totalProdukTerjualHariIni}">0</div>
+                            <span class="stat-helper">Unit barang</span>
                         </div>
                     </div>
 
                     <div class="stat-card">
-                        <div class="stat-icon-wrap amber">
-                            <i class="bi bi-receipt"></i>
+                        <div class="stat-icon-wrap natural-earth">
+                            <i class="bi bi-exclamation-triangle"></i>
                         </div>
                         <div class="stat-info">
-                            <span class="stat-label">Total Transaksi</span>
-                            <div class="stat-value" th:text="${totalTransaksi}">0</div>
-                            <span class="stat-helper">Pesanan selesai</span>
+                            <span class="stat-label">Stok Menipis</span>
+                            <div class="stat-value" th:text="${produkStokMenipis.size()}">0</div>
+                            <span class="stat-helper">Sisa &le; 5 unit</span>
                         </div>
                     </div>
                 </div>
@@ -149,11 +137,11 @@
                                 <tbody>
                                     <tr th:each="trx : ${transaksiTerbaru}">
                                         <td class="font-mono text-mint" th:text="'#' + ${trx.id}">#1</td>
-                                        <td th:text="${#temporals.format(trx.tanggal, 'dd MMM yyyy HH:mm')}">20 Okt 2026
+                                        <td th:text="${#temporals.format(trx.tanggalTransaksi, 'dd MMM yyyy HH:mm')}">20 Okt 2026
                                         </td>
                                         <td>
                                             <span class="badge-subtle"
-                                                th:text="${trx.user != null ? trx.user.username : 'Kasir'}">Kasir</span>
+                                                th:text="${trx.kasir != null ? trx.kasir.username : 'Kasir'}">Kasir</span>
                                         </td>
                                         <td class="fw-bold"
                                             th:text="'Rp ' + ${#numbers.formatDecimal(trx.total, 0, 'POINT', 0, 'COMMA')}">
@@ -196,9 +184,9 @@
                                         th:text="${item.category != null and item.category.icon != null and !item.category.icon.isEmpty() ? item.category.icon : '📦'}">
                                         📦</div>
                                     <div class="stock-product-info">
-                                        <div class="stock-product-name" th:text="${item.nama}">Nama Produk</div>
+                                        <div class="stock-product-name" th:text="${item.name}">Nama Produk</div>
                                         <div class="stock-product-cat"
-                                            th:text="${item.category != null ? item.category.nama : 'Umum'}">Kategori
+                                            th:text="${item.category != null ? item.category.name : 'Umum'}">Kategori
                                         </div>
                                     </div>
                                 </div>
@@ -207,9 +195,9 @@
                                         <i class="bi bi-exclamation-triangle-fill"></i>
                                         <span th:text="'Sisa ' + ${item.stok}">Sisa 0</span>
                                     </span>
-                                    <a th:href="@{/product/edit/{id}(id=${item.id})}" class="btn-restock">
+                                    <a th:href="@{/product}" class="btn-restock">
                                         <i class="bi bi-pencil-square"></i>
-                                        <span>Edit</span>
+                                        <span>Kelola</span>
                                     </a>
                                 </div>
                             </div>

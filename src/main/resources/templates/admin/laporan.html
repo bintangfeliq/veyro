@@ -22,31 +22,510 @@
 
         <div class="admin-main">
             <div
-                th:replace="~{admin/fragments :: header('Laporan Penjualan', 'Analisis performa omzet dan rangkuman penjualan')}">
+                th:replace="~{admin/fragments :: header('Laporan Penjualan', 'Analisis performa omzet, uang masuk cash/non-tunai, dan riwayat kategori')}">
             </div>
 
             <div class="admin-content">
-                <div class="content-card">
-                    <div class="card-header-clean">
-                        <div class="card-title-group">
-                            <h3 class="card-title">Ringkasan Laporan</h3>
-                            <p class="card-subtitle">Statistik transaksi penjualan berkala</p>
+                <div th:replace="~{admin/fragments :: notifikasi}"></div>
+
+                <div class="laporan-filter-card">
+                    <form th:action="@{/admin/laporan}" method="get" id="formFilterLaporan">
+                        <div class="filter-top-bar">
+                            <div class="filter-title-wrap">
+                                <div class="filter-icon-circle">
+                                    <i class="bi bi-calendar3"></i>
+                                </div>
+                                <div>
+                                    <h4 class="filter-card-heading">Filter Periode Laporan</h4>
+                                    <span class="filter-card-sub">Sesuaikan rentang waktu untuk memfilter seluruh omzet dan riwayat pembelian</span>
+                                </div>
+                            </div>
+                            <div class="filter-active-chip">
+                                <i class="bi bi-calendar-check text-mint"></i>
+                                <span th:text="${periodeLabel}">Semua Waktu</span>
+                            </div>
+                        </div>
+
+                        <div class="filter-controls-row">
+                            <div class="filter-field-box">
+                                <label for="tipeFilterSelect" class="filter-label">Tipe Periode</label>
+                                <div class="filter-input-wrap">
+                                    <i class="bi bi-funnel filter-input-icon"></i>
+                                    <select name="tipeFilter" id="tipeFilterSelect" class="filter-select">
+                                        <option value="semua" th:selected="${tipeFilter == 'semua'}">Semua Waktu</option>
+                                        <option value="bulan" th:selected="${tipeFilter == 'bulan'}">Pilih Bulan</option>
+                                        <option value="custom" th:selected="${tipeFilter == 'custom'}">Custom Rentang Tanggal</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div id="wrapFilterBulan" class="filter-month-wrapper filter-panel-dynamic" style="display: none;">
+                                <div class="filter-field-box">
+                                    <label for="inputBulan" class="filter-label">Bulan & Tahun</label>
+                                    <div class="filter-input-wrap">
+                                        <i class="bi bi-calendar-month filter-input-icon"></i>
+                                        <input type="month" name="bulan" id="inputBulan" class="filter-input filter-date-picker" th:value="${bulan}">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div id="wrapFilterCustom" class="filter-custom-wrapper filter-panel-dynamic" style="display: none;">
+                                <div class="filter-field-box">
+                                    <label for="inputTglMulai" class="filter-label">Dari Tanggal</label>
+                                    <div class="filter-input-wrap">
+                                        <i class="bi bi-calendar-event filter-input-icon"></i>
+                                        <input type="date" name="tanggalMulai" id="inputTglMulai" class="filter-input filter-date-picker" th:value="${tanggalMulai}">
+                                    </div>
+                                </div>
+
+                                <div class="filter-range-arrow">
+                                    <i class="bi bi-arrow-right"></i>
+                                </div>
+
+                                <div class="filter-field-box">
+                                    <label for="inputTglSelesai" class="filter-label">Sampai Tanggal</label>
+                                    <div class="filter-input-wrap">
+                                        <i class="bi bi-calendar-check filter-input-icon"></i>
+                                        <input type="date" name="tanggalSelesai" id="inputTglSelesai" class="filter-input filter-date-picker" th:value="${tanggalSelesai}">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="filter-actions-wrap">
+                                <button type="submit" class="btn-filter-apply">
+                                    <i class="bi bi-search"></i>
+                                    <span>Terapkan</span>
+                                </button>
+                                <a th:href="@{/admin/laporan}" class="btn-filter-reset" title="Kembalikan ke semua data">
+                                    <i class="bi bi-arrow-counterclockwise"></i>
+                                    <span>Reset</span>
+                                </a>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon-wrap natural-mint">
+                            <i class="bi bi-graph-up-arrow"></i>
+                        </div>
+                        <div class="stat-info">
+                            <span class="stat-label">Total Masuk</span>
+                            <div class="stat-value"
+                                th:text="'Rp ' + ${#numbers.formatDecimal(totalUangMasuk, 0, 'POINT', 0, 'COMMA')}">
+                                Rp 0
+                            </div>
+                            <span class="stat-helper">Semua metode</span>
                         </div>
                     </div>
 
-                    <div class="empty-state">
-                        <div class="empty-icon text-mint"><i class="bi bi-bar-chart-line"></i></div>
-                        <div class="empty-title">Modul Laporan Penjualan</div>
-                        <div class="empty-subtitle">Fitur rekapitulasi harian, bulanan, dan ekspor data akan aktif di
-                            tahap selanjutnya.</div>
+                    <div class="stat-card">
+                        <div class="stat-icon-wrap natural-forest">
+                            <i class="bi bi-cash-stack"></i>
+                        </div>
+                        <div class="stat-info">
+                            <span class="stat-label">Masuk Tunai</span>
+                            <div class="stat-value"
+                                th:text="'Rp ' + ${#numbers.formatDecimal(totalCash, 0, 'POINT', 0, 'COMMA')}">
+                                Rp 0
+                            </div>
+                            <span class="stat-helper">Pembayaran cash</span>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon-wrap natural-slate">
+                            <i class="bi bi-qr-code"></i>
+                        </div>
+                        <div class="stat-info">
+                            <span class="stat-label">Masuk Non-Tunai</span>
+                            <div class="stat-value"
+                                th:text="'Rp ' + ${#numbers.formatDecimal(totalQrisTransfer, 0, 'POINT', 0, 'COMMA')}">
+                                Rp 0
+                            </div>
+                            <span class="stat-helper">QRIS & transfer</span>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon-wrap natural-earth">
+                            <i class="bi bi-receipt-cutoff"></i>
+                        </div>
+                        <div class="stat-info">
+                            <span class="stat-label">Total Transaksi</span>
+                            <div class="stat-value" th:text="${totalTransaksi}">0</div>
+                            <span class="stat-helper">Pesanan selesai</span>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon-wrap natural-mint">
+                            <i class="bi bi-bag-check"></i>
+                        </div>
+                        <div class="stat-info">
+                            <span class="stat-label">Terjual Hari Ini</span>
+                            <div class="stat-value" th:text="${totalProdukTerjualHariIni}">0</div>
+                            <span class="stat-helper">Unit barang</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="split-grid" style="margin-bottom: 24px;">
+                    <div class="content-card">
+                        <div class="card-header-clean">
+                            <div class="card-title-group">
+                                <h3 class="card-title">Riwayat Pembelian per Kategori</h3>
+                                <p class="card-subtitle">Grafik donat persentase omzet penjualan berdasarkan kelompok produk</p>
+                            </div>
+                        </div>
+
+                        <div th:if="${#lists.isEmpty(kategoriStats)}" class="empty-state">
+                            <img th:src="@{/images/transaksikosong.png}" src="/images/transaksikosong.png"
+                                alt="Belum Ada Transaksi" class="empty-img">
+                            <div class="empty-title">Belum Ada Pembelian</div>
+                            <div class="empty-subtitle">Tidak ada transaksi yang tercatat pada periode ini.</div>
+                        </div>
+
+                        <div th:if="${!#lists.isEmpty(kategoriStats)}" class="donut-chart-box">
+                            <canvas id="kategoriDonutChart"
+                                th:data-labels="${chartLabelsJson}"
+                                th:data-nominal="${chartDataNominalJson}"
+                                th:data-jumlah="${chartDataJumlahJson}"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="content-card">
+                        <div class="card-header-clean">
+                            <div class="card-title-group">
+                                <h3 class="card-title">Rincian Omzet Kategori</h3>
+                                <p class="card-subtitle">Kuantitas dan nominal penjualan per kategori</p>
+                            </div>
+                        </div>
+
+                        <div th:if="${#lists.isEmpty(kategoriStats)}" class="empty-state">
+                            <div class="empty-title">Tidak Ada Data</div>
+                            <div class="empty-subtitle">Kategori akan terdaftar setelah ada transaksi.</div>
+                        </div>
+
+                        <div th:if="${!#lists.isEmpty(kategoriStats)}" class="cat-breakdown-list">
+                            <div th:each="cat : ${kategoriStats}" class="cat-breakdown-item">
+                                <div class="cat-breakdown-top">
+                                    <div class="cat-breakdown-info">
+                                        <div class="cat-breakdown-emoji" th:text="${cat.icon}">📦</div>
+                                        <div>
+                                            <div class="cat-breakdown-name" th:text="${cat.nama}">Kategori</div>
+                                            <div class="cat-breakdown-qty" th:text="${cat.totalItem} + ' unit terjual'">0 unit terjual</div>
+                                        </div>
+                                    </div>
+                                    <div class="cat-breakdown-values">
+                                        <div class="cat-breakdown-nominal"
+                                            th:text="'Rp ' + ${#numbers.formatDecimal(cat.totalNominal, 0, 'POINT', 0, 'COMMA')}">Rp 0</div>
+                                        <div class="cat-breakdown-percent" th:text="${cat.persentase} + '%'">0%</div>
+                                    </div>
+                                </div>
+                                <div class="cat-progress-track">
+                                    <div class="cat-progress-bar" th:style="'width: ' + ${cat.persentase} + '%;'"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="content-card">
+                    <div class="card-header-clean">
+                        <div class="card-title-group">
+                            <h3 class="card-title">Daftar Seluruh Riwayat Pembelian</h3>
+                            <p class="card-subtitle">Riwayat pembelian pelanggan (15 data per halaman)</p>
+                        </div>
+                    </div>
+
+                    <div th:if="${#lists.isEmpty(daftarTransaksi)}" class="empty-state">
+                        <img th:src="@{/images/transaksikosong.png}" src="/images/transaksikosong.png"
+                            alt="Belum Ada Transaksi" class="empty-img">
+                        <div class="empty-title">Tidak Ada Transaksi</div>
+                        <div class="empty-subtitle">Transaksi yang sesuai dengan filter periode akan tampil di sini.</div>
+                    </div>
+
+                    <div th:if="${!#lists.isEmpty(daftarTransaksi)}" class="table-responsive">
+                        <table class="veyro-table">
+                            <thead>
+                                <tr>
+                                    <th style="width: 50px;">No</th>
+                                    <th>Kode Transaksi</th>
+                                    <th>Waktu Transaksi</th>
+                                    <th>Kasir</th>
+                                    <th>Metode Pembayaran</th>
+                                    <th>Total Pembayaran</th>
+                                    <th style="width: 90px; text-align: center;">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="trx, iter : ${daftarTransaksi}">
+                                    <td class="text-muted" th:text="${(currentPage - 1) * 15 + iter.count}">1</td>
+                                    <td class="font-mono text-mint" th:text="${trx.kodeTransaksi != null ? trx.kodeTransaksi : '#' + trx.id}">#TRX001</td>
+                                    <td th:text="${#temporals.format(trx.tanggalTransaksi, 'dd MMM yyyy HH:mm')}">20 Okt 2026 14:30</td>
+                                    <td>
+                                        <span class="badge-subtle"
+                                            th:text="${trx.kasir != null ? trx.kasir.username : 'Kasir'}">Kasir</span>
+                                    </td>
+                                    <td>
+                                        <span class="badge-status"
+                                            th:classappend="${trx.metodePembayaran != null and (#strings.containsIgnoreCase(trx.metodePembayaran, 'tunai') or #strings.containsIgnoreCase(trx.metodePembayaran, 'cash')) ? 'success' : 'info'}">
+                                            <i class="bi"
+                                                th:classappend="${trx.metodePembayaran != null and (#strings.containsIgnoreCase(trx.metodePembayaran, 'tunai') or #strings.containsIgnoreCase(trx.metodePembayaran, 'cash')) ? 'bi-cash' : 'bi-qr-code'}"></i>
+                                            <span th:text="${trx.metodePembayaran != null ? trx.metodePembayaran : 'Tunai'}">Tunai</span>
+                                        </span>
+                                    </td>
+                                    <td class="fw-bold"
+                                        th:text="'Rp ' + ${#numbers.formatDecimal(trx.total, 0, 'POINT', 0, 'COMMA')}">
+                                        Rp 0</td>
+                                    <td style="text-align: center;">
+                                        <button type="button" class="btn-restock" data-bs-toggle="modal"
+                                            th:data-bs-target="'#modalDetail_' + ${trx.id}" style="padding: 5px 12px; font-size: 12px;">
+                                            <i class="bi bi-eye"></i>
+                                            <span>Detail</span>
+                                        </button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div th:if="${totalPages > 1}" class="veyro-pagination-wrapper">
+                        <div class="pagination-info">
+                            Menampilkan <span th:text="${(currentPage - 1) * 15 + 1}">1</span> -
+                            <span th:text="${(currentPage - 1) * 15 + #lists.size(daftarTransaksi)}">15</span>
+                            dari <span th:text="${totalItems}">30</span> riwayat pembelian
+                        </div>
+                        <ul class="veyro-pagination">
+                            <li class="page-item" th:classappend="${currentPage <= 1} ? 'disabled' : ''">
+                                <a class="page-link"
+                                    th:href="@{/admin/laporan(page=${currentPage - 1}, tipeFilter=${tipeFilter}, bulan=${bulan}, tanggalMulai=${tanggalMulai}, tanggalSelesai=${tanggalSelesai})}">
+                                    <i class="bi bi-chevron-left me-1"></i>Previous
+                                </a>
+                            </li>
+                            <li th:each="p : ${#numbers.sequence(1, totalPages)}" class="page-item"
+                                th:classappend="${p == currentPage} ? 'active' : ''">
+                                <a class="page-link"
+                                    th:href="@{/admin/laporan(page=${p}, tipeFilter=${tipeFilter}, bulan=${bulan}, tanggalMulai=${tanggalMulai}, tanggalSelesai=${tanggalSelesai})}"
+                                    th:text="${p}">1</a>
+                            </li>
+                            <li class="page-item" th:classappend="${currentPage >= totalPages} ? 'disabled' : ''">
+                                <a class="page-link"
+                                    th:href="@{/admin/laporan(page=${currentPage + 1}, tipeFilter=${tipeFilter}, bulan=${bulan}, tanggalMulai=${tanggalMulai}, tanggalSelesai=${tanggalSelesai})}">
+                                    Next<i class="bi bi-chevron-right ms-1"></i>
+                                </a>
+                            </li>
+                        </ul>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
+    <th:block th:each="trx : ${daftarTransaksi}">
+        <div class="modal fade" th:id="'modalDetail_' + ${trx.id}" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-lg">
+                <div class="modal-content" style="border-radius: 12px; border: 1px solid var(--veyro-border);">
+                    <div class="modal-header" style="border-bottom: 1px solid var(--veyro-border-light); padding: 18px 24px;">
+                        <div class="d-flex align-items-center gap-2">
+                            <div class="stat-icon-wrap mint" style="width: 36px; height: 36px; font-size: 16px;">
+                                <i class="bi bi-receipt"></i>
+                            </div>
+                            <div>
+                                <h5 class="modal-title fw-bold mb-0" style="font-size: 16px;">
+                                    Detail Transaksi <span class="font-mono text-mint" th:text="${trx.kodeTransaksi != null ? trx.kodeTransaksi : '#' + trx.id}">#TRX001</span>
+                                </h5>
+                                <span class="text-muted" style="font-size: 12px;" th:text="${#temporals.format(trx.tanggalTransaksi, 'dd MMMM yyyy HH:mm:ss')}">Tanggal</span>
+                            </div>
+                        </div>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body" style="padding: 24px;">
+                        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 20px; background: #f8fafc; border: 1px solid var(--veyro-border-light); border-radius: 10px; padding: 14px;">
+                            <div>
+                                <span class="text-muted d-block" style="font-size: 12px;">Kasir Bertugas</span>
+                                <span class="fw-semibold" style="font-size: 13.5px;" th:text="${trx.kasir != null ? trx.kasir.username : 'Kasir'}">Kasir</span>
+                            </div>
+                            <div>
+                                <span class="text-muted d-block" style="font-size: 12px;">Metode Pembayaran</span>
+                                <span class="badge-status"
+                                    th:classappend="${trx.metodePembayaran != null and (#strings.containsIgnoreCase(trx.metodePembayaran, 'tunai') or #strings.containsIgnoreCase(trx.metodePembayaran, 'cash')) ? 'success' : 'info'}"
+                                    th:text="${trx.metodePembayaran != null ? trx.metodePembayaran : 'Tunai'}">Tunai</span>
+                            </div>
+                            <div>
+                                <span class="text-muted d-block" style="font-size: 12px;">Total Transaksi</span>
+                                <span class="fw-bold text-mint" style="font-size: 15px;"
+                                    th:text="'Rp ' + ${#numbers.formatDecimal(trx.total, 0, 'POINT', 0, 'COMMA')}">Rp 0</span>
+                            </div>
+                        </div>
+
+                        <h6 class="fw-bold mb-2" style="font-size: 13.5px;">Daftar Item Pembelian</h6>
+                        <div class="table-responsive" style="border: 1px solid var(--veyro-border-light); border-radius: 10px; overflow: hidden;">
+                            <table class="veyro-table mb-0" style="font-size: 13px;">
+                                <thead>
+                                    <tr style="background: #f8fafc;">
+                                        <th>Produk</th>
+                                        <th>Kategori</th>
+                                        <th style="text-align: right;">Harga</th>
+                                        <th style="text-align: center;">Jumlah</th>
+                                        <th style="text-align: right;">Subtotal</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr th:if="${detailsPerTransaksi.get(trx.id) == null or #lists.isEmpty(detailsPerTransaksi.get(trx.id))}">
+                                        <td colspan="5" class="text-center py-3 text-muted">Item transaksi tidak ditemukan</td>
+                                    </tr>
+                                    <tr th:each="d : ${detailsPerTransaksi.get(trx.id)}">
+                                        <td>
+                                            <span class="fw-semibold" th:text="${d.produk != null ? d.produk.name : 'Produk'}">Nama Produk</span>
+                                        </td>
+                                        <td>
+                                            <span class="badge-subtle">
+                                                <span th:text="${d.produk != null and d.produk.category != null and d.produk.category.icon != null ? d.produk.category.icon : '📦'}">📦</span>
+                                                <span th:text="${d.produk != null and d.produk.category != null ? d.produk.category.name : 'Umum'}">Kategori</span>
+                                            </span>
+                                        </td>
+                                        <td style="text-align: right;"
+                                            th:text="'Rp ' + ${#numbers.formatDecimal(d.harga, 0, 'POINT', 0, 'COMMA')}">Rp 0</td>
+                                        <td style="text-align: center;" class="fw-bold" th:text="${d.jumlah}">1</td>
+                                        <td style="text-align: right;" class="fw-bold"
+                                            th:text="'Rp ' + ${#numbers.formatDecimal(d.subtotal, 0, 'POINT', 0, 'COMMA')}">Rp 0</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div style="display: flex; justify-content: flex-end; margin-top: 16px;">
+                            <div style="width: 280px; background: #f8fafc; border: 1px solid var(--veyro-border-light); border-radius: 10px; padding: 14px; font-size: 13px;">
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span class="text-muted">Total Tagihan:</span>
+                                    <span class="fw-bold" th:text="'Rp ' + ${#numbers.formatDecimal(trx.total, 0, 'POINT', 0, 'COMMA')}">Rp 0</span>
+                                </div>
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span class="text-muted">Dibayarkan:</span>
+                                    <span class="fw-semibold" th:text="${trx.pembayaran != null ? 'Rp ' + #numbers.formatDecimal(trx.pembayaran, 0, 'POINT', 0, 'COMMA') : '-'}">-</span>
+                                </div>
+                                <div class="d-flex justify-content-between pt-2" style="border-top: 1px dashed var(--veyro-border-light);">
+                                    <span class="text-muted">Kembalian:</span>
+                                    <span class="fw-bold text-mint" th:text="${trx.kembalian != null ? 'Rp ' + #numbers.formatDecimal(trx.kembalian, 0, 'POINT', 0, 'COMMA') : 'Rp 0'}">Rp 0</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer" style="border-top: 1px solid var(--veyro-border-light); padding: 14px 24px;">
+                        <button type="button" class="btn btn-light" data-bs-dismiss="modal" style="border-radius: 8px; font-size: 13px;">Tutup</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </th:block>
+
     <th:block th:replace="~{admin/fragments :: scripts}"></th:block>
 
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const tipeFilterSelect = document.getElementById('tipeFilterSelect');
+            const wrapFilterBulan = document.getElementById('wrapFilterBulan');
+            const wrapFilterCustom = document.getElementById('wrapFilterCustom');
+
+            function sesuaikanFilterInput() {
+                if (!tipeFilterSelect) return;
+                const val = tipeFilterSelect.value;
+                if (val === 'bulan') {
+                    if (wrapFilterBulan) wrapFilterBulan.style.display = 'flex';
+                    if (wrapFilterCustom) wrapFilterCustom.style.display = 'none';
+                } else if (val === 'custom') {
+                    if (wrapFilterBulan) wrapFilterBulan.style.display = 'none';
+                    if (wrapFilterCustom) wrapFilterCustom.style.display = 'flex';
+                } else {
+                    if (wrapFilterBulan) wrapFilterBulan.style.display = 'none';
+                    if (wrapFilterCustom) wrapFilterCustom.style.display = 'none';
+                }
+            }
+
+            if (tipeFilterSelect) {
+                tipeFilterSelect.addEventListener('change', sesuaikanFilterInput);
+                sesuaikanFilterInput();
+            }
+
+            const chartCanvas = document.getElementById('kategoriDonutChart');
+            if (chartCanvas) {
+                const rawLabels = chartCanvas.getAttribute('data-labels') || '[]';
+                const rawNominal = chartCanvas.getAttribute('data-nominal') || '[]';
+                const rawJumlah = chartCanvas.getAttribute('data-jumlah') || '[]';
+
+                let labels = [];
+                let dataNominal = [];
+                let dataJumlah = [];
+
+                try {
+                    labels = JSON.parse(rawLabels);
+                    dataNominal = JSON.parse(rawNominal);
+                    dataJumlah = JSON.parse(rawJumlah);
+                } catch (e) {
+                }
+
+                if (labels.length > 0) {
+                    const palette = [
+                        '#65E6AD', '#2d6a4f', '#64748b', '#b48c5a',
+                        '#14b8a6', '#78542c', '#475569', '#15803d'
+                    ];
+
+                    new Chart(chartCanvas, {
+                        type: 'doughnut',
+                        data: {
+                            labels: labels,
+                            datasets: [{
+                                data: dataNominal,
+                                backgroundColor: palette.slice(0, labels.length),
+                                borderColor: '#ffffff',
+                                borderWidth: 2,
+                                hoverOffset: 6
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: {
+                                    position: 'bottom',
+                                    labels: {
+                                        boxWidth: 12,
+                                        padding: 14,
+                                        font: {
+                                            family: 'Inter',
+                                            size: 11.5,
+                                            weight: '600'
+                                        },
+                                        color: '#0f172a'
+                                    }
+                                },
+                                tooltip: {
+                                    callbacks: {
+                                        label: function (ctx) {
+                                            const idx = ctx.dataIndex;
+                                            const val = ctx.raw || 0;
+                                            const formatted = new Intl.NumberFormat('id-ID', {
+                                                style: 'currency',
+                                                currency: 'IDR',
+                                                maximumFractionDigits: 0
+                                            }).format(val);
+                                            const jml = dataJumlah[idx] || 0;
+                                            return ctx.label + ': ' + formatted + ' (' + jml + ' pcs)';
+                                        }
+                                    }
+                                }
+                            },
+                            cutout: '68%'
+                        }
+                    });
+                }
+            }
+        });
+    </script>
 </body>
 
 </html>

@@ -16,4 +16,9 @@ public class Category {
     private Long id;
     private String name;
     private String icon;
+
+    public String getNama() {
+        return name;
+    }
 }
+

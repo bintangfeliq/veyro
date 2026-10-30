@@ -2,12 +2,15 @@ package com.example.veyro.service;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -104,6 +107,38 @@ public class TransaksiService {
 
     public List<Transaksi> semuaTransaksi() {
         return transaksiRepository.findAll();
+    }
+
+    public Page<Transaksi> cariSemuaTransaksiPage(Pageable pageable) {
+        return transaksiRepository.findAll(pageable);
+    }
+
+    public Page<Transaksi> cariTransaksiFilterPage(LocalDateTime start, LocalDateTime end, Pageable pageable) {
+        return transaksiRepository.findByTanggalTransaksiBetween(start, end, pageable);
+    }
+
+    public List<Transaksi> cariSemuaTransaksiTerbaru() {
+        return transaksiRepository.findAllByOrderByTanggalTransaksiDesc();
+    }
+
+    public List<Transaksi> cariTransaksiFilterList(LocalDateTime start, LocalDateTime end) {
+        return transaksiRepository.findByTanggalTransaksiBetweenOrderByTanggalTransaksiDesc(start, end);
+    }
+
+    @Transactional(readOnly = true)
+    public List<DetailTransaksi> cariDetailByTransaksiIn(List<Transaksi> transaksiList) {
+        if (transaksiList == null || transaksiList.isEmpty()) {
+            return new ArrayList<>();
+        }
+        return detailTransaksiRepository.findByTransaksiIn(transaksiList);
+    }
+
+    @Transactional(readOnly = true)
+    public List<DetailTransaksi> cariDetailByTransaksi(Transaksi transaksi) {
+        if (transaksi == null) {
+            return new ArrayList<>();
+        }
+        return detailTransaksiRepository.findByTransaksi(transaksi);
     }
 
     public Optional<Transaksi> cariById(Long id) {

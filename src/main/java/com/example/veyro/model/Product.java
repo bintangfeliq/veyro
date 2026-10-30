@@ -9,18 +9,24 @@ import jakarta.persistence.ManyToOne;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@Entity 
-@Data 
-@NoArgsConstructor 
+@Entity
+@Data
+@NoArgsConstructor
 public class Product {
-    @Id 
+    @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;  
+    private Long id;
     private String code;
     private String name;
     private BigDecimal price;
     private Integer stok;
+    private String fotoProduk;
 
-    @ManyToOne 
-    private Category category;  
+    @ManyToOne
+    private Category category;
+
+    public String getNama() {
+        return name;
+    }
 }
+

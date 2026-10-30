@@ -54,11 +54,11 @@
                             <tbody>
                                 <tr th:each="trx : ${semuaTransaksi}">
                                     <td class="font-mono text-mint" th:text="${trx.id}">1</td>
-                                    <td th:text="${#temporals.format(trx.tanggal, 'dd MMM yyyy HH:mm')}">20 Okt 2026
+                                    <td th:text="${#temporals.format(trx.tanggalTransaksi, 'dd MMM yyyy HH:mm')}">20 Okt 2026
                                     </td>
                                     <td>
                                         <span class="badge-subtle"
-                                            th:text="${trx.user != null ? trx.user.username : 'Kasir'}">Kasir</span>
+                                            th:text="${trx.kasir != null ? trx.kasir.username : 'Kasir'}">Kasir</span>
                                     </td>
                                     <td class="fw-bold"
                                         th:text="'Rp ' + ${#numbers.formatDecimal(trx.total, 0, 'POINT', 0, 'COMMA')}">

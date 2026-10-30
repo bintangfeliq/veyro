@@ -26,19 +26,7 @@
             </div>
 
             <div class="admin-content">
-                <div th:if="${pesanSukses}" class="alert alert-success alert-dismissible fade show" role="alert"
-                    style="border-radius: 12px; margin-bottom: 20px;">
-                    <i class="bi bi-check-circle-fill me-2"></i>
-                    <span th:text="${pesanSukses}">Sukses</span>
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>
-
-                <div th:if="${pesanError}" class="alert alert-danger alert-dismissible fade show" role="alert"
-                    style="border-radius: 12px; margin-bottom: 20px;">
-                    <i class="bi bi-exclamation-triangle-fill me-2"></i>
-                    <span th:text="${pesanError}">Gagal</span>
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>
+                <div th:replace="~{admin/fragments :: notifikasi}"></div>
 
                 <div class="cat-stats-row">
                     <div class="cat-stat-card">
@@ -145,7 +133,7 @@
 
     <div class="modal fade" id="modalTambahKategori" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content" style="border-radius: 16px; border: 1px solid var(--veyro-border);">
+            <div class="modal-content" style="border-radius: 10px; border: 1px solid var(--veyro-border);">
                 <div class="modal-header"
                     style="border-bottom: 1px solid var(--veyro-border-light); padding: 18px 24px;">
                     <h5 class="modal-title fw-bold" style="font-size: 16px;">
@@ -244,7 +232,7 @@
 
     <div class="modal fade" id="modalEditKategori" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content" style="border-radius: 16px; border: 1px solid var(--veyro-border);">
+            <div class="modal-content" style="border-radius: 10px; border: 1px solid var(--veyro-border);">
                 <div class="modal-header"
                     style="border-bottom: 1px solid var(--veyro-border-light); padding: 18px 24px;">
                     <h5 class="modal-title fw-bold" style="font-size: 16px;">

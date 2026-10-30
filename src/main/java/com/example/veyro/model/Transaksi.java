@@ -29,6 +29,14 @@ public class Transaksi {
     private User kasir;
 
     public void setBayar(BigDecimal bayar) {
-        throw new UnsupportedOperationException("Unimplemented method 'setBayar'");
+        this.pembayaran = bayar;
+    }
+
+    public LocalDateTime getTanggal() {
+        return tanggalTransaksi;
+    }
+
+    public User getUser() {
+        return kasir;
     }
 }

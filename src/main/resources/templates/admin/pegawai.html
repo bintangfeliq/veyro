@@ -24,19 +24,7 @@
             <div th:replace="~{admin/fragments :: header('Kelola Kasir', 'Manajemen akun kasir dan staf toko')}"></div>
 
             <div class="admin-content">
-                <div th:if="${pesanSukses}" class="alert alert-success alert-dismissible fade show" role="alert"
-                    style="border-radius: 12px; margin-bottom: 20px;">
-                    <i class="bi bi-check-circle-fill me-2"></i>
-                    <span th:text="${pesanSukses}">Sukses</span>
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>
-
-                <div th:if="${pesanError}" class="alert alert-danger alert-dismissible fade show" role="alert"
-                    style="border-radius: 12px; margin-bottom: 20px;">
-                    <i class="bi bi-exclamation-triangle-fill me-2"></i>
-                    <span th:text="${pesanError}">Gagal</span>
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>
+                <div th:replace="~{admin/fragments :: notifikasi}"></div>
 
                 <div class="content-card">
                     <div class="card-header-clean">
@@ -135,7 +123,7 @@
 
     <div class="modal fade" id="modalTambahKasir" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content" style="border-radius: 16px; border: 1px solid var(--veyro-border);">
+            <div class="modal-content" style="border-radius: 10px; border: 1px solid var(--veyro-border);">
                 <div class="modal-header" style="border-bottom: 1px solid var(--veyro-border-light); padding: 18px 24px;">
                     <h5 class="modal-title fw-bold" style="font-size: 16px;">
                         <i class="bi bi-person-plus me-2" style="color: var(--veyro-sidebar-green);"></i>Tambah Kasir Baru
@@ -187,7 +175,7 @@
     <th:block th:each="user : ${semuaUser}">
         <div class="modal fade" th:id="'modalLihatKasir_' + ${user.id}" tabindex="-1" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered">
-                <div class="modal-content" style="border-radius: 16px; border: 1px solid var(--veyro-border);">
+                <div class="modal-content" style="border-radius: 10px; border: 1px solid var(--veyro-border);">
                     <div class="modal-header" style="border-bottom: 1px solid var(--veyro-border-light); padding: 18px 24px;">
                         <h5 class="modal-title fw-bold" style="font-size: 16px;">
                             <i class="bi bi-person-badge me-2" style="color: var(--veyro-sidebar-green);"></i>Detail Akun Kasir
@@ -206,7 +194,7 @@
                         <h5 class="fw-bold mb-1" th:text="${user.name != null && !user.name.isBlank() ? user.name : user.username}">Nama Kasir</h5>
                         <p class="text-muted mb-3" style="font-size: 13px;" th:text="'@' + ${user.username}">@kasir</p>
 
-                        <div style="background: #f8fafc; border: 1px solid var(--veyro-border); border-radius: 12px; padding: 14px 18px; text-align: left; display: flex; flex-direction: column; gap: 10px;">
+                        <div style="background: #f8fafc; border: 1px solid var(--veyro-border); border-radius: 8px; padding: 14px 18px; text-align: left; display: flex; flex-direction: column; gap: 10px;">
                             <div style="display: flex; justify-content: space-between; align-items: center; font-size: 13px;">
                                 <span class="text-muted">ID Kasir</span>
                                 <span class="fw-semibold font-mono" th:text="'#' + ${user.id}">#1</span>
@@ -245,7 +233,7 @@
 
         <div class="modal fade" th:id="'modalEditKasir_' + ${user.id}" tabindex="-1" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered">
-                <div class="modal-content" style="border-radius: 16px; border: 1px solid var(--veyro-border);">
+                <div class="modal-content" style="border-radius: 10px; border: 1px solid var(--veyro-border);">
                     <div class="modal-header" style="border-bottom: 1px solid var(--veyro-border-light); padding: 18px 24px;">
                         <h5 class="modal-title fw-bold" style="font-size: 16px;">
                             <i class="bi bi-pencil-square me-2" style="color: var(--veyro-sidebar-green);"></i>Update Akun Kasir
@@ -255,7 +243,7 @@
                     <form th:action="@{/admin/pegawai/update}" method="post" enctype="multipart/form-data">
                         <input type="hidden" name="id" th:value="${user.id}">
                         <div class="modal-body" style="padding: 24px;">
-                            <div style="display: flex; align-items: center; gap: 14px; margin-bottom: 20px; padding: 12px; background: #f8fafc; border-radius: 10px; border: 1px solid var(--veyro-border);">
+                            <div style="display: flex; align-items: center; gap: 14px; margin-bottom: 20px; padding: 12px; background: #f8fafc; border-radius: 8px; border: 1px solid var(--veyro-border);">
                                 <div style="width: 52px; height: 52px; border-radius: 50%; overflow: hidden; background: var(--veyro-sidebar-green); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
                                     <img th:if="${user.foto != null && !user.foto.isEmpty()}"
                                         th:src="@{'/uploads/profil/' + ${user.foto}}"

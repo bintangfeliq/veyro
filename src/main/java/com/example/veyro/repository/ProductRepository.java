@@ -11,4 +11,6 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     Optional<Product> findByCodeIgnoreCaseAndIdNot(String code, Long id);
 
     boolean existsByCategoryId(Long categoryId);
+
+    long countByFotoProduk(String fotoProduk);
 }
