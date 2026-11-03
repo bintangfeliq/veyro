@@ -26,6 +26,7 @@ import jakarta.servlet.http.HttpSession;
 
 @Controller
 @RequestMapping("/admin")
+@SuppressWarnings("null")
 public class PegawaiController {
 
     private final UserService userService;
@@ -46,36 +47,26 @@ public class PegawaiController {
                 kasir.add(user);
             }
         }
-
         model.addAttribute("semuaUser", kasir);
-        model.addAttribute("semuaKasir", kasir);
         model.addAttribute("currentUser", session.getAttribute("user"));
         model.addAttribute("activeMenu", "pegawai");
         return "admin/pegawai";
     }
 
     @PostMapping("/pegawai/simpan")
-    public String simpanKasir(@RequestParam String name,
-            @RequestParam String username,
-            @RequestParam String password,
+    public String simpanKasir(@RequestParam String name, @RequestParam String username, @RequestParam String password,
             @RequestParam(value = "foto", required = false) MultipartFile foto,
-            HttpSession session,
-            RedirectAttributes redirect) {
+            HttpSession session, RedirectAttributes redirect) {
         if (bukanAdmin(session)) {
             return "redirect:/login";
         }
-
-        if (name == null || name.isBlank() || username == null || username.isBlank() || password == null || password.isBlank()) {
-            redirect.addFlashAttribute("pesanError", "Nama, username, dan password wajib diisi.");
-            return "redirect:/admin/pegawai";
+        if (name.isBlank() || username.isBlank() || password.isBlank()) {
+            return kembaliPegawai(redirect, "pesanError", "Nama, username, dan password wajib diisi.");
         }
-
         String usernameClean = username.trim();
         if (usernameSudahAda(usernameClean, null)) {
-            redirect.addFlashAttribute("pesanError", "Username sudah digunakan oleh akun lain.");
-            return "redirect:/admin/pegawai";
+            return kembaliPegawai(redirect, "pesanError", "Username sudah digunakan oleh akun lain.");
         }
-
         String namaFoto = simpanFileFoto(foto, redirect);
         if ("".equals(namaFoto)) {
             return "redirect:/admin/pegawai";
@@ -89,53 +80,40 @@ public class PegawaiController {
         baru.setFoto(namaFoto);
         userService.simpanUser(baru);
 
-        redirect.addFlashAttribute("pesanSukses", "Akun kasir baru berhasil ditambahkan.");
         redirect.addFlashAttribute("tipeNotif", "tambah");
-        return "redirect:/admin/pegawai";
+        return kembaliPegawai(redirect, "pesanSukses", "Akun kasir baru berhasil ditambahkan.");
     }
 
     @PostMapping("/pegawai/update")
-    public String updateKasir(@RequestParam Long id,
-            @RequestParam String name,
-            @RequestParam String username,
+    public String updateKasir(@RequestParam Long id, @RequestParam String name, @RequestParam String username,
             @RequestParam(value = "password", required = false) String password,
             @RequestParam(value = "foto", required = false) MultipartFile foto,
-            HttpSession session,
-            RedirectAttributes redirect) {
+            HttpSession session, RedirectAttributes redirect) {
         if (bukanAdmin(session)) {
             return "redirect:/login";
         }
-
         User kasir = cariKasir(id);
         if (kasir == null) {
-            redirect.addFlashAttribute("pesanError", "Akun kasir tidak ditemukan.");
-            return "redirect:/admin/pegawai";
+            return kembaliPegawai(redirect, "pesanError", "Akun kasir tidak ditemukan.");
         }
-
-        if (name == null || name.isBlank() || username == null || username.isBlank()) {
-            redirect.addFlashAttribute("pesanError", "Nama dan username tidak boleh kosong.");
-            return "redirect:/admin/pegawai";
+        if (name.isBlank() || username.isBlank()) {
+            return kembaliPegawai(redirect, "pesanError", "Nama dan username tidak boleh kosong.");
         }
-
         String usernameClean = username.trim();
         if (usernameSudahAda(usernameClean, id)) {
-            redirect.addFlashAttribute("pesanError", "Username sudah digunakan oleh akun lain.");
-            return "redirect:/admin/pegawai";
+            return kembaliPegawai(redirect, "pesanError", "Username sudah digunakan oleh akun lain.");
         }
-
         String fotoBaru = simpanFileFoto(foto, redirect);
         if ("".equals(fotoBaru)) {
             return "redirect:/admin/pegawai";
         }
-
         if (fotoBaru != null) {
             updateFotoUser(kasir, fotoBaru, session);
         }
 
         userService.updateKasir(id, name.trim(), usernameClean, password);
-        redirect.addFlashAttribute("pesanSukses", "Data kasir berhasil diperbarui.");
         redirect.addFlashAttribute("tipeNotif", "update");
-        return "redirect:/admin/pegawai";
+        return kembaliPegawai(redirect, "pesanSukses", "Data kasir berhasil diperbarui.");
     }
 
     @PostMapping("/pegawai/hapus/{id}")
@@ -143,104 +121,57 @@ public class PegawaiController {
         if (bukanAdmin(session)) {
             return "redirect:/login";
         }
-
         User kasir = cariKasir(id);
         if (kasir == null) {
-            redirect.addFlashAttribute("pesanError", "Akun kasir tidak ditemukan.");
-            return "redirect:/admin/pegawai";
+            return kembaliPegawai(redirect, "pesanError", "Akun kasir tidak ditemukan.");
         }
-
         try {
             String namaFoto = kasir.getFoto();
             userService.hapusUser(id);
             hapusFileFoto(namaFoto);
-            redirect.addFlashAttribute("pesanSukses", "Akun kasir berhasil dihapus.");
             redirect.addFlashAttribute("tipeNotif", "hapus");
+            return kembaliPegawai(redirect, "pesanSukses", "Akun kasir berhasil dihapus.");
         } catch (Exception e) {
-            redirect.addFlashAttribute("pesanError", "Akun kasir tidak dapat dihapus karena memiliki riwayat transaksi.");
+            return kembaliPegawai(redirect, "pesanError", "Akun kasir tidak dapat dihapus karena memiliki riwayat transaksi.");
         }
-        return "redirect:/admin/pegawai";
     }
 
     @PostMapping("/profil/foto")
     public String fotoAdmin(@RequestParam("foto") MultipartFile foto,
             @RequestParam(value = "redirectUrl", required = false) String redirectUrl,
-            HttpSession session,
-            RedirectAttributes redirect) {
-        if (bukanAdmin(session)) {
-            return "redirect:/login";
-        }
+            HttpSession session, RedirectAttributes redirect) {
         User admin = (User) session.getAttribute("user");
-        if (admin == null) {
+        if (bukanAdmin(session) || admin == null) {
             return "redirect:/login";
         }
-
         if (foto == null || foto.isEmpty()) {
             redirect.addFlashAttribute("pesanError", "Foto wajib diisi dan maksimal 2 MB.");
             return targetRedirect(redirectUrl);
         }
-
         String namaFoto = simpanFileFoto(foto, redirect);
-        if ("".equals(namaFoto)) {
-            return targetRedirect(redirectUrl);
+        if (!"".equals(namaFoto)) {
+            updateFotoUser(admin, namaFoto, session);
+            redirect.addFlashAttribute("pesanSukses", "Foto profil berhasil diperbarui.");
+            redirect.addFlashAttribute("tipeNotif", "update");
         }
-
-        updateFotoUser(admin, namaFoto, session);
-        redirect.addFlashAttribute("pesanSukses", "Foto profil berhasil diperbarui.");
-        redirect.addFlashAttribute("tipeNotif", "update");
         return targetRedirect(redirectUrl);
     }
 
     @PostMapping("/profil/foto/hapus")
-    public String hapusFotoAdmin(
-            @RequestParam(value = "redirectUrl", required = false) String redirectUrl,
-            HttpSession session,
-            RedirectAttributes redirect) {
-        if (bukanAdmin(session)) {
-            return "redirect:/login";
-        }
+    public String hapusFotoAdmin(@RequestParam(value = "redirectUrl", required = false) String redirectUrl,
+            HttpSession session, RedirectAttributes redirect) {
         User admin = (User) session.getAttribute("user");
-        if (admin == null) {
+        if (bukanAdmin(session) || admin == null) {
             return "redirect:/login";
         }
-
         if (admin.getFoto() == null || admin.getFoto().isBlank()) {
             redirect.addFlashAttribute("pesanError", "Tidak ada foto profil untuk dihapus.");
             return targetRedirect(redirectUrl);
         }
-
         updateFotoUser(admin, null, session);
         redirect.addFlashAttribute("pesanSukses", "Foto profil berhasil dihapus.");
         redirect.addFlashAttribute("tipeNotif", "hapus");
         return targetRedirect(redirectUrl);
-    }
-
-    @PostMapping("/pegawai/{id}/foto")
-    public String fotoKasir(@PathVariable Long id, @RequestParam("foto") MultipartFile foto, HttpSession session,
-            RedirectAttributes redirect) {
-        if (bukanAdmin(session)) {
-            return "redirect:/login";
-        }
-        User kasir = cariKasir(id);
-        if (kasir == null) {
-            redirect.addFlashAttribute("pesanError", "Akun kasir tidak ditemukan.");
-            return "redirect:/admin/pegawai";
-        }
-
-        if (foto == null || foto.isEmpty()) {
-            redirect.addFlashAttribute("pesanError", "Foto wajib diisi dan maksimal 2 MB.");
-            return "redirect:/admin/pegawai";
-        }
-
-        String namaFoto = simpanFileFoto(foto, redirect);
-        if ("".equals(namaFoto)) {
-            return "redirect:/admin/pegawai";
-        }
-
-        updateFotoUser(kasir, namaFoto, session);
-        redirect.addFlashAttribute("pesanSukses", "Foto profil berhasil diperbarui.");
-        redirect.addFlashAttribute("tipeNotif", "update");
-        return "redirect:/admin/pegawai";
     }
 
     @PostMapping("/pegawai/{id}/foto/hapus")
@@ -250,52 +181,37 @@ public class PegawaiController {
         }
         User kasir = cariKasir(id);
         if (kasir == null) {
-            redirect.addFlashAttribute("pesanError", "Akun kasir tidak ditemukan.");
-            return "redirect:/admin/pegawai";
+            return kembaliPegawai(redirect, "pesanError", "Akun kasir tidak ditemukan.");
         }
-
         if (kasir.getFoto() == null || kasir.getFoto().isBlank()) {
-            redirect.addFlashAttribute("pesanError", "Tidak ada foto profil untuk dihapus.");
-            return "redirect:/admin/pegawai";
+            return kembaliPegawai(redirect, "pesanError", "Tidak ada foto profil untuk dihapus.");
         }
-
         updateFotoUser(kasir, null, session);
-        redirect.addFlashAttribute("pesanSukses", "Foto profil berhasil dihapus.");
         redirect.addFlashAttribute("tipeNotif", "hapus");
-        return "redirect:/admin/pegawai";
+        return kembaliPegawai(redirect, "pesanSukses", "Foto profil berhasil dihapus.");
     }
 
     private boolean bukanAdmin(HttpSession session) {
-        return !"admin".equals(session.getAttribute("role"));
+        return !"admin".equalsIgnoreCase((String) session.getAttribute("role"));
+    }
+
+    private String kembaliPegawai(RedirectAttributes redirect, String kunci, String pesan) {
+        redirect.addFlashAttribute(kunci, pesan);
+        return "redirect:/admin/pegawai";
     }
 
     private User cariKasir(Long id) {
-        if (id == null) {
-            return null;
-        }
-        User user = userService.cariById(id).orElse(null);
-        if (user != null && "kasir".equalsIgnoreCase(user.getRole())) {
-            return user;
-        }
-        return null;
+        User user = id == null ? null : userService.cariById(id).orElse(null);
+        return user != null && "kasir".equalsIgnoreCase(user.getRole()) ? user : null;
     }
 
     private boolean usernameSudahAda(String username, Long excludeId) {
         User user = userService.cariByUsername(username).orElse(null);
-        if (user == null) {
-            return false;
-        }
-        if (excludeId != null && user.getId().equals(excludeId)) {
-            return false;
-        }
-        return true;
+        return user != null && !user.getId().equals(excludeId);
     }
 
     private String targetRedirect(String redirectUrl) {
-        if (redirectUrl != null && !redirectUrl.isBlank()) {
-            return "redirect:" + redirectUrl;
-        }
-        return "redirect:/admin/dashboard";
+        return redirectUrl != null && !redirectUrl.isBlank() ? "redirect:" + redirectUrl : "redirect:/admin/dashboard";
     }
 
     private String simpanFileFoto(MultipartFile foto, RedirectAttributes redirect) {
@@ -328,11 +244,12 @@ public class PegawaiController {
     }
 
     private void hapusFileFoto(String namaFoto) {
-        if (namaFoto != null && !namaFoto.isBlank()) {
-            try {
-                Files.deleteIfExists(folder.resolve(namaFoto).normalize());
-            } catch (IOException ignored) {
-            }
+        if (namaFoto == null || namaFoto.isBlank()) {
+            return;
+        }
+        try {
+            Files.deleteIfExists(folder.resolve(namaFoto).normalize());
+        } catch (IOException ignored) {
         }
     }
 

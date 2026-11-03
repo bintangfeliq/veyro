@@ -1,4 +1,3 @@
-
 package com.example.veyro.config;
 
 import java.nio.file.Path;
@@ -13,6 +12,15 @@ public class FotoProfilConfig implements WebMvcConfigurer {
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         String lokasi = Path.of("uploads").toAbsolutePath().normalize().toUri().toString();
-        registry.addResourceHandler("/uploads/**").addResourceLocations(lokasi.endsWith("/") ? lokasi : lokasi + "/");
+        registry.addResourceHandler("/uploads/**")
+                .addResourceLocations(lokasi.endsWith("/") ? lokasi : lokasi + "/");
+        registry.addResourceHandler("/css/**")
+                .addResourceLocations("classpath:/static/css/");
+        registry.addResourceHandler("/js/**")
+                .addResourceLocations("classpath:/static/js/");
+        registry.addResourceHandler("/images/**")
+                .addResourceLocations("classpath:/static/images/");
+        registry.addResourceHandler("/webjars/**")
+                .addResourceLocations("classpath:/META-INF/resources/webjars/");
     }
 }

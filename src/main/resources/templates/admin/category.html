@@ -28,41 +28,11 @@
             <div class="admin-content">
                 <div th:replace="~{admin/fragments :: notifikasi}"></div>
 
-                <div class="cat-stats-row">
-                    <div class="cat-stat-card">
-                        <div class="cat-stat-icon">
-                            <i class="bi bi-tags"></i>
-                        </div>
-                        <div>
-                            <div class="cat-stat-value" th:text="${#lists.size(semuaCategory)}">8</div>
-                            <div class="cat-stat-label">Total Kategori</div>
-                        </div>
-                    </div>
-                    <div class="cat-stat-card">
-                        <div class="cat-stat-icon" style="background: rgba(85, 214, 138, 0.15); color: #15803d;">
-                            <i class="bi bi-check2-circle"></i>
-                        </div>
-                        <div>
-                            <div class="cat-stat-value" th:text="${#lists.size(semuaCategory)}">8</div>
-                            <div class="cat-stat-label">Kategori Aktif</div>
-                        </div>
-                    </div>
-                    <div class="cat-stat-card">
-                        <div class="cat-stat-icon" style="background: rgba(2, 132, 199, 0.15); color: #0284c7;">
-                            <i class="bi bi-emoji-smile"></i>
-                        </div>
-                        <div>
-                            <div class="cat-stat-value">Unicode</div>
-                            <div class="cat-stat-label">Ikon Visual Emoji</div>
-                        </div>
-                    </div>
-                </div>
-
                 <div class="content-card">
                     <div class="card-header-clean">
                         <div class="card-title-group">
                             <h3 class="card-title">Daftar Kategori Produk</h3>
-                            <p class="card-subtitle">Semua kelompok produk yang tersedia untuk transaksi kasir POS</p>
+                            <p class="card-subtitle">Semua kategori Produk</p>
                         </div>
                         <button type="button" class="btn-banner btn-banner-primary" data-bs-toggle="modal"
                             data-bs-target="#modalTambahKategori">

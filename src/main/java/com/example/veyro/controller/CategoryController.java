@@ -16,6 +16,7 @@ import jakarta.servlet.http.HttpSession;
 
 @Controller
 @RequestMapping("/category")
+@SuppressWarnings("null")
 public class CategoryController {
 
     private final CategoryService categoryService;
@@ -26,7 +27,7 @@ public class CategoryController {
 
     @GetMapping
     public String halamanCategory(HttpSession session, Model model) {
-        if (!"admin".equals(session.getAttribute("role"))) {
+        if (bukanAdmin(session)) {
             return "redirect:/login";
         }
         model.addAttribute("semuaCategory", categoryService.semuaCategory());
@@ -36,87 +37,69 @@ public class CategoryController {
     }
 
     @PostMapping("/simpan")
-    public String simpanCategory(@RequestParam(required = false) String name,
-            @RequestParam(required = false) String icon, RedirectAttributes redirectAttributes, HttpSession session) {
-        if (!"admin".equals(session.getAttribute("role"))) {
+    public String simpanCategory(@RequestParam(required = false) String name, @RequestParam(required = false) String icon,
+            RedirectAttributes redirect, HttpSession session) {
+        if (bukanAdmin(session)) {
             return "redirect:/login";
         }
         if (name == null || name.isBlank()) {
-            redirectAttributes.addFlashAttribute("pesanError", "Nama kategori wajib diisi.");
-            return "redirect:/category";
+            return kembali(redirect, "pesanError", "Nama kategori wajib diisi.");
         }
-        name = name.trim();
-        if (categoryService.cariNamaCategory(name).isPresent()) {
-            redirectAttributes.addFlashAttribute("pesanError", "Nama kategori sudah tersedia.");
-            return "redirect:/category";
+        String namaBersih = name.trim();
+        if (categoryService.cariNamaCategory(namaBersih).isPresent()) {
+            return kembali(redirect, "pesanError", "Nama kategori sudah tersedia.");
         }
         Category category = new Category();
-        category.setName(name);
+        category.setName(namaBersih);
         category.setIcon(icon == null || icon.isBlank() ? "📦" : icon);
         categoryService.simpanCategory(category);
-        redirectAttributes.addFlashAttribute("pesanSukses", "Kategori berhasil ditambahkan.");
-        return "redirect:/category";
-    }
-
-    @GetMapping("/edit/{id}")
-    public String halamanEdit(@PathVariable Long id, Model model, HttpSession session) {
-        if (!"admin".equals(session.getAttribute("role"))) {
-            return "redirect:/login";
-        }
-        Category category = categoryService.cariById(id).orElse(null);
-        if (category == null) {
-            return "redirect:/category";
-        }
-        model.addAttribute("category", category);
-        model.addAttribute("currentUser", session.getAttribute("user"));
-        model.addAttribute("activeMenu", "kategori");
-        return "admin/category";
+        return kembali(redirect, "pesanSukses", "Kategori berhasil ditambahkan.");
     }
 
     @PostMapping("/update")
-    public String updateCategory(Category data, RedirectAttributes redirectAttributes, HttpSession session) {
-        if (!"admin".equals(session.getAttribute("role"))) {
+    public String updateCategory(Category data, RedirectAttributes redirect, HttpSession session) {
+        if (bukanAdmin(session)) {
             return "redirect:/login";
         }
         if (data.getId() == null || data.getName() == null || data.getName().isBlank()) {
-            redirectAttributes.addFlashAttribute("pesanError", "Data kategori tidak valid.");
-            return "redirect:/category";
+            return kembali(redirect, "pesanError", "Data kategori tidak valid.");
         }
         Category category = categoryService.cariById(data.getId()).orElse(null);
         if (category == null) {
-            redirectAttributes.addFlashAttribute("pesanError", "Kategori tidak ditemukan.");
-            return "redirect:/category";
+            return kembali(redirect, "pesanError", "Kategori tidak ditemukan.");
         }
-        String name = data.getName().trim();
-        if (categoryService.cariNamaCategory(name, data.getId()).isPresent()) {
-            redirectAttributes.addFlashAttribute("pesanError", "Nama kategori sudah digunakan.");
-            return "redirect:/category";
+        String namaBersih = data.getName().trim();
+        if (categoryService.cariNamaCategory(namaBersih, data.getId()).isPresent()) {
+            return kembali(redirect, "pesanError", "Nama kategori sudah digunakan.");
         }
-        category.setName(name);
+        category.setName(namaBersih);
         if (data.getIcon() != null && !data.getIcon().isBlank()) {
             category.setIcon(data.getIcon());
         }
         categoryService.simpanCategory(category);
-        redirectAttributes.addFlashAttribute("pesanSukses", "Kategori berhasil diperbarui.");
-        return "redirect:/category";
+        return kembali(redirect, "pesanSukses", "Kategori berhasil diperbarui.");
     }
 
     @PostMapping("/hapus/{id}")
-    public String hapusCategory(@PathVariable Long id, RedirectAttributes redirectAttributes, HttpSession session) {
-        if (!"admin".equals(session.getAttribute("role"))) {
+    public String hapusCategory(@PathVariable Long id, RedirectAttributes redirect, HttpSession session) {
+        if (bukanAdmin(session)) {
             return "redirect:/login";
         }
         if (categoryService.cariById(id).isEmpty()) {
-            redirectAttributes.addFlashAttribute("pesanError", "Kategori tidak ditemukan.");
-            return "redirect:/category";
+            return kembali(redirect, "pesanError", "Kategori tidak ditemukan.");
         }
-        boolean berhasil = categoryService.hapusCategory(id);
-        if (!berhasil) {
-            redirectAttributes.addFlashAttribute("pesanError",
-                    "Kategori tidak bisa dihapus karena masih digunakan oleh produk.");
-            return "redirect:/category";
+        if (!categoryService.hapusCategory(id)) {
+            return kembali(redirect, "pesanError", "Kategori tidak bisa dihapus karena masih digunakan oleh produk.");
         }
-        redirectAttributes.addFlashAttribute("pesanSukses", "Kategori berhasil dihapus.");
+        return kembali(redirect, "pesanSukses", "Kategori berhasil dihapus.");
+    }
+
+    private boolean bukanAdmin(HttpSession session) {
+        return !"admin".equalsIgnoreCase((String) session.getAttribute("role"));
+    }
+
+    private String kembali(RedirectAttributes redirect, String kunci, String pesan) {
+        redirect.addFlashAttribute(kunci, pesan);
         return "redirect:/category";
     }
 }

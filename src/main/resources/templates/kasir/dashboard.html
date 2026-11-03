@@ -1,18 +1,832 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="id" xmlns:th="http://www.thymeleaf.org">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kasir Dashboard - Veyro</title>
-    <link rel="icon" type="image/png" th:href="@{/images/logoBrow.png}" href="/images/logoBrow.png">
+    <title>Kasir POS - Veyro</title>
+    <link rel="icon" type="image/png" th:href="@{/images/logoBrow.png}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" th:href="@{/css/kasir.css}">
 </head>
 
-<body>
-    <h1>Dashboard Kasir</h1>
-    <form th:action="@{/logout}" method="post">
-        <button type="submit">Logout</button>
+<body class="kasir-body">
+
+    <nav class="kasir-navbar">
+        <div class="kasir-navbar-left">
+            <a th:href="@{/kasir/dashboard}" class="kasir-brand">
+                <img th:src="@{/images/sideAtas.png}" alt="Veyro Logo" class="kasir-brand-img">
+            </a>
+            <div class="kasir-nav-divider"></div>
+            <ul class="kasir-nav-pills">
+                <li class="kasir-nav-pill-item" th:classappend="${activeMenu == 'kasir' or activeMenu == null ? 'active' : ''}">
+                    <a th:href="@{/kasir/dashboard}">
+                        <i class="bi bi-grid-1x2-fill"></i>
+                        <span>Kasir POS</span>
+                    </a>
+                </li>
+                <li class="kasir-nav-pill-item" th:classappend="${activeMenu == 'riwayat' ? 'active' : ''}">
+                    <a th:href="@{/kasir/riwayat}">
+                        <i class="bi bi-receipt-cutoff"></i>
+                        <span>Riwayat Transaksi</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+
+        <div class="kasir-navbar-right">
+            <div class="date-badge">
+                <i class="bi bi-calendar3"></i>
+                <span id="currentDateText"></span>
+            </div>
+
+            <div class="dropdown kasir-profile-dropdown">
+                <button type="button" class="kasir-profile-trigger" data-bs-toggle="dropdown" aria-expanded="false">
+                    <img th:if="${currentUser != null and currentUser.foto != null and !currentUser.foto.isEmpty()}"
+                        th:src="@{'/uploads/profil/' + ${currentUser.foto}}"
+                        alt="Foto Profil"
+                        class="kasir-chip-img"
+                        onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <div th:style="${currentUser != null and currentUser.foto != null and !currentUser.foto.isEmpty()} ? 'display: none;' : 'display: flex;'"
+                        class="kasir-chip-avatar"
+                        th:text="${currentUser != null and currentUser.name != null and !currentUser.name.isEmpty() ? #strings.substring(currentUser.name, 0, 1).toUpperCase() : (currentUser != null and currentUser.username != null ? #strings.substring(currentUser.username, 0, 1).toUpperCase() : 'K')}">K</div>
+                    <span class="kasir-chip-name"
+                        th:text="${currentUser != null and currentUser.name != null and !currentUser.name.isEmpty() ? currentUser.name : (currentUser != null ? currentUser.username : 'Kasir')}">Kasir</span>
+                    <i class="bi bi-chevron-down kasir-profile-chevron"></i>
+                </button>
+
+                <div class="dropdown-menu dropdown-menu-end kasir-dropdown-menu">
+                    <div class="kasir-dropdown-header">
+                        <div class="kasir-dropdown-title"
+                            th:text="${currentUser != null and currentUser.name != null and !currentUser.name.isEmpty() ? currentUser.name : (currentUser != null ? currentUser.username : 'Kasir')}">Kasir</div>
+                        <div class="kasir-dropdown-sub">Kasir POS</div>
+                    </div>
+                    <div class="kasir-dropdown-divider"></div>
+                    <form th:action="@{/logout}" method="post" class="m-0">
+                        <button type="submit" class="kasir-dropdown-logout">
+                            <i class="bi bi-box-arrow-right"></i>
+                            <span>Logout</span>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-fluid px-4 py-3">
+
+        <div th:if="${pesanError}" class="alert alert-danger alert-dismissible fade show d-flex align-items-center mb-3" style="background-color: var(--veyro-danger-subtle); border: 1px solid var(--veyro-danger); color: #991b1b;" role="alert">
+            <i class="bi bi-exclamation-triangle-fill fs-5 me-2"></i>
+            <div>
+                <strong th:text="${pesanError}">Terjadi kesalahan transaksi.</strong>
+            </div>
+            <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+
+        <div class="row g-4">
+
+            <div class="col-12 col-md-8 col-lg-8">
+                <div class="catalog-section-card">
+
+                    <div class="catalog-header-bar">
+                        <div>
+                            <h2 class="catalog-title">Katalog Produk</h2>
+                            <span class="catalog-subtitle">Pilih produk untuk ditambahkan ke keranjang</span>
+                        </div>
+                        <div class="search-box-wrap">
+                            <i class="bi bi-search search-icon"></i>
+                            <input type="text" id="searchProduct" class="form-control search-input-pos"
+                                placeholder="Cari nama atau kode barang..."
+                                autocomplete="off" onkeyup="filterProducts()">
+                        </div>
+                    </div>
+
+                    <div class="category-filter-bar" id="categoryFilterBar">
+                        <button type="button" class="category-filter-btn active" data-cat-id="all" onclick="selectCategory('all', this)">
+                            <span class="cat-badge-dot"></span>
+                            <span>Semua Produk</span>
+                        </button>
+                        <button type="button" class="category-filter-btn" th:each="cat : ${semuaCategory}"
+                            th:attr="data-cat-id=${cat.id}"
+                            th:onclick="'selectCategory(' + ${cat.id} + ', this)'">
+                            <span th:text="${cat.icon != null and !cat.icon.isEmpty() ? cat.icon : '📦'}">📦</span>
+                            <span th:text="${cat.name}">Kategori</span>
+                        </button>
+                    </div>
+
+                    <div class="row g-3" id="productGrid">
+                        <div class="col-6 col-sm-6 col-md-4 col-xl-3 product-item-col"
+                            th:each="p : ${semuaProduct}"
+                            th:attr="data-id=${p.id}, data-code=${p.code}, data-name=${p.name}, data-price=${p.price}, data-stock=${p.stok != null ? p.stok : 0}, data-cat-id=${p.category != null ? p.category.id : 0}">
+                            <div class="product-pos-card"
+                                th:classappend="${p.stok == null or p.stok <= 0 ? 'stok-habis' : ''}"
+                                th:onclick="${p.stok != null and p.stok > 0} ? 'handleCardClick(' + ${p.id} + ')' : ''">
+                                <div class="product-img-wrap">
+                                    <img th:if="${p.fotoProduk != null and !p.fotoProduk.isEmpty()}"
+                                        th:src="@{'/uploads/product/' + ${p.fotoProduk}}"
+                                        th:alt="${p.name}"
+                                        class="product-pos-img"
+                                        onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                    <div class="product-img-fallback"
+                                        th:style="${p.fotoProduk != null and !p.fotoProduk.isEmpty()} ? 'display: none;' : 'display: flex;'">
+                                        <span th:text="${p.category != null and p.category.icon != null and !p.category.icon.isEmpty() ? p.category.icon : '📦'}">📦</span>
+                                    </div>
+                                    <span th:if="${p.stok == null or p.stok <= 0}" class="product-stock-tag stock-empty">Habis</span>
+                                    <span th:if="${p.stok != null and p.stok > 0 and p.stok <= 5}" class="product-stock-tag stock-low"
+                                        th:text="'Sisa ' + ${p.stok}">Sisa 2</span>
+                                    <span th:if="${p.stok != null and p.stok > 5}" class="product-stock-tag stock-ok"
+                                        th:text="'Stok ' + ${p.stok}">Stok 10</span>
+                                </div>
+                                <div class="product-pos-body">
+                                    <div class="product-meta-top">
+                                        <span class="product-cat-label"
+                                            th:text="${p.category != null ? p.category.name : 'Lainnya'}">Kategori</span>
+                                        <span class="product-pos-code" th:text="${p.code}">PRD001</span>
+                                    </div>
+                                    <div class="product-pos-title" th:text="${p.name}" th:title="${p.name}">Nama Produk</div>
+                                    <div class="product-pos-footer">
+                                        <div class="product-pos-price"
+                                            th:text="'Rp ' + ${#numbers.formatDecimal(p.price, 0, 'POINT', 0, 'COMMA')}">Rp 0</div>
+                                        <button th:if="${p.stok != null and p.stok > 0}" type="button" class="btn-add-icon"
+                                            th:onclick="'event.stopPropagation(); addToCart(' + ${p.id} + ')'" title="Tambah ke Keranjang">
+                                            <i class="bi bi-plus-lg"></i>
+                                        </button>
+                                        <button th:if="${p.stok == null or p.stok <= 0}" type="button" class="btn-add-icon disabled" disabled title="Stok Habis">
+                                            <i class="bi bi-slash-circle"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="emptyProductState" class="text-center py-5" th:classappend="${!#lists.isEmpty(semuaProduct) ? 'd-none' : ''}">
+                        <img th:src="@{/images/produkosong.png}" src="/images/produkosong.png" alt="Produk Kosong" style="max-width: 160px; opacity: 0.85;">
+                        <h6 class="mt-3 fw-bold" style="color: var(--veyro-text);">Tidak Ada Produk Ditemukan</h6>
+                        <p class="text-muted small mb-0">Coba ubah kata kunci pencarian atau pilih kategori lain.</p>
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="col-12 col-md-4 col-lg-4" id="keranjang">
+                <div class="cart-card">
+                    <div class="cart-header">
+                        <h2 class="cart-title">Keranjang Belanja</h2>
+                        <div class="d-flex align-items-center gap-2">
+                            <span id="cartCountBadge" class="cart-count-pill">0 barang</span>
+                            <button type="button" class="btn-clear-cart" id="btnClearCart" onclick="clearCart()" style="display: none;" title="Kosongkan Keranjang">
+                                <i class="bi bi-trash3"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="cart-list-body" id="cartListBody">
+                        <div class="cart-empty-state" id="cartEmptyState">
+                            <img th:src="@{/images/produkosong.png}" src="/images/produkosong.png" alt="Keranjang Kosong" class="cart-empty-img">
+                            <p class="cart-empty-desc">Belum ada produk di keranjang</p>
+                        </div>
+
+                        <div id="cartItemsContainer" class="cart-items-list" style="display: none;"></div>
+                    </div>
+
+                    <div class="cart-footer">
+                        <div class="payment-summary-dashed">
+                            <div class="payment-summary-heading">Ringkasan Pembayaran</div>
+
+                            <div class="cart-summary-row">
+                                <span>Subtotal</span>
+                                <span class="cart-summary-val" id="cartSubtotalText">Rp 0</span>
+                            </div>
+                            <div class="cart-summary-row">
+                                <span>Jumlah Barang</span>
+                                <span class="cart-summary-val" id="cartItemCount">0 barang</span>
+                            </div>
+
+                            <div class="payment-summary-divider"></div>
+
+                            <div class="cart-total-row">
+                                <span class="cart-total-label">Total Pembayaran</span>
+                                <span class="cart-total-value" id="cartTotalText">Rp 0</span>
+                            </div>
+
+                            <div id="cashPaymentBox" class="cash-payment-inline">
+                                <div class="cash-inline-row">
+                                    <label class="cash-inline-label" for="inputBayarTunai">Uang Dibayar</label>
+                                    <div class="cash-input-wrap">
+                                        <span class="cash-input-prefix">Rp</span>
+                                        <input type="text" id="inputBayarTunai" class="cash-inline-input"
+                                            inputmode="numeric" autocomplete="off" placeholder="0"
+                                            oninput="formatInputTunai(this)">
+                                    </div>
+                                </div>
+                                <div class="cart-summary-row">
+                                    <span>Uang Kembalian</span>
+                                    <span class="cash-change-value" id="textKembalian">Rp 0</span>
+                                </div>
+                                <div id="peringatanKurang" class="cash-warning-text d-none">
+                                    Nominal uang belum mencukupi.
+                                </div>
+                            </div>
+
+                            <div class="payment-method-heading">Metode Pembayaran</div>
+
+                            <div class="payment-method-grid">
+                                <button type="button" class="payment-icon-card active" id="tabTunai" onclick="switchPayment('Tunai')" title="Tunai">
+                                    <i class="bi bi-cash-coin"></i>
+                                </button>
+                                <button type="button" class="payment-icon-card" id="tabQRIS" onclick="switchPayment('QRIS')" title="QRIS">
+                                    <i class="bi bi-qr-code-scan"></i>
+                                </button>
+                                <button type="button" class="payment-icon-card" id="tabTransfer" onclick="switchPayment('Transfer')" title="Transfer Bank">
+                                    <i class="bi bi-bank"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <button type="button" class="btn-checkout-pos" id="btnCheckout" onclick="prosesTombolBayar()" disabled>
+                            <span id="btnCheckoutLabel">Bayar Sekarang</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="modal fade" id="modalCheckout" tabindex="-1" aria-labelledby="waitingMetodeText" aria-hidden="true" data-bs-backdrop="static">
+        <div class="modal-dialog modal-dialog-centered modal-minimal-dialog">
+            <div class="modal-content modal-minimal-content">
+                <div class="modal-minimal-top">
+                    <span class="modal-minimal-title" id="waitingMetodeText">Pembayaran QRIS</span>
+                    <button type="button" class="btn-close modal-minimal-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+
+                <div class="modal-minimal-total">
+                    <span class="modal-minimal-total-label">Total Pembayaran</span>
+                    <div class="modal-minimal-total-val" id="modalTotalTagihan">Rp 0</div>
+                </div>
+
+                <div id="sectionQRIS" class="d-none">
+                    <div class="qris-minimal-wrap">
+                        <img th:src="@{/images/qris.png}" src="/images/qris.png" alt="QRIS" class="qris-minimal-img">
+                        <p class="modal-minimal-note">Menunggu pembayaran QRIS pelanggan. Tekan <strong>Selesai</strong> jika bukti pembayaran sudah diterima.</p>
+                    </div>
+                </div>
+
+                <div id="sectionTransfer" class="d-none">
+                    <div class="qris-minimal-wrap">
+                        <img th:src="@{/images/bayar.png}" src="/images/bayar.png" alt="Transfer Bank" class="qris-minimal-img">
+                        <p class="modal-minimal-note">Menunggu transfer pelanggan. Tekan <strong>Selesai</strong> jika bukti transfer sudah diterima.</p>
+                    </div>
+                </div>
+
+                <div class="modal-minimal-actions">
+                    <button type="button" class="btn-minimal-cancel" data-bs-dismiss="modal">Batal</button>
+                    <button type="button" class="btn-minimal-confirm" id="btnKonfirmasiBayar" onclick="kirimTransaksi()">Selesai</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <form id="formCheckoutPost" method="post" th:action="@{/transaksi/simpan}" class="d-none">
+        <div id="hiddenInputsContainer"></div>
+        <input type="hidden" name="bayar" id="postBayar">
+        <input type="hidden" name="metodePembayaran" id="postMetode">
     </form>
+
+    <div th:if="${transaksiSuksesId != null}" class="modal fade" id="modalSuksesTransaksi" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered receipt-modal-dialog">
+            <div class="modal-content receipt-modal-shell">
+                <div class="printable-area receipt-paper" id="areaStruk">
+                    <div class="receipt-store-header">
+                        <div class="receipt-store-name">VEYRO STORE</div>
+                        <div class="receipt-store-sub">Point of Sale Retail System</div>
+                        <div class="receipt-store-sub">Telp: (021) 8890-1234</div>
+                    </div>
+
+                    <div class="receipt-line-double"></div>
+
+                    <div class="receipt-meta-block">
+                        <div class="receipt-meta-row">
+                            <span>No. Struk</span>
+                            <span th:text="${transaksiSuksesKode != null ? transaksiSuksesKode : '-'}">TRX12345</span>
+                        </div>
+                        <div class="receipt-meta-row">
+                            <span>Tanggal</span>
+                            <span id="strukTanggalText">-</span>
+                        </div>
+                        <div class="receipt-meta-row">
+                            <span>Kasir</span>
+                            <span th:text="${currentUser != null and currentUser.name != null and !currentUser.name.isEmpty() ? currentUser.name : (currentUser != null ? currentUser.username : 'Kasir')}">Kasir</span>
+                        </div>
+                        <div class="receipt-meta-row">
+                            <span>Metode</span>
+                            <span th:text="${transaksiSuksesMetode != null ? transaksiSuksesMetode : 'Tunai'}">Tunai</span>
+                        </div>
+                    </div>
+
+                    <div id="strukItemsSection" class="d-none">
+                        <div class="receipt-line-single"></div>
+                        <div id="strukItemsList" class="receipt-items-block"></div>
+                    </div>
+
+                    <div class="receipt-line-single"></div>
+
+                    <div class="receipt-totals-block">
+                        <div class="receipt-total-main">
+                            <span>TOTAL</span>
+                            <span th:text="'Rp ' + ${#numbers.formatDecimal(transaksiSuksesTotal != null ? transaksiSuksesTotal : 0, 0, 'POINT', 0, 'COMMA')}">Rp 0</span>
+                        </div>
+                        <div class="receipt-meta-row">
+                            <span>BAYAR</span>
+                            <span th:text="'Rp ' + ${#numbers.formatDecimal(transaksiSuksesBayar != null ? transaksiSuksesBayar : 0, 0, 'POINT', 0, 'COMMA')}">Rp 0</span>
+                        </div>
+                        <div class="receipt-meta-row">
+                            <span>KEMBALI</span>
+                            <span th:text="'Rp ' + ${#numbers.formatDecimal(transaksiSuksesKembalian != null ? transaksiSuksesKembalian : 0, 0, 'POINT', 0, 'COMMA')}">Rp 0</span>
+                        </div>
+                    </div>
+
+                    <div class="receipt-line-double"></div>
+
+                    <div class="receipt-footer-block">
+                        <div>*** TERIMA KASIH ***</div>
+                        <div>BARANG YANG SUDAH DIBELI</div>
+                        <div>TIDAK DAPAT DITUKAR/DIKEMBALIKAN</div>
+                        <div class="receipt-barcode"></div>
+                        <div class="receipt-barcode-code" th:text="${transaksiSuksesKode != null ? transaksiSuksesKode : 'TRX'}">TRX12345</div>
+                    </div>
+                </div>
+
+                <div class="receipt-modal-actions no-print">
+                    <button type="button" class="btn-receipt-print" onclick="window.print()">
+                        <i class="bi bi-printer me-1"></i>Cetak Struk
+                    </button>
+                    <button type="button" class="btn-receipt-done" data-bs-dismiss="modal">
+                        Selesai
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let cart = [];
+        let activeMetode = 'Tunai';
+        let isSubmitting = false;
+
+        function formatRupiah(number) {
+            return 'Rp ' + Number(number).toLocaleString('id-ID');
+        }
+
+        function escapeHtml(value) {
+            return String(value).replace(/[&<>"']/g, function (char) {
+                return {
+                    '&': '&amp;',
+                    '<': '&lt;',
+                    '>': '&gt;',
+                    '"': '&quot;',
+                    "'": '&#039;'
+                }[char];
+            });
+        }
+
+        function getProductFromElement(productId) {
+            const el = document.querySelector('.product-item-col[data-id="' + productId + '"]');
+            if (!el) return null;
+            const imgEl = el.querySelector('.product-pos-img');
+            const emojiEl = el.querySelector('.product-img-fallback span');
+            const imgSrc = (imgEl && imgEl.style.display !== 'none') ? imgEl.getAttribute('src') : '';
+            const emojiIcon = emojiEl ? emojiEl.textContent.trim() : '📦';
+            return {
+                id: Number(productId),
+                code: el.getAttribute('data-code') || '',
+                name: el.getAttribute('data-name') || '',
+                price: Number(el.getAttribute('data-price')) || 0,
+                stock: Number(el.getAttribute('data-stock')) || 0,
+                imgSrc: imgSrc,
+                emoji: emojiIcon
+            };
+        }
+
+        function filterProducts() {
+            const query = (document.getElementById('searchProduct').value || '').toLowerCase().trim();
+            const activeBtn = document.querySelector('.category-filter-btn.active');
+            const selectedCat = activeBtn ? activeBtn.getAttribute('data-cat-id') : 'all';
+
+            const items = document.querySelectorAll('.product-item-col');
+            let visibleCount = 0;
+
+            items.forEach(item => {
+                const name = (item.getAttribute('data-name') || '').toLowerCase();
+                const code = (item.getAttribute('data-code') || '').toLowerCase();
+                const catId = item.getAttribute('data-cat-id');
+
+                const matchesQuery = query === '' || name.includes(query) || code.includes(query);
+                const matchesCat = selectedCat === 'all' || catId === selectedCat;
+
+                if (matchesQuery && matchesCat) {
+                    item.classList.remove('d-none');
+                    visibleCount++;
+                } else {
+                    item.classList.add('d-none');
+                }
+            });
+
+            const emptyState = document.getElementById('emptyProductState');
+            if (visibleCount === 0) {
+                emptyState.classList.remove('d-none');
+            } else {
+                emptyState.classList.add('d-none');
+            }
+        }
+
+        function selectCategory(catId, btnElement) {
+            document.querySelectorAll('.category-filter-btn').forEach(btn => btn.classList.remove('active'));
+            btnElement.classList.add('active');
+            filterProducts();
+        }
+
+        function handleCardClick(productId) {
+            addToCart(productId);
+        }
+
+        function addToCart(productId) {
+            const prod = getProductFromElement(productId);
+            if (!prod || prod.stock <= 0) {
+                return;
+            }
+
+            const existing = cart.find(item => item.id === productId);
+            if (existing) {
+                if (existing.qty < prod.stock) {
+                    existing.qty++;
+                } else {
+                    alert('Jumlah di keranjang sudah mencapai batas stok tersedia (' + prod.stock + ').');
+                    return;
+                }
+            } else {
+                cart.push({
+                    id: prod.id,
+                    code: prod.code,
+                    name: prod.name,
+                    price: prod.price,
+                    stock: prod.stock,
+                    imgSrc: prod.imgSrc,
+                    emoji: prod.emoji,
+                    qty: 1
+                });
+            }
+            renderCart();
+        }
+
+        function changeQty(productId, delta) {
+            const item = cart.find(i => i.id === productId);
+            if (!item) return;
+
+            const nextQty = item.qty + delta;
+            if (nextQty > item.stock) {
+                alert('Jumlah tidak boleh melebihi stok yang tersedia (' + item.stock + ').');
+                return;
+            }
+            if (nextQty <= 0) {
+                removeFromCart(productId);
+                return;
+            }
+            item.qty = nextQty;
+            renderCart();
+        }
+
+        function removeFromCart(productId) {
+            cart = cart.filter(item => item.id !== productId);
+            renderCart();
+        }
+
+        function clearCart() {
+            if (cart.length === 0) return;
+            cart = [];
+            renderCart();
+        }
+
+        function calculateTotal() {
+            return cart.reduce((total, item) => total + (item.price * item.qty), 0);
+        }
+
+        function renderCart() {
+            const emptyState = document.getElementById('cartEmptyState');
+            const itemsContainer = document.getElementById('cartItemsContainer');
+            const cartCountBadge = document.getElementById('cartCountBadge');
+            const cartItemCount = document.getElementById('cartItemCount');
+            const cartSubtotalText = document.getElementById('cartSubtotalText');
+            const btnClearCart = document.getElementById('btnClearCart');
+            const cartTotalText = document.getElementById('cartTotalText');
+            const btnCheckout = document.getElementById('btnCheckout');
+            const inputBayar = document.getElementById('inputBayarTunai');
+            const textKembalian = document.getElementById('textKembalian');
+            const peringatanKurang = document.getElementById('peringatanKurang');
+
+            const totalItems = cart.reduce((sum, item) => sum + item.qty, 0);
+            cartCountBadge.textContent = totalItems + ' barang';
+            cartItemCount.textContent = totalItems + ' barang';
+
+            if (cart.length === 0) {
+                emptyState.style.display = 'flex';
+                itemsContainer.style.display = 'none';
+                itemsContainer.innerHTML = '';
+                btnClearCart.style.display = 'none';
+                cartSubtotalText.textContent = formatRupiah(0);
+                cartTotalText.textContent = formatRupiah(0);
+                if (inputBayar) inputBayar.value = '';
+                if (textKembalian) {
+                    textKembalian.textContent = formatRupiah(0);
+                    textKembalian.style.color = 'var(--veyro-sidebar-green)';
+                }
+                if (peringatanKurang) peringatanKurang.classList.add('d-none');
+                btnCheckout.disabled = true;
+                return;
+            }
+
+            emptyState.style.display = 'none';
+            itemsContainer.style.display = 'flex';
+            btnClearCart.style.display = 'inline-flex';
+
+            let html = '';
+            cart.forEach(item => {
+                const subtotal = item.price * item.qty;
+                let thumbHtml = `<div class="cart-item-thumb-emoji">${escapeHtml(item.emoji || '📦')}</div>`;
+                if (item.imgSrc) {
+                    thumbHtml = `<img src="${escapeHtml(item.imgSrc)}" alt="${escapeHtml(item.name)}" class="cart-item-thumb-img">`;
+                }
+                html += `
+                    <div class="cart-invoice-item">
+                        <div class="cart-item-thumb">
+                            ${thumbHtml}
+                        </div>
+                        <div class="cart-item-info">
+                            <div class="cart-item-name" title="${escapeHtml(item.name)}">${escapeHtml(item.name)}</div>
+                            <div class="cart-item-price-accent">${formatRupiah(subtotal)}</div>
+                        </div>
+                        <div class="qty-stepper">
+                            <button type="button" class="qty-step-btn qty-minus" onclick="changeQty(${item.id}, -1)" title="Kurangi">
+                                <i class="bi bi-dash"></i>
+                            </button>
+                            <span class="qty-step-val">${item.qty}</span>
+                            <button type="button" class="qty-step-btn qty-plus" onclick="changeQty(${item.id}, 1)" title="Tambah">
+                                <i class="bi bi-plus"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+
+            itemsContainer.innerHTML = html;
+            const total = calculateTotal();
+            cartSubtotalText.textContent = formatRupiah(total);
+            cartTotalText.textContent = formatRupiah(total);
+            btnCheckout.disabled = false;
+
+            if (activeMetode === 'Tunai') {
+                hitungKembalian();
+            }
+        }
+
+        function switchPayment(metode) {
+            activeMetode = metode;
+            const tabs = ['Tunai', 'QRIS', 'Transfer'];
+            tabs.forEach(t => {
+                const btn = document.getElementById('tab' + t);
+                if (btn) {
+                    if (t === metode) {
+                        btn.classList.add('active');
+                    } else {
+                        btn.classList.remove('active');
+                    }
+                }
+            });
+
+            const cashBox = document.getElementById('cashPaymentBox');
+            const peringatanKurang = document.getElementById('peringatanKurang');
+            if (metode === 'Tunai') {
+                cashBox.classList.remove('d-none');
+                hitungKembalian();
+            } else {
+                cashBox.classList.add('d-none');
+                if (peringatanKurang) peringatanKurang.classList.add('d-none');
+            }
+        }
+
+        function parseNominalTunai() {
+            const inputEl = document.getElementById('inputBayarTunai');
+            if (!inputEl) return 0;
+            const digits = inputEl.value.replace(/\D/g, '');
+            if (!digits) return 0;
+            return Number(digits) || 0;
+        }
+
+        function formatInputTunai(inputEl) {
+            const digits = inputEl.value.replace(/\D/g, '');
+            if (!digits) {
+                inputEl.value = '';
+            } else {
+                inputEl.value = Number(digits).toLocaleString('id-ID');
+            }
+            hitungKembalian();
+        }
+
+        function setQuickCash(amount) {
+            const total = calculateTotal();
+            const input = document.getElementById('inputBayarTunai');
+            const val = amount === 'pas' ? total : Number(amount);
+            input.value = val > 0 ? val.toLocaleString('id-ID') : '';
+            hitungKembalian();
+        }
+
+        function hitungKembalian() {
+            const total = calculateTotal();
+            const inputEl = document.getElementById('inputBayarTunai');
+            const rawDigits = inputEl ? inputEl.value.replace(/\D/g, '') : '';
+            const inputVal = Number(rawDigits) || 0;
+            const textKembalian = document.getElementById('textKembalian');
+            const peringatanKurang = document.getElementById('peringatanKurang');
+
+            if (total <= 0 || rawDigits === '') {
+                textKembalian.textContent = formatRupiah(0);
+                textKembalian.style.color = 'var(--veyro-sidebar-green)';
+                peringatanKurang.classList.add('d-none');
+                return;
+            }
+
+            if (inputVal >= total) {
+                const kembalian = inputVal - total;
+                textKembalian.textContent = formatRupiah(kembalian);
+                textKembalian.style.color = 'var(--veyro-sidebar-green)';
+                peringatanKurang.classList.add('d-none');
+            } else {
+                const kurang = total - inputVal;
+                textKembalian.textContent = '- ' + formatRupiah(kurang);
+                textKembalian.style.color = 'var(--veyro-danger)';
+                peringatanKurang.classList.remove('d-none');
+            }
+        }
+
+        function prosesTombolBayar() {
+            if (cart.length === 0 || isSubmitting) return;
+
+            const total = calculateTotal();
+
+            if (activeMetode === 'Tunai') {
+                const inputEl = document.getElementById('inputBayarTunai');
+                const nominalBayar = parseNominalTunai();
+                if (nominalBayar < total) {
+                    const peringatanKurang = document.getElementById('peringatanKurang');
+                    peringatanKurang.classList.remove('d-none');
+                    inputEl.focus();
+                    return;
+                }
+                kirimTransaksi();
+                return;
+            }
+
+            isSubmitting = false;
+            const btnConfirm = document.getElementById('btnKonfirmasiBayar');
+            btnConfirm.disabled = false;
+            btnConfirm.innerHTML = 'Selesai';
+
+            document.getElementById('modalTotalTagihan').textContent = formatRupiah(total);
+            document.getElementById('waitingMetodeText').textContent = activeMetode === 'QRIS' ? 'Pembayaran QRIS' : 'Transfer Bank';
+
+            const secQris = document.getElementById('sectionQRIS');
+            const secTransfer = document.getElementById('sectionTransfer');
+            if (activeMetode === 'QRIS') {
+                secQris.classList.remove('d-none');
+                secTransfer.classList.add('d-none');
+            } else {
+                secQris.classList.add('d-none');
+                secTransfer.classList.remove('d-none');
+            }
+
+            const modal = bootstrap.Modal.getOrCreateInstance(document.getElementById('modalCheckout'));
+            modal.show();
+        }
+
+        function kirimTransaksi() {
+            if (cart.length === 0 || isSubmitting) return;
+
+            const total = calculateTotal();
+            let nominalBayar = total;
+
+            if (activeMetode === 'Tunai') {
+                nominalBayar = parseNominalTunai();
+                if (nominalBayar < total) {
+                    const peringatanKurang = document.getElementById('peringatanKurang');
+                    peringatanKurang.classList.remove('d-none');
+                    document.getElementById('inputBayarTunai').focus();
+                    return;
+                }
+            }
+
+            isSubmitting = true;
+            const btnCheckout = document.getElementById('btnCheckout');
+            if (btnCheckout) {
+                btnCheckout.disabled = true;
+                btnCheckout.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status"></span>Memproses...';
+            }
+
+            const btnConfirm = document.getElementById('btnKonfirmasiBayar');
+            if (btnConfirm) {
+                btnConfirm.disabled = true;
+                btnConfirm.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status"></span>Memproses...';
+            }
+
+            try {
+                sessionStorage.setItem('lastStrukItems', JSON.stringify(cart));
+            } catch (e) {
+            }
+
+            const container = document.getElementById('hiddenInputsContainer');
+            container.innerHTML = '';
+
+            cart.forEach(item => {
+                const prodInput = document.createElement('input');
+                prodInput.type = 'hidden';
+                prodInput.name = 'productId';
+                prodInput.value = item.id;
+                container.appendChild(prodInput);
+
+                const qtyInput = document.createElement('input');
+                qtyInput.type = 'hidden';
+                qtyInput.name = 'jumlah';
+                qtyInput.value = item.qty;
+                container.appendChild(qtyInput);
+            });
+
+            document.getElementById('postBayar').value = nominalBayar;
+            document.getElementById('postMetode').value = activeMetode;
+
+            document.getElementById('formCheckoutPost').submit();
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const dateEl = document.getElementById('currentDateText');
+            if (dateEl) {
+                const options = { weekday: 'long', year: 'numeric', month: 'short', day: 'numeric' };
+                dateEl.textContent = new Date().toLocaleDateString('id-ID', options);
+            }
+
+            const modalSuksesEl = document.getElementById('modalSuksesTransaksi');
+            if (modalSuksesEl) {
+                const tglEl = document.getElementById('strukTanggalText');
+                if (tglEl) {
+                    const now = new Date();
+                    const pad = n => String(n).padStart(2, '0');
+                    tglEl.textContent = pad(now.getDate()) + '/' + pad(now.getMonth() + 1) + '/' + now.getFullYear() + ' ' + pad(now.getHours()) + ':' + pad(now.getMinutes());
+                }
+
+                try {
+                    const savedItems = sessionStorage.getItem('lastStrukItems');
+                    if (savedItems) {
+                        const parsed = JSON.parse(savedItems);
+                        const strukSection = document.getElementById('strukItemsSection');
+                        const strukList = document.getElementById('strukItemsList');
+                        if (Array.isArray(parsed) && parsed.length > 0 && strukSection && strukList) {
+                            let listHtml = '';
+                            parsed.forEach(it => {
+                                const priceNum = Number(it.price) || 0;
+                                const qtyNum = Number(it.qty) || 0;
+                                const sub = priceNum * qtyNum;
+                                listHtml += `
+                                    <div class="receipt-item-entry">
+                                        <div class="receipt-item-title">${escapeHtml(it.name)}</div>
+                                        <div class="receipt-item-calc">
+                                            <span>${qtyNum} x ${priceNum.toLocaleString('id-ID')}</span>
+                                            <span>${formatRupiah(sub)}</span>
+                                        </div>
+                                    </div>
+                                `;
+                            });
+                            strukList.innerHTML = listHtml;
+                            strukSection.classList.remove('d-none');
+                        }
+                        sessionStorage.removeItem('lastStrukItems');
+                    }
+                } catch (e) {
+                }
+
+                setTimeout(function () {
+                    const modalSukses = bootstrap.Modal.getOrCreateInstance(modalSuksesEl);
+                    modalSukses.show();
+                }, 150);
+            }
+        });
+    </script>
+
 </body>
 
 </html>

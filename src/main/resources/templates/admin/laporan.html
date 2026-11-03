@@ -32,16 +32,11 @@
                     <form th:action="@{/admin/laporan}" method="get" id="formFilterLaporan">
                         <div class="filter-top-bar">
                             <div class="filter-title-wrap">
-                                <div class="filter-icon-circle">
-                                    <i class="bi bi-calendar3"></i>
-                                </div>
-                                <div>
-                                    <h4 class="filter-card-heading">Filter Periode Laporan</h4>
-                                    <span class="filter-card-sub">Sesuaikan rentang waktu untuk memfilter seluruh omzet dan riwayat pembelian</span>
-                                </div>
+                                <i class="bi bi-sliders2 filter-heading-icon"></i>
+                                <h4 class="filter-card-heading">Filter Periode</h4>
                             </div>
                             <div class="filter-active-chip">
-                                <i class="bi bi-calendar-check text-mint"></i>
+                                <i class="bi bi-calendar3"></i>
                                 <span th:text="${periodeLabel}">Semua Waktu</span>
                             </div>
                         </div>
@@ -93,7 +88,7 @@
 
                             <div class="filter-actions-wrap">
                                 <button type="submit" class="btn-filter-apply">
-                                    <i class="bi bi-search"></i>
+                                    <i class="bi bi-check2-circle"></i>
                                     <span>Terapkan</span>
                                 </button>
                                 <a th:href="@{/admin/laporan}" class="btn-filter-reset" title="Kembalikan ke semua data">
@@ -113,10 +108,10 @@
                         <div class="stat-info">
                             <span class="stat-label">Total Masuk</span>
                             <div class="stat-value"
-                                th:text="'Rp ' + ${#numbers.formatDecimal(totalUangMasuk, 0, 'POINT', 0, 'COMMA')}">
+                                th:title="'Rp ' + ${#numbers.formatDecimal(totalUangMasuk, 0, 'POINT', 0, 'COMMA')}"
+                                th:text="${totalUangMasukRingkas}">
                                 Rp 0
                             </div>
-                            <span class="stat-helper">Semua metode</span>
                         </div>
                     </div>
 
@@ -127,10 +122,10 @@
                         <div class="stat-info">
                             <span class="stat-label">Masuk Tunai</span>
                             <div class="stat-value"
-                                th:text="'Rp ' + ${#numbers.formatDecimal(totalCash, 0, 'POINT', 0, 'COMMA')}">
+                                th:title="'Rp ' + ${#numbers.formatDecimal(totalCash, 0, 'POINT', 0, 'COMMA')}"
+                                th:text="${totalCashRingkas}">
                                 Rp 0
                             </div>
-                            <span class="stat-helper">Pembayaran cash</span>
                         </div>
                     </div>
 
@@ -141,10 +136,10 @@
                         <div class="stat-info">
                             <span class="stat-label">Masuk Non-Tunai</span>
                             <div class="stat-value"
-                                th:text="'Rp ' + ${#numbers.formatDecimal(totalQrisTransfer, 0, 'POINT', 0, 'COMMA')}">
+                                th:title="'Rp ' + ${#numbers.formatDecimal(totalQrisTransfer, 0, 'POINT', 0, 'COMMA')}"
+                                th:text="${totalQrisTransferRingkas}">
                                 Rp 0
                             </div>
-                            <span class="stat-helper">QRIS & transfer</span>
                         </div>
                     </div>
 
@@ -155,7 +150,6 @@
                         <div class="stat-info">
                             <span class="stat-label">Total Transaksi</span>
                             <div class="stat-value" th:text="${totalTransaksi}">0</div>
-                            <span class="stat-helper">Pesanan selesai</span>
                         </div>
                     </div>
 
@@ -166,7 +160,6 @@
                         <div class="stat-info">
                             <span class="stat-label">Terjual Hari Ini</span>
                             <div class="stat-value" th:text="${totalProdukTerjualHariIni}">0</div>
-                            <span class="stat-helper">Unit barang</span>
                         </div>
                     </div>
                 </div>
@@ -175,8 +168,7 @@
                     <div class="content-card">
                         <div class="card-header-clean">
                             <div class="card-title-group">
-                                <h3 class="card-title">Riwayat Pembelian per Kategori</h3>
-                                <p class="card-subtitle">Grafik donat persentase omzet penjualan berdasarkan kelompok produk</p>
+                                <h3 class="card-title mb-0">Riwayat Pembelian per Kategori</h3>
                             </div>
                         </div>
 
@@ -198,8 +190,7 @@
                     <div class="content-card">
                         <div class="card-header-clean">
                             <div class="card-title-group">
-                                <h3 class="card-title">Rincian Omzet Kategori</h3>
-                                <p class="card-subtitle">Kuantitas dan nominal penjualan per kategori</p>
+                                <h3 class="card-title mb-0">Rincian Omzet Kategori</h3>
                             </div>
                         </div>
 
@@ -232,59 +223,73 @@
                     </div>
                 </div>
 
-                <div class="content-card">
-                    <div class="card-header-clean">
-                        <div class="card-title-group">
-                            <h3 class="card-title">Daftar Seluruh Riwayat Pembelian</h3>
-                            <p class="card-subtitle">Riwayat pembelian pelanggan (15 data per halaman)</p>
+                <div style="background-color: var(--veyro-card); border: 1px solid var(--veyro-border); border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(15, 81, 50, 0.04);">
+                    <div class="p-3 border-bottom d-flex flex-wrap align-items-center justify-content-between gap-3" style="border-color: var(--veyro-border) !important;">
+                        <h5 class="fw-bold mb-0" style="color: var(--veyro-sidebar-green); font-size: 15.5px;">Daftar Transaksi</h5>
+                        <div class="search-box-wrap" style="max-width: 320px;">
+                            <i class="bi bi-search search-icon"></i>
+                            <input type="text" id="searchRiwayat" class="form-control form-control-sm search-input-pos"
+                                placeholder="Cari kode transaksi / kasir / metode..." onkeyup="filterRiwayat()">
                         </div>
                     </div>
 
-                    <div th:if="${#lists.isEmpty(daftarTransaksi)}" class="empty-state">
+                    <div th:if="${#lists.isEmpty(daftarTransaksi)}" class="text-center py-5">
                         <img th:src="@{/images/transaksikosong.png}" src="/images/transaksikosong.png"
-                            alt="Belum Ada Transaksi" class="empty-img">
-                        <div class="empty-title">Tidak Ada Transaksi</div>
-                        <div class="empty-subtitle">Transaksi yang sesuai dengan filter periode akan tampil di sini.</div>
+                            alt="Belum Ada Transaksi" style="max-width: 170px; opacity: 0.85;">
+                        <h6 class="mt-3 fw-bold" style="color: var(--veyro-text);">Tidak Ada Transaksi</h6>
+                        <p class="small mb-0" style="color: var(--veyro-text-muted);">Transaksi yang sesuai dengan filter periode akan tampil di sini.</p>
                     </div>
 
                     <div th:if="${!#lists.isEmpty(daftarTransaksi)}" class="table-responsive">
-                        <table class="veyro-table">
+                        <table class="veyro-table-kasir" id="tabelRiwayat">
                             <thead>
                                 <tr>
-                                    <th style="width: 50px;">No</th>
+                                    <th class="ps-3" style="width: 50px;">No</th>
                                     <th>Kode Transaksi</th>
                                     <th>Waktu Transaksi</th>
                                     <th>Kasir</th>
-                                    <th>Metode Pembayaran</th>
-                                    <th>Total Pembayaran</th>
-                                    <th style="width: 90px; text-align: center;">Aksi</th>
+                                    <th>Metode</th>
+                                    <th>Total Tagihan</th>
+                                    <th>Uang Dibayar</th>
+                                    <th>Kembalian</th>
+                                    <th class="text-end pe-3">Aksi</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr th:each="trx, iter : ${daftarTransaksi}">
-                                    <td class="text-muted" th:text="${(currentPage - 1) * 15 + iter.count}">1</td>
-                                    <td class="font-mono text-mint" th:text="${trx.kodeTransaksi != null ? trx.kodeTransaksi : '#' + trx.id}">#TRX001</td>
-                                    <td th:text="${#temporals.format(trx.tanggalTransaksi, 'dd MMM yyyy HH:mm')}">20 Okt 2026 14:30</td>
+                                <tr th:each="trx, iter : ${daftarTransaksi}" class="riwayat-row"
+                                    th:attr="data-search=${trx.kodeTransaksi + ' ' + (trx.kasir != null ? trx.kasir.username : '') + ' ' + trx.metodePembayaran}">
+                                    <td class="ps-3" style="color: var(--veyro-text-muted);" th:text="${(currentPage - 1) * 15 + iter.count}">1</td>
+                                    <td>
+                                        <span class="font-mono fw-semibold" style="color: var(--veyro-sidebar-green);" th:text="${trx.kodeTransaksi}">TRX12345</span>
+                                    </td>
+                                    <td>
+                                        <span th:text="${#temporals.format(trx.tanggalTransaksi, 'dd MMM yyyy, HH:mm')}">20 Okt 2026, 14:30</span>
+                                    </td>
                                     <td>
                                         <span class="badge-subtle"
-                                            th:text="${trx.kasir != null ? trx.kasir.username : 'Kasir'}">Kasir</span>
+                                            th:text="${trx.kasir != null and trx.kasir.name != null and !trx.kasir.name.isEmpty() ? trx.kasir.name : (trx.kasir != null ? trx.kasir.username : 'Kasir')}">Kasir</span>
                                     </td>
                                     <td>
-                                        <span class="badge-status"
-                                            th:classappend="${trx.metodePembayaran != null and (#strings.containsIgnoreCase(trx.metodePembayaran, 'tunai') or #strings.containsIgnoreCase(trx.metodePembayaran, 'cash')) ? 'success' : 'info'}">
-                                            <i class="bi"
-                                                th:classappend="${trx.metodePembayaran != null and (#strings.containsIgnoreCase(trx.metodePembayaran, 'tunai') or #strings.containsIgnoreCase(trx.metodePembayaran, 'cash')) ? 'bi-cash' : 'bi-qr-code'}"></i>
-                                            <span th:text="${trx.metodePembayaran != null ? trx.metodePembayaran : 'Tunai'}">Tunai</span>
+                                        <span th:if="${trx.metodePembayaran == 'Tunai'}" class="badge-subtle-tunai">
+                                            <i class="bi bi-cash me-1"></i>Tunai
+                                        </span>
+                                        <span th:if="${trx.metodePembayaran == 'QRIS'}" class="badge-subtle-qris">
+                                            <i class="bi bi-qr-code me-1"></i>QRIS
+                                        </span>
+                                        <span th:if="${trx.metodePembayaran == 'Transfer'}" class="badge-subtle-transfer">
+                                            <i class="bi bi-bank me-1"></i>Transfer
                                         </span>
                                     </td>
-                                    <td class="fw-bold"
-                                        th:text="'Rp ' + ${#numbers.formatDecimal(trx.total, 0, 'POINT', 0, 'COMMA')}">
-                                        Rp 0</td>
-                                    <td style="text-align: center;">
-                                        <button type="button" class="btn-restock" data-bs-toggle="modal"
-                                            th:data-bs-target="'#modalDetail_' + ${trx.id}" style="padding: 5px 12px; font-size: 12px;">
-                                            <i class="bi bi-eye"></i>
-                                            <span>Detail</span>
+                                    <td class="fw-bold" style="color: var(--veyro-sidebar-green);"
+                                        th:text="'Rp ' + ${#numbers.formatDecimal(trx.total, 0, 'POINT', 0, 'COMMA')}">Rp 0</td>
+                                    <td style="color: var(--veyro-text-muted);"
+                                        th:text="'Rp ' + ${#numbers.formatDecimal(trx.pembayaran, 0, 'POINT', 0, 'COMMA')}">Rp 0</td>
+                                    <td class="fw-semibold" style="color: var(--veyro-mint-dark);"
+                                        th:text="'Rp ' + ${#numbers.formatDecimal(trx.kembalian, 0, 'POINT', 0, 'COMMA')}">Rp 0</td>
+                                    <td class="text-end pe-3">
+                                        <button type="button" class="btn btn-sm" style="background-color: var(--veyro-bg); border: 1px solid var(--veyro-border); color: var(--veyro-sidebar-green); font-size: 11.5px; font-weight: 600;" data-bs-toggle="modal"
+                                            th:data-bs-target="'#modalDetail_' + ${trx.id}">
+                                            <i class="bi bi-receipt me-1"></i>Lihat Struk
                                         </button>
                                     </td>
                                 </tr>
@@ -292,17 +297,12 @@
                         </table>
                     </div>
 
-                    <div th:if="${totalPages > 1}" class="veyro-pagination-wrapper">
-                        <div class="pagination-info">
-                            Menampilkan <span th:text="${(currentPage - 1) * 15 + 1}">1</span> -
-                            <span th:text="${(currentPage - 1) * 15 + #lists.size(daftarTransaksi)}">15</span>
-                            dari <span th:text="${totalItems}">30</span> riwayat pembelian
-                        </div>
+                    <div th:if="${totalPages > 1}" class="veyro-pagination-wrapper px-3 pb-3">
                         <ul class="veyro-pagination">
                             <li class="page-item" th:classappend="${currentPage <= 1} ? 'disabled' : ''">
                                 <a class="page-link"
                                     th:href="@{/admin/laporan(page=${currentPage - 1}, tipeFilter=${tipeFilter}, bulan=${bulan}, tanggalMulai=${tanggalMulai}, tanggalSelesai=${tanggalSelesai})}">
-                                    <i class="bi bi-chevron-left me-1"></i>Previous
+                                    <i class="bi bi-chevron-left"></i>
                                 </a>
                             </li>
                             <li th:each="p : ${#numbers.sequence(1, totalPages)}" class="page-item"
@@ -314,7 +314,7 @@
                             <li class="page-item" th:classappend="${currentPage >= totalPages} ? 'disabled' : ''">
                                 <a class="page-link"
                                     th:href="@{/admin/laporan(page=${currentPage + 1}, tipeFilter=${tipeFilter}, bulan=${bulan}, tanggalMulai=${tanggalMulai}, tanggalSelesai=${tanggalSelesai})}">
-                                    Next<i class="bi bi-chevron-right ms-1"></i>
+                                    <i class="bi bi-chevron-right"></i>
                                 </a>
                             </li>
                         </ul>
@@ -326,96 +326,83 @@
 
     <th:block th:each="trx : ${daftarTransaksi}">
         <div class="modal fade" th:id="'modalDetail_' + ${trx.id}" tabindex="-1" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered modal-lg">
-                <div class="modal-content" style="border-radius: 12px; border: 1px solid var(--veyro-border);">
-                    <div class="modal-header" style="border-bottom: 1px solid var(--veyro-border-light); padding: 18px 24px;">
-                        <div class="d-flex align-items-center gap-2">
-                            <div class="stat-icon-wrap mint" style="width: 36px; height: 36px; font-size: 16px;">
-                                <i class="bi bi-receipt"></i>
-                            </div>
-                            <div>
-                                <h5 class="modal-title fw-bold mb-0" style="font-size: 16px;">
-                                    Detail Transaksi <span class="font-mono text-mint" th:text="${trx.kodeTransaksi != null ? trx.kodeTransaksi : '#' + trx.id}">#TRX001</span>
-                                </h5>
-                                <span class="text-muted" style="font-size: 12px;" th:text="${#temporals.format(trx.tanggalTransaksi, 'dd MMMM yyyy HH:mm:ss')}">Tanggal</span>
-                            </div>
+            <div class="modal-dialog modal-dialog-centered receipt-modal-dialog">
+                <div class="modal-content receipt-modal-shell">
+                    <div class="printable-area receipt-paper" th:id="'strukContent_' + ${trx.id}">
+                        <div class="receipt-store-header">
+                            <div class="receipt-store-name">VEYRO STORE</div>
+                            <div class="receipt-store-sub">Point of Sale Retail System</div>
+                            <div class="receipt-store-sub">Telp: (021) 8890-1234</div>
                         </div>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body" style="padding: 24px;">
-                        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 20px; background: #f8fafc; border: 1px solid var(--veyro-border-light); border-radius: 10px; padding: 14px;">
-                            <div>
-                                <span class="text-muted d-block" style="font-size: 12px;">Kasir Bertugas</span>
-                                <span class="fw-semibold" style="font-size: 13.5px;" th:text="${trx.kasir != null ? trx.kasir.username : 'Kasir'}">Kasir</span>
+
+                        <div class="receipt-line-double"></div>
+
+                        <div class="receipt-meta-block">
+                            <div class="receipt-meta-row">
+                                <span>No. Struk</span>
+                                <span th:text="${trx.kodeTransaksi}">TRX12345</span>
                             </div>
-                            <div>
-                                <span class="text-muted d-block" style="font-size: 12px;">Metode Pembayaran</span>
-                                <span class="badge-status"
-                                    th:classappend="${trx.metodePembayaran != null and (#strings.containsIgnoreCase(trx.metodePembayaran, 'tunai') or #strings.containsIgnoreCase(trx.metodePembayaran, 'cash')) ? 'success' : 'info'}"
-                                    th:text="${trx.metodePembayaran != null ? trx.metodePembayaran : 'Tunai'}">Tunai</span>
+                            <div class="receipt-meta-row">
+                                <span>Tanggal</span>
+                                <span th:text="${#temporals.format(trx.tanggalTransaksi, 'dd/MM/yyyy HH:mm')}">01/11/2026 10:00</span>
                             </div>
-                            <div>
-                                <span class="text-muted d-block" style="font-size: 12px;">Total Transaksi</span>
-                                <span class="fw-bold text-mint" style="font-size: 15px;"
-                                    th:text="'Rp ' + ${#numbers.formatDecimal(trx.total, 0, 'POINT', 0, 'COMMA')}">Rp 0</span>
+                            <div class="receipt-meta-row">
+                                <span>Kasir</span>
+                                <span th:text="${trx.kasir != null and trx.kasir.name != null ? trx.kasir.name : (trx.kasir != null ? trx.kasir.username : 'Kasir')}">Kasir</span>
+                            </div>
+                            <div class="receipt-meta-row">
+                                <span>Metode</span>
+                                <span th:text="${trx.metodePembayaran}">Tunai</span>
                             </div>
                         </div>
 
-                        <h6 class="fw-bold mb-2" style="font-size: 13.5px;">Daftar Item Pembelian</h6>
-                        <div class="table-responsive" style="border: 1px solid var(--veyro-border-light); border-radius: 10px; overflow: hidden;">
-                            <table class="veyro-table mb-0" style="font-size: 13px;">
-                                <thead>
-                                    <tr style="background: #f8fafc;">
-                                        <th>Produk</th>
-                                        <th>Kategori</th>
-                                        <th style="text-align: right;">Harga</th>
-                                        <th style="text-align: center;">Jumlah</th>
-                                        <th style="text-align: right;">Subtotal</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr th:if="${detailsPerTransaksi.get(trx.id) == null or #lists.isEmpty(detailsPerTransaksi.get(trx.id))}">
-                                        <td colspan="5" class="text-center py-3 text-muted">Item transaksi tidak ditemukan</td>
-                                    </tr>
-                                    <tr th:each="d : ${detailsPerTransaksi.get(trx.id)}">
-                                        <td>
-                                            <span class="fw-semibold" th:text="${d.produk != null ? d.produk.name : 'Produk'}">Nama Produk</span>
-                                        </td>
-                                        <td>
-                                            <span class="badge-subtle">
-                                                <span th:text="${d.produk != null and d.produk.category != null and d.produk.category.icon != null ? d.produk.category.icon : '📦'}">📦</span>
-                                                <span th:text="${d.produk != null and d.produk.category != null ? d.produk.category.name : 'Umum'}">Kategori</span>
-                                            </span>
-                                        </td>
-                                        <td style="text-align: right;"
-                                            th:text="'Rp ' + ${#numbers.formatDecimal(d.harga, 0, 'POINT', 0, 'COMMA')}">Rp 0</td>
-                                        <td style="text-align: center;" class="fw-bold" th:text="${d.jumlah}">1</td>
-                                        <td style="text-align: right;" class="fw-bold"
-                                            th:text="'Rp ' + ${#numbers.formatDecimal(d.subtotal, 0, 'POINT', 0, 'COMMA')}">Rp 0</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
+                        <div class="receipt-line-single"></div>
 
-                        <div style="display: flex; justify-content: flex-end; margin-top: 16px;">
-                            <div style="width: 280px; background: #f8fafc; border: 1px solid var(--veyro-border-light); border-radius: 10px; padding: 14px; font-size: 13px;">
-                                <div class="d-flex justify-content-between mb-2">
-                                    <span class="text-muted">Total Tagihan:</span>
-                                    <span class="fw-bold" th:text="'Rp ' + ${#numbers.formatDecimal(trx.total, 0, 'POINT', 0, 'COMMA')}">Rp 0</span>
-                                </div>
-                                <div class="d-flex justify-content-between mb-2">
-                                    <span class="text-muted">Dibayarkan:</span>
-                                    <span class="fw-semibold" th:text="${trx.pembayaran != null ? 'Rp ' + #numbers.formatDecimal(trx.pembayaran, 0, 'POINT', 0, 'COMMA') : '-'}">-</span>
-                                </div>
-                                <div class="d-flex justify-content-between pt-2" style="border-top: 1px dashed var(--veyro-border-light);">
-                                    <span class="text-muted">Kembalian:</span>
-                                    <span class="fw-bold text-mint" th:text="${trx.kembalian != null ? 'Rp ' + #numbers.formatDecimal(trx.kembalian, 0, 'POINT', 0, 'COMMA') : 'Rp 0'}">Rp 0</span>
+                        <div class="receipt-items-block">
+                            <div class="receipt-item-entry" th:each="d : ${detailsPerTransaksi.get(trx.id)}">
+                                <div class="receipt-item-title" th:text="${d.produk != null ? d.produk.name : 'Produk'}">Nama Barang</div>
+                                <div class="receipt-item-calc">
+                                    <span th:text="${d.jumlah} + ' x ' + ${#numbers.formatDecimal(d.harga, 0, 'POINT', 0, 'COMMA')}">1 x 0</span>
+                                    <span th:text="'Rp ' + ${#numbers.formatDecimal(d.subtotal, 0, 'POINT', 0, 'COMMA')}">Rp 0</span>
                                 </div>
                             </div>
                         </div>
+
+                        <div class="receipt-line-single"></div>
+
+                        <div class="receipt-totals-block">
+                            <div class="receipt-total-main">
+                                <span>TOTAL</span>
+                                <span th:text="'Rp ' + ${#numbers.formatDecimal(trx.total, 0, 'POINT', 0, 'COMMA')}">Rp 0</span>
+                            </div>
+                            <div class="receipt-meta-row">
+                                <span>BAYAR</span>
+                                <span th:text="'Rp ' + ${#numbers.formatDecimal(trx.pembayaran, 0, 'POINT', 0, 'COMMA')}">Rp 0</span>
+                            </div>
+                            <div class="receipt-meta-row">
+                                <span>KEMBALI</span>
+                                <span th:text="'Rp ' + ${#numbers.formatDecimal(trx.kembalian, 0, 'POINT', 0, 'COMMA')}">Rp 0</span>
+                            </div>
+                        </div>
+
+                        <div class="receipt-line-double"></div>
+
+                        <div class="receipt-footer-block">
+                            <div>*** TERIMA KASIH ***</div>
+                            <div>BARANG YANG SUDAH DIBELI</div>
+                            <div>TIDAK DAPAT DITUKAR/DIKEMBALIKAN</div>
+                            <div class="receipt-barcode"></div>
+                            <div class="receipt-barcode-code" th:text="${trx.kodeTransaksi}">TRX12345</div>
+                        </div>
                     </div>
-                    <div class="modal-footer" style="border-top: 1px solid var(--veyro-border-light); padding: 14px 24px;">
-                        <button type="button" class="btn btn-light" data-bs-dismiss="modal" style="border-radius: 8px; font-size: 13px;">Tutup</button>
+
+                    <div class="receipt-modal-actions no-print">
+                        <button type="button" class="btn-receipt-print" onclick="window.print()">
+                            <i class="bi bi-printer me-1"></i>Cetak Struk
+                        </button>
+                        <button type="button" class="btn-receipt-done" data-bs-dismiss="modal">
+                            Tutup
+                        </button>
                     </div>
                 </div>
             </div>
@@ -426,6 +413,20 @@
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
+        function filterRiwayat() {
+            const query = (document.getElementById('searchRiwayat').value || '').toLowerCase().trim();
+            const rows = document.querySelectorAll('.riwayat-row');
+
+            rows.forEach(function(row) {
+                const searchData = (row.getAttribute('data-search') || '').toLowerCase();
+                if (query === '' || searchData.includes(query)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        }
+
         document.addEventListener('DOMContentLoaded', function () {
             const tipeFilterSelect = document.getElementById('tipeFilterSelect');
             const wrapFilterBulan = document.getElementById('wrapFilterBulan');

@@ -145,15 +145,10 @@
                     </div>
 
                     <div th:if="${totalPages > 1}" class="veyro-pagination-wrapper">
-                        <div class="pagination-info">
-                            Menampilkan <span th:text="${(currentPage - 1) * 15 + 1}">1</span> -
-                            <span th:text="${(currentPage - 1) * 15 + #lists.size(daftarProduct)}">15</span>
-                            dari <span th:text="${totalItems}">30</span> produk
-                        </div>
                         <ul class="veyro-pagination">
                             <li class="page-item" th:classappend="${currentPage <= 1} ? 'disabled' : ''">
                                 <a class="page-link" th:href="@{/product(page=${currentPage - 1})}">
-                                    <i class="bi bi-chevron-left me-1"></i>Previous
+                                    <i class="bi bi-chevron-left"></i>
                                 </a>
                             </li>
                             <li th:each="p : ${#numbers.sequence(1, totalPages)}" class="page-item"
@@ -162,7 +157,7 @@
                             </li>
                             <li class="page-item" th:classappend="${currentPage >= totalPages} ? 'disabled' : ''">
                                 <a class="page-link" th:href="@{/product(page=${currentPage + 1})}">
-                                    Next<i class="bi bi-chevron-right ms-1"></i>
+                                    <i class="bi bi-chevron-right"></i>
                                 </a>
                             </li>
                         </ul>
@@ -173,89 +168,85 @@
     </div>
 
     <div class="modal fade" id="modalTambahProduk" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content" style="border-radius: 10px; border: 1px solid var(--veyro-border);">
+        <div class="modal-dialog modal-dialog-centered" style="max-width: 440px;">
+            <div class="modal-content" style="border-radius: 12px; border: 1px solid var(--veyro-border); background-color: var(--veyro-card);">
                 <div class="modal-header"
-                    style="border-bottom: 1px solid var(--veyro-border-light); padding: 18px 24px;">
-                    <h5 class="modal-title fw-bold" style="font-size: 16px;">
-                        <i class="bi bi-plus-circle me-2 text-mint"></i>Tambah Produk Baru
-                    </h5>
+                    style="border-bottom: 1px solid var(--veyro-border); padding: 14px 20px;">
+                    <h5 class="modal-title fw-bold" style="font-size: 15px;">Tambah Produk</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <form th:action="@{/product/simpan}" method="post" enctype="multipart/form-data">
-                    <div class="modal-body" style="padding: 24px;">
+                    <div class="modal-body" style="padding: 18px 20px;">
                         <div class="mb-3">
-                            <label class="form-label fw-semibold" style="font-size: 13px;">Foto Produk (Opsional, Maks 2MB)</label>
-                            <input type="file" class="form-control" name="foto" accept="image/jpeg,image/png"
-                                style="border-radius: 10px; padding: 10px 14px; font-size: 13px;"
-                                onchange="pratinjauFotoTambah(this)">
-                            <div class="form-text" style="font-size: 11.5px; color: var(--veyro-text-muted);">
-                                Format yang didukung: JPG, JPEG, PNG. Maksimal 2 MB.
-                            </div>
-                            <div id="previewTambahWrap" style="display: none; margin-top: 10px; align-items: center; gap: 12px; padding: 8px 12px; background: #f8fafc; border: 1px solid var(--veyro-border); border-radius: 8px;">
-                                <img id="previewTambahImg" src="" alt="Pratinjau Foto"
-                                    style="width: 44px; height: 44px; object-fit: cover; border-radius: 6px; border: 1px solid var(--veyro-border);">
-                                <span style="font-size: 12px; color: var(--veyro-text);" id="previewTambahNamaFile">foto.jpg</span>
-                            </div>
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="inputTambahCode" class="form-label fw-semibold" style="font-size: 13px;">Kode
-                                Produk</label>
-                            <input type="text" class="form-control font-mono" id="inputTambahCode" name="code"
-                                th:value="${kodeBaruOtomatis}" placeholder="Contoh: PRD001"
-                                style="border-radius: 10px; padding: 10px 14px; font-size: 13px;">
-                            <div class="form-text" style="font-size: 11.5px; color: var(--veyro-text-muted);">
-                                Kode terisi otomatis. Anda dapat mengubahnya jika toko memiliki barcode sendiri.
+                            <label class="form-label fw-semibold" style="font-size: 12.5px;">Foto Produk</label>
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <div id="previewTambahWrap"
+                                    style="width: 42px; height: 42px; border-radius: 8px; border: 1px solid var(--veyro-border); background-color: var(--veyro-bg); display: flex; align-items: center; justify-content: center; overflow: hidden; flex-shrink: 0;">
+                                    <img id="previewTambahImg" src="" alt="Pratinjau"
+                                        style="width: 100%; height: 100%; object-fit: cover; display: none;">
+                                    <i id="previewTambahIcon" class="bi bi-image text-muted" style="font-size: 16px;"></i>
+                                </div>
+                                <input type="file" class="form-control" name="foto" accept="image/jpeg,image/png"
+                                    style="border-radius: 8px; padding: 8px 12px; font-size: 12.5px;"
+                                    onchange="pratinjauFotoTambah(this)">
                             </div>
                         </div>
 
                         <div class="mb-3">
-                            <label for="inputTambahName" class="form-label fw-semibold" style="font-size: 13px;">Nama
+                            <label for="inputTambahName" class="form-label fw-semibold" style="font-size: 12.5px;">Nama
                                 Produk</label>
                             <input type="text" class="form-control" id="inputTambahName" name="name"
-                                placeholder="Contoh: Kopi Susu Aren" required
-                                style="border-radius: 10px; padding: 10px 14px; font-size: 13px;">
+                                placeholder="Nama produk" required
+                                style="border-radius: 8px; padding: 8px 12px; font-size: 13px;">
                         </div>
 
-                        <div class="mb-3">
-                            <label for="inputTambahCategory" class="form-label fw-semibold"
-                                style="font-size: 13px;">Kategori Produk</label>
-                            <select class="form-select" id="inputTambahCategory" name="categoryId" required
-                                style="border-radius: 10px; padding: 10px 14px; font-size: 13px;">
-                                <option value="" disabled selected>Pilih Kategori...</option>
-                                <option th:each="cat : ${semuaCategory}" th:value="${cat.id}"
-                                    th:text="${(cat.icon != null and !cat.icon.isEmpty() ? cat.icon + ' ' : '📦 ') + cat.name}">
-                                    Kategori
-                                </option>
-                            </select>
-                        </div>
-
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label for="inputTambahPrice" class="form-label fw-semibold"
-                                    style="font-size: 13px;">Harga Jual (Rp)</label>
-                                <input type="number" class="form-control" id="inputTambahPrice" name="price" min="0"
-                                    step="100" placeholder="Contoh: 15000" required
-                                    style="border-radius: 10px; padding: 10px 14px; font-size: 13px;">
+                        <div class="row g-2 mb-3">
+                            <div class="col-6">
+                                <label for="inputTambahCode" class="form-label fw-semibold" style="font-size: 12.5px;">Kode
+                                    Produk</label>
+                                <input type="text" class="form-control font-mono" id="inputTambahCode" name="code"
+                                    th:value="${kodeBaruOtomatis}" placeholder="PRD001"
+                                    style="border-radius: 8px; padding: 8px 12px; font-size: 13px;">
                             </div>
-                            <div class="col-md-6 mb-3">
+                            <div class="col-6">
+                                <label for="inputTambahCategory" class="form-label fw-semibold"
+                                    style="font-size: 12.5px;">Kategori</label>
+                                <select class="form-select" id="inputTambahCategory" name="categoryId" required
+                                    style="border-radius: 8px; padding: 8px 12px; font-size: 13px;">
+                                    <option value="" disabled selected>Pilih...</option>
+                                    <option th:each="cat : ${semuaCategory}" th:value="${cat.id}"
+                                        th:text="${(cat.icon != null and !cat.icon.isEmpty() ? cat.icon + ' ' : '📦 ') + cat.name}">
+                                        Kategori
+                                    </option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="row g-2">
+                            <div class="col-6">
+                                <label for="inputTambahPrice" class="form-label fw-semibold"
+                                    style="font-size: 12.5px;">Harga Jual (Rp)</label>
+                                <input type="number" class="form-control" id="inputTambahPrice" name="price" min="0"
+                                    step="100" placeholder="0" required
+                                    style="border-radius: 8px; padding: 8px 12px; font-size: 13px;">
+                            </div>
+                            <div class="col-6">
                                 <label for="inputTambahStock" class="form-label fw-semibold"
-                                    style="font-size: 13px;">Stok Awal</label>
+                                    style="font-size: 12.5px;">Stok Awal</label>
                                 <input type="number" class="form-control" id="inputTambahStock" name="stock" min="0"
-                                    value="0" placeholder="Contoh: 20" required
-                                    style="border-radius: 10px; padding: 10px 14px; font-size: 13px;">
+                                    value="0" placeholder="0" required
+                                    style="border-radius: 8px; padding: 8px 12px; font-size: 13px;">
                             </div>
                         </div>
                     </div>
                     <div class="modal-footer"
-                        style="border-top: 1px solid var(--veyro-border-light); padding: 14px 24px;">
+                        style="border-top: 1px solid var(--veyro-border); padding: 12px 20px;">
                         <button type="button" class="btn btn-light" data-bs-dismiss="modal"
-                            style="border-radius: 8px; font-size: 13px;">Batal</button>
+                            style="border-radius: 8px; font-size: 12.5px; padding: 7px 14px;">Batal</button>
                         <button type="submit" class="btn-banner btn-banner-primary"
-                            style="padding: 8px 18px; font-size: 13px;">
+                            style="padding: 7px 16px; font-size: 12.5px;">
                             <i class="bi bi-check-lg"></i>
-                            <span>Simpan Produk</span>
+                            <span>Simpan</span>
                         </button>
                     </div>
                 </form>
@@ -265,98 +256,80 @@
 
     <th:block th:each="item : ${daftarProduct}">
         <div class="modal fade" th:id="'modalEditProduk_' + ${item.id}" tabindex="-1" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered">
-                <div class="modal-content" style="border-radius: 10px; border: 1px solid var(--veyro-border);">
+            <div class="modal-dialog modal-dialog-centered" style="max-width: 440px;">
+                <div class="modal-content" style="border-radius: 12px; border: 1px solid var(--veyro-border); background-color: var(--veyro-card);">
                     <div class="modal-header"
-                        style="border-bottom: 1px solid var(--veyro-border-light); padding: 18px 24px;">
-                        <h5 class="modal-title fw-bold" style="font-size: 16px;">
-                            <i class="bi bi-pencil-square me-2 text-mint"></i>Edit Produk
-                        </h5>
+                        style="border-bottom: 1px solid var(--veyro-border); padding: 14px 20px;">
+                        <h5 class="modal-title fw-bold" style="font-size: 15px;">Edit Produk</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <form th:action="@{/product/update}" method="post" enctype="multipart/form-data">
                         <input type="hidden" name="id" th:value="${item.id}">
-                        <div class="modal-body" style="padding: 24px;">
+                        <div class="modal-body" style="padding: 18px 20px;">
                             <div class="mb-3">
-                                <label class="form-label fw-semibold" style="font-size: 13px;">Foto Produk (Opsional, Maks 2MB)</label>
-                                <div th:if="${item.fotoProduk != null and !item.fotoProduk.isEmpty()}"
-                                    style="display: flex; align-items: center; gap: 12px; margin-bottom: 10px; padding: 8px 12px; background: #f8fafc; border: 1px solid var(--veyro-border); border-radius: 8px;">
-                                    <img th:src="@{'/uploads/product/' + ${item.fotoProduk}}" alt="Foto Saat Ini"
-                                        style="width: 44px; height: 44px; object-fit: cover; border-radius: 6px; border: 1px solid var(--veyro-border);">
-                                    <div>
-                                        <span class="text-muted" style="font-size: 11.5px; display: block;">Foto saat ini</span>
-                                        <span class="fw-semibold font-mono" style="font-size: 11.5px; color: var(--veyro-text);" th:text="${item.fotoProduk}">foto.jpg</span>
+                                <label class="form-label fw-semibold" style="font-size: 12.5px;">Foto Produk</label>
+                                <div style="display: flex; align-items: center; gap: 10px;">
+                                    <div th:id="'previewEditWrap_' + ${item.id}"
+                                        style="width: 42px; height: 42px; border-radius: 8px; border: 1px solid var(--veyro-border); background-color: var(--veyro-bg); display: flex; align-items: center; justify-content: center; overflow: hidden; flex-shrink: 0;">
+                                        <img th:if="${item.fotoProduk != null and !item.fotoProduk.isEmpty()}"
+                                            th:src="@{'/uploads/product/' + ${item.fotoProduk}}" alt="Foto"
+                                            class="preview-edit-img"
+                                            style="width: 100%; height: 100%; object-fit: cover;">
+                                        <img th:if="${item.fotoProduk == null or item.fotoProduk.isEmpty()}"
+                                            src="" alt="Foto"
+                                            class="preview-edit-img"
+                                            style="width: 100%; height: 100%; object-fit: cover; display: none;">
+                                        <span class="preview-edit-emoji"
+                                            th:style="${item.fotoProduk != null and !item.fotoProduk.isEmpty()} ? 'display: none;' : 'font-size: 18px;'"
+                                            th:text="${item.category != null and item.category.icon != null and !item.category.icon.isEmpty() ? item.category.icon : '📦'}">📦</span>
                                     </div>
-                                </div>
-                                <input type="file" class="form-control" name="foto" accept="image/jpeg,image/png"
-                                    style="border-radius: 10px; padding: 10px 14px; font-size: 13px;"
-                                    th:data-target="'#previewEditWrap_' + ${item.id}"
-                                    onchange="pratinjauFotoEdit(this)">
-                                <div class="form-text" style="font-size: 11.5px; color: var(--veyro-text-muted);">
-                                    Pilih file baru jika ingin mengganti foto. Format: JPG, JPEG, PNG. Maksimal 2 MB.
-                                </div>
-                                <div th:id="'previewEditWrap_' + ${item.id}" style="display: none; margin-top: 10px; align-items: center; gap: 12px; padding: 8px 12px; background: #f8fafc; border: 1px solid var(--veyro-border); border-radius: 8px;">
-                                    <img src="" alt="Pratinjau Foto Baru" class="preview-edit-img"
-                                        style="width: 44px; height: 44px; object-fit: cover; border-radius: 6px; border: 1px solid var(--veyro-border);">
-                                    <div>
-                                        <span class="text-mint" style="font-size: 11.5px; display: block; font-weight: 600;">Foto baru dipilih</span>
-                                        <span style="font-size: 12px; color: var(--veyro-text);" class="preview-edit-name">foto_baru.jpg</span>
-                                    </div>
+                                    <input type="file" class="form-control" name="foto" accept="image/jpeg,image/png"
+                                        style="border-radius: 8px; padding: 8px 12px; font-size: 12.5px;"
+                                        th:data-target="'#previewEditWrap_' + ${item.id}"
+                                        onchange="pratinjauFotoEdit(this)">
                                 </div>
                             </div>
 
                             <div class="mb-3">
-                                <label class="form-label fw-semibold" style="font-size: 13px;">Kode Produk</label>
-                                <input type="text" class="form-control font-mono" name="code" th:value="${item.code}"
-                                    required style="border-radius: 10px; padding: 10px 14px; font-size: 13px;">
-                            </div>
-
-                            <div class="mb-3">
-                                <label class="form-label fw-semibold" style="font-size: 13px;">Nama Produk</label>
+                                <label class="form-label fw-semibold" style="font-size: 12.5px;">Nama Produk</label>
                                 <input type="text" class="form-control" name="name" th:value="${item.name}" required
-                                    style="border-radius: 10px; padding: 10px 14px; font-size: 13px;">
+                                    style="border-radius: 8px; padding: 8px 12px; font-size: 13px;">
                             </div>
 
-                            <div class="mb-3">
-                                <label class="form-label fw-semibold" style="font-size: 13px;">Kategori Produk</label>
-                                <select class="form-select" name="categoryId" required
-                                    style="border-radius: 10px; padding: 10px 14px; font-size: 13px;">
-                                    <option th:each="cat : ${semuaCategory}" th:value="${cat.id}"
-                                        th:selected="${item.category != null and item.category.id == cat.id}"
-                                        th:text="${(cat.icon != null and !cat.icon.isEmpty() ? cat.icon + ' ' : '📦 ') + cat.name}">
-                                        Kategori
-                                    </option>
-                                </select>
+                            <div class="row g-2 mb-3">
+                                <div class="col-6">
+                                    <label class="form-label fw-semibold" style="font-size: 12.5px;">Kode Produk</label>
+                                    <input type="text" class="form-control font-mono" name="code" th:value="${item.code}"
+                                        required style="border-radius: 8px; padding: 8px 12px; font-size: 13px;">
+                                </div>
+                                <div class="col-6">
+                                    <label class="form-label fw-semibold" style="font-size: 12.5px;">Kategori</label>
+                                    <select class="form-select" name="categoryId" required
+                                        style="border-radius: 8px; padding: 8px 12px; font-size: 13px;">
+                                        <option th:each="cat : ${semuaCategory}" th:value="${cat.id}"
+                                            th:selected="${item.category != null and item.category.id == cat.id}"
+                                            th:text="${(cat.icon != null and !cat.icon.isEmpty() ? cat.icon + ' ' : '📦 ') + cat.name}">
+                                            Kategori
+                                        </option>
+                                    </select>
+                                </div>
                             </div>
 
-                            <div class="mb-3">
-                                <label class="form-label fw-semibold" style="font-size: 13px;">Harga Jual (Rp)</label>
+                            <div>
+                                <label class="form-label fw-semibold" style="font-size: 12.5px;">Harga Jual (Rp)</label>
                                 <input type="number" class="form-control" name="price" min="0" step="100"
                                     th:value="${item.price}" required
-                                    style="border-radius: 10px; padding: 10px 14px; font-size: 13px;">
-                            </div>
-
-                            <div
-                                style="background-color: #f8fafc; border: 1px solid var(--veyro-border); border-radius: 10px; padding: 12px 14px; display: flex; align-items: center; justify-content: space-between;">
-                                <div>
-                                    <span class="text-muted" style="font-size: 12px; display: block;">Stok Saat
-                                        Ini</span>
-                                    <span class="fw-bold" style="font-size: 14px;"
-                                        th:text="${(item.stok != null ? item.stok : 0) + ' unit'}">0 unit</span>
-                                </div>
-                                <span class="badge-status success" style="font-size: 11px;">
-                                    <i class="bi bi-info-circle"></i> Gunakan tombol Stok untuk menambah
-                                </span>
+                                    style="border-radius: 8px; padding: 8px 12px; font-size: 13px;">
                             </div>
                         </div>
                         <div class="modal-footer"
-                            style="border-top: 1px solid var(--veyro-border-light); padding: 14px 24px;">
+                            style="border-top: 1px solid var(--veyro-border); padding: 12px 20px;">
                             <button type="button" class="btn btn-light" data-bs-dismiss="modal"
-                                style="border-radius: 8px; font-size: 13px;">Batal</button>
+                                style="border-radius: 8px; font-size: 12.5px; padding: 7px 14px;">Batal</button>
                             <button type="submit" class="btn-banner btn-banner-primary"
-                                style="padding: 8px 18px; font-size: 13px;">
+                                style="padding: 7px 16px; font-size: 12.5px;">
                                 <i class="bi bi-check-lg"></i>
-                                <span>Simpan Perubahan</span>
+                                <span>Simpan</span>
                             </button>
                         </div>
                     </form>
@@ -365,55 +338,39 @@
         </div>
 
         <div class="modal fade" th:id="'modalTambahStok_' + ${item.id}" tabindex="-1" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered">
-                <div class="modal-content" style="border-radius: 10px; border: 1px solid var(--veyro-border);">
+            <div class="modal-dialog modal-dialog-centered" style="max-width: 360px;">
+                <div class="modal-content" style="border-radius: 12px; border: 1px solid var(--veyro-border); background-color: var(--veyro-card);">
                     <div class="modal-header"
-                        style="border-bottom: 1px solid var(--veyro-border-light); padding: 18px 24px;">
-                        <h5 class="modal-title fw-bold" style="font-size: 16px;">
-                            <i class="bi bi-box-arrow-in-down me-2 text-mint"></i>Tambah Stok Produk
-                        </h5>
+                        style="border-bottom: 1px solid var(--veyro-border); padding: 14px 18px;">
+                        <h5 class="modal-title fw-bold" style="font-size: 15px;">Tambah Stok</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <form th:action="@{/product/tambah-stok}" method="post">
                         <input type="hidden" name="id" th:value="${item.id}">
-                        <div class="modal-body" style="padding: 24px;">
-                            <div class="mb-3 p-3"
-                                style="background-color: #f8fafc; border: 1px solid var(--veyro-border); border-radius: 8px;">
-                                <div class="d-flex justify-content-between align-items-center mb-1">
-                                    <span class="fw-bold" style="font-size: 15px;" th:text="${item.name}">Nama
-                                        Produk</span>
-                                    <span class="font-mono text-mint" style="font-size: 12px;"
-                                        th:text="${item.code}">PRD001</span>
-                                </div>
-                                <div class="d-flex justify-content-between align-items-center pt-2"
-                                    style="border-top: 1px dashed var(--veyro-border);">
-                                    <span class="text-muted" style="font-size: 12px;">Stok saat ini:</span>
-                                    <span class="badge-status"
-                                        th:classappend="${item.stok != null and item.stok <= 5 ? 'danger' : 'success'}">
-                                        <span th:text="${(item.stok != null ? item.stok : 0) + ' unit'}">0 unit</span>
-                                    </span>
-                                </div>
+                        <div class="modal-body" style="padding: 16px 18px;">
+                            <div class="d-flex justify-content-between align-items-center mb-3"
+                                style="background-color: var(--veyro-bg); border: 1px solid var(--veyro-border); border-radius: 8px; padding: 10px 12px;">
+                                <span class="fw-bold" style="font-size: 13.5px;" th:text="${item.name}">Nama Produk</span>
+                                <span class="badge-status"
+                                    th:classappend="${item.stok != null and item.stok <= 5 ? 'danger' : 'success'}"
+                                    th:text="'Stok: ' + ${(item.stok != null ? item.stok : 0)}">Stok: 0</span>
                             </div>
 
-                            <div class="mb-2">
-                                <label class="form-label fw-semibold" style="font-size: 13px;">Jumlah Stok yang
-                                    Ditambahkan</label>
+                            <div>
+                                <label class="form-label fw-semibold" style="font-size: 12.5px;">Jumlah Tambahan</label>
                                 <input type="number" class="form-control" name="jumlah" min="1" required
-                                    placeholder="Contoh: 10"
-                                    style="border-radius: 10px; padding: 10px 14px; font-size: 13px;">
-                                <div class="form-text" style="font-size: 11.5px; color: var(--veyro-text-muted);">
-                                    Jumlah ini akan ditambahkan ke stok saat ini tanpa menghapus stok lama.
-                                </div>
+                                    placeholder="Masukkan jumlah stok..."
+                                    style="border-radius: 8px; padding: 9px 12px; font-size: 13px;">
                             </div>
                         </div>
                         <div class="modal-footer"
-                            style="border-top: 1px solid var(--veyro-border-light); padding: 14px 24px;">
-                            <button type="button" class="btn btn-light" data-bs-dismiss="modal"
-                                style="border-radius: 8px; font-size: 13px;">Batal</button>
+                            style="border-top: 1px solid var(--veyro-border); padding: 12px 18px;">
+                        <button type="button" class="btn btn-light" data-bs-dismiss="modal"
+                            style="border-radius: 8px; font-size: 12.5px; padding: 7px 14px;">Batal</button>
                             <button type="submit" class="btn-banner btn-banner-primary"
-                                style="padding: 8px 18px; font-size: 13px;">
+                                style="padding: 7px 16px; font-size: 12.5px;">
                                 <i class="bi bi-plus-lg"></i>
-                                <span>Tambah Stok</span>
+                                <span>Simpan</span>
                             </button>
                         </div>
                     </form>
@@ -426,20 +383,24 @@
 
     <script>
         function pratinjauFotoTambah(input) {
-            const wrap = document.getElementById('previewTambahWrap');
             const img = document.getElementById('previewTambahImg');
-            const nama = document.getElementById('previewTambahNamaFile');
+            const icon = document.getElementById('previewTambahIcon');
             if (input.files && input.files[0]) {
                 const file = input.files[0];
                 const reader = new FileReader();
                 reader.onload = function (e) {
-                    img.src = e.target.result;
-                    nama.textContent = file.name;
-                    wrap.style.display = 'flex';
+                    if (img) {
+                        img.src = e.target.result;
+                        img.style.display = 'block';
+                    }
+                    if (icon) {
+                        icon.style.display = 'none';
+                    }
                 };
                 reader.readAsDataURL(file);
             } else {
-                wrap.style.display = 'none';
+                if (img) img.style.display = 'none';
+                if (icon) icon.style.display = 'block';
             }
         }
 
@@ -448,18 +409,20 @@
             const wrap = document.querySelector(targetSelector);
             if (!wrap) return;
             const img = wrap.querySelector('.preview-edit-img');
-            const nama = wrap.querySelector('.preview-edit-name');
+            const emoji = wrap.querySelector('.preview-edit-emoji');
             if (input.files && input.files[0]) {
                 const file = input.files[0];
                 const reader = new FileReader();
                 reader.onload = function (e) {
-                    img.src = e.target.result;
-                    nama.textContent = file.name;
-                    wrap.style.display = 'flex';
+                    if (img) {
+                        img.src = e.target.result;
+                        img.style.display = 'block';
+                    }
+                    if (emoji) {
+                        emoji.style.display = 'none';
+                    }
                 };
                 reader.readAsDataURL(file);
-            } else {
-                wrap.style.display = 'none';
             }
         }
 

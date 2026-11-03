@@ -6,7 +6,6 @@ import java.time.LocalDateTime;
 import java.time.YearMonth;
 import java.time.format.TextStyle;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
@@ -31,6 +30,7 @@ import jakarta.servlet.http.HttpSession;
 
 @Controller
 @RequestMapping("/admin")
+@SuppressWarnings("null")
 public class LaporanController {
 
     private final TransaksiService transaksiService;
@@ -79,7 +79,7 @@ public class LaporanController {
     public String laporan(@RequestParam(defaultValue = "1") int page, @RequestParam(required = false) String tipeFilter,
             @RequestParam(required = false) String bulan, @RequestParam(required = false) String tanggalMulai,
             @RequestParam(required = false) String tanggalSelesai, HttpSession session, Model model) {
-        if (!"admin".equals(session.getAttribute("role"))) {
+        if (!"admin".equalsIgnoreCase((String) session.getAttribute("role"))) {
             return "redirect:/login";
         }
 
@@ -147,7 +147,7 @@ public class LaporanController {
         List<Transaksi> semuaFilter;
         Page<Transaksi> transaksiPage;
         int pageIndex = page > 0 ? page - 1 : 0;
-        Pageable pageable = PageRequest.of(pageIndex, 15, Sort.by("tanggalTransaksi").descending());
+        Pageable pageable = PageRequest.of(pageIndex, 15, Sort.by("id").descending());
 
         if (start != null && end != null) {
             semuaFilter = transaksiService.cariTransaksiFilterList(start, end);
@@ -251,19 +251,7 @@ public class LaporanController {
         String chartDataJumlahJson = sbJumlah.toString();
 
         List<Transaksi> daftarTransaksi = transaksiPage.getContent();
-        Map<Long, List<DetailTransaksi>> detailsPerTransaksi = new HashMap<>();
-        if (!daftarTransaksi.isEmpty()) {
-            List<DetailTransaksi> pageDetails = transaksiService.cariDetailByTransaksiIn(daftarTransaksi);
-            for (DetailTransaksi dt : pageDetails) {
-                if (dt.getTransaksi() != null && dt.getTransaksi().getId() != null) {
-                    Long trxId = dt.getTransaksi().getId();
-                    if (!detailsPerTransaksi.containsKey(trxId)) {
-                        detailsPerTransaksi.put(trxId, new ArrayList<>());
-                    }
-                    detailsPerTransaksi.get(trxId).add(dt);
-                }
-            }
-        }
+        Map<Long, List<DetailTransaksi>> detailsPerTransaksi = transaksiService.kelompokkanDetail(daftarTransaksi);
 
         LocalDate hariIni = LocalDate.now();
         List<Transaksi> semuaTransaksi = transaksiService.semuaTransaksi();
@@ -284,6 +272,9 @@ public class LaporanController {
         model.addAttribute("totalUangMasuk", totalUangMasuk);
         model.addAttribute("totalCash", totalCash);
         model.addAttribute("totalQrisTransfer", totalQrisTransfer);
+        model.addAttribute("totalUangMasukRingkas", formatRingkas(totalUangMasuk));
+        model.addAttribute("totalCashRingkas", formatRingkas(totalCash));
+        model.addAttribute("totalQrisTransferRingkas", formatRingkas(totalQrisTransfer));
         model.addAttribute("totalTransaksi", semuaFilter.size());
         model.addAttribute("totalProdukTerjualHariIni", totalProdukTerjualHariIni);
 
@@ -291,7 +282,6 @@ public class LaporanController {
         model.addAttribute("detailsPerTransaksi", detailsPerTransaksi);
         model.addAttribute("currentPage", page);
         model.addAttribute("totalPages", transaksiPage.getTotalPages());
-        model.addAttribute("totalItems", transaksiPage.getTotalElements());
 
         model.addAttribute("tipeFilter", tipeFilter);
         model.addAttribute("bulan", bulan);
@@ -308,5 +298,37 @@ public class LaporanController {
         model.addAttribute("activeMenu", "laporan");
 
         return "admin/laporan";
+    }
+
+    private String formatRingkas(BigDecimal nominal) {
+        if (nominal == null) {
+            return "Rp 0";
+        }
+        long nilai = nominal.longValue();
+        if (nilai >= 1000000000L) {
+            double hasil = (double) nilai / 1000000000.0;
+            return "Rp " + formatDesimalRingkas(hasil) + "M";
+        }
+        if (nilai >= 1000000L) {
+            double hasil = (double) nilai / 1000000.0;
+            return "Rp " + formatDesimalRingkas(hasil) + "JT";
+        }
+        if (nilai >= 100000L) {
+            double hasil = (double) nilai / 1000.0;
+            return "Rp " + formatDesimalRingkas(hasil) + "K";
+        }
+        return "Rp " + String.format(Locale.forLanguageTag("id-ID"), "%,d", nilai);
+    }
+
+    private String formatDesimalRingkas(double angka) {
+        long bulat = (long) angka;
+        if (angka == bulat) {
+            return String.valueOf(bulat);
+        }
+        String teks = String.format(Locale.forLanguageTag("id-ID"), "%.1f", angka);
+        if (teks.endsWith(",0")) {
+            return teks.substring(0, teks.length() - 2);
+        }
+        return teks;
     }
 }

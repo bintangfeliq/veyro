@@ -11,12 +11,12 @@ import jakarta.persistence.ManyToOne;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@Entity 
-@Data 
-@NoArgsConstructor 
+@Entity
+@Data
+@NoArgsConstructor
 public class Transaksi {
-    @Id 
-    @GeneratedValue (strategy = GenerationType.IDENTITY)
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String kodeTransaksi;
     private LocalDateTime tanggalTransaksi;
@@ -25,18 +25,10 @@ public class Transaksi {
     private BigDecimal kembalian;
     private String metodePembayaran;
 
-    @ManyToOne 
+    @ManyToOne
     private User kasir;
 
     public void setBayar(BigDecimal bayar) {
         this.pembayaran = bayar;
-    }
-
-    public LocalDateTime getTanggal() {
-        return tanggalTransaksi;
-    }
-
-    public User getUser() {
-        return kasir;
     }
 }

@@ -28,6 +28,7 @@ import jakarta.servlet.http.HttpSession;
 
 @Controller
 @RequestMapping("/product")
+@SuppressWarnings("null")
 public class ProductController {
 
     private final ProductService productService;
@@ -40,69 +41,48 @@ public class ProductController {
     }
 
     @GetMapping
-    public String halamanProduct(
-            @RequestParam(name = "page", defaultValue = "1") int page,
-            HttpSession session,
-            Model model) {
+    public String halamanProduct(@RequestParam(defaultValue = "1") int page, HttpSession session, Model model) {
         if (bukanAdmin(session)) {
             return "redirect:/login";
         }
+        Page<Product> produkPage = productService.cariSemuaProduct(Math.max(page - 1, 0), 15);
 
-        int pageIndex = page > 0 ? page - 1 : 0;
-        Page<Product> produkPage = productService.cariSemuaProduct(pageIndex, 15);
-
-        model.addAttribute("produkPage", produkPage);
         model.addAttribute("daftarProduct", produkPage.getContent());
         model.addAttribute("currentPage", page);
         model.addAttribute("totalPages", produkPage.getTotalPages());
-        model.addAttribute("totalItems", produkPage.getTotalElements());
         model.addAttribute("semuaCategory", categoryService.semuaCategory());
         model.addAttribute("kodeBaruOtomatis", productService.generateKodeProduct());
         model.addAttribute("currentUser", session.getAttribute("user"));
         model.addAttribute("activeMenu", "produk");
-
         return "admin/product";
     }
 
     @GetMapping("/tambah")
     public String halamanTambah(HttpSession session) {
-        if (bukanAdmin(session)) {
-            return "redirect:/login";
-        }
-        return "redirect:/product?tambah=true";
+        return bukanAdmin(session) ? "redirect:/login" : "redirect:/product?tambah=true";
     }
 
     @PostMapping("/simpan")
-    public String simpanProduct(
-            @RequestParam(required = false) String code,
-            @RequestParam String name,
-            @RequestParam BigDecimal price,
-            @RequestParam Integer stock,
-            @RequestParam Long categoryId,
+    public String simpanProduct(@RequestParam(required = false) String code, @RequestParam String name,
+            @RequestParam BigDecimal price, @RequestParam Integer stock, @RequestParam Long categoryId,
             @RequestParam(value = "foto", required = false) MultipartFile foto,
-            HttpSession session,
-            RedirectAttributes redirect) {
+            HttpSession session, RedirectAttributes redirect) {
         if (bukanAdmin(session)) {
             return "redirect:/login";
         }
-
         String error = validasiInput(name, price, categoryId);
         if (error != null) {
-            redirect.addFlashAttribute("pesanError", error);
-            return "redirect:/product";
+            return kembali(redirect, "pesanError", error);
         }
-
         if (stock == null || stock < 0) {
-            redirect.addFlashAttribute("pesanError", "Stok tidak boleh kurang dari 0.");
-            return "redirect:/product";
+            return kembali(redirect, "pesanError", "Stok tidak boleh kurang dari 0.");
         }
 
         String kodeFinal;
         if (code != null && !code.isBlank()) {
             kodeFinal = code.trim().toUpperCase();
             if (productService.cariKodeProduct(kodeFinal).isPresent()) {
-                redirect.addFlashAttribute("pesanError", "Kode produk sudah digunakan.");
-                return "redirect:/product";
+                return kembali(redirect, "pesanError", "Kode produk sudah digunakan.");
             }
         } else {
             kodeFinal = productService.generateKodeProduct();
@@ -114,7 +94,6 @@ public class ProductController {
         }
 
         Category category = categoryService.cariById(categoryId).get();
-
         Product product = new Product();
         product.setCode(kodeFinal);
         product.setName(name.trim());
@@ -124,49 +103,30 @@ public class ProductController {
         product.setFotoProduk(namaFoto);
         productService.simpanProduct(product);
 
-        redirect.addFlashAttribute("pesanSukses", "Produk berhasil ditambahkan.");
         redirect.addFlashAttribute("tipeNotif", "tambah");
-        return "redirect:/product";
-    }
-
-    @GetMapping("/edit/{id}")
-    public String halamanEdit(@PathVariable Long id, HttpSession session) {
-        if (bukanAdmin(session)) {
-            return "redirect:/login";
-        }
-        return "redirect:/product";
+        return kembali(redirect, "pesanSukses", "Produk berhasil ditambahkan.");
     }
 
     @PostMapping("/update")
-    public String updateProduct(
-            @RequestParam Long id,
-            @RequestParam(required = false) String code,
-            @RequestParam String name,
-            @RequestParam BigDecimal price,
-            @RequestParam Long categoryId,
+    public String updateProduct(@RequestParam Long id, @RequestParam(required = false) String code,
+            @RequestParam String name, @RequestParam BigDecimal price, @RequestParam Long categoryId,
             @RequestParam(value = "foto", required = false) MultipartFile foto,
-            HttpSession session,
-            RedirectAttributes redirect) {
+            HttpSession session, RedirectAttributes redirect) {
         if (bukanAdmin(session)) {
             return "redirect:/login";
         }
-
         Product product = cariProduk(id);
         if (product == null) {
-            redirect.addFlashAttribute("pesanError", "Produk tidak ditemukan.");
-            return "redirect:/product";
+            return kembali(redirect, "pesanError", "Produk tidak ditemukan.");
         }
-
         String error = validasiInput(name, price, categoryId);
         if (error != null) {
-            redirect.addFlashAttribute("pesanError", error);
-            return "redirect:/product";
+            return kembali(redirect, "pesanError", error);
         }
 
         String kodeFinal = (code != null && !code.isBlank()) ? code.trim().toUpperCase() : product.getCode();
         if (productService.cariKodeProduct(kodeFinal, id).isPresent()) {
-            redirect.addFlashAttribute("pesanError", "Kode produk sudah digunakan.");
-            return "redirect:/product";
+            return kembali(redirect, "pesanError", "Kode produk sudah digunakan.");
         }
 
         String fotoBaru = prosesUploadFoto(foto, redirect);
@@ -175,93 +135,75 @@ public class ProductController {
         }
 
         String fotoLama = product.getFotoProduk();
-        Category category = categoryService.cariById(categoryId).get();
-
         product.setCode(kodeFinal);
         product.setName(name.trim());
         product.setPrice(price);
-        product.setCategory(category);
+        product.setCategory(categoryService.cariById(categoryId).get());
         if (fotoBaru != null) {
             product.setFotoProduk(fotoBaru);
         }
         productService.simpanProduct(product);
-
         if (fotoBaru != null) {
             hapusFileFoto(fotoLama);
         }
 
-        redirect.addFlashAttribute("pesanSukses", "Produk berhasil diperbarui.");
         redirect.addFlashAttribute("tipeNotif", "update");
-        return "redirect:/product";
+        return kembali(redirect, "pesanSukses", "Produk berhasil diperbarui.");
     }
 
     @PostMapping("/tambah-stok")
-    public String tambahStok(
-            @RequestParam Long id,
-            @RequestParam Integer jumlah,
-            HttpSession session,
-            RedirectAttributes redirect) {
+    public String tambahStok(@RequestParam Long id, @RequestParam Integer jumlah, HttpSession session, RedirectAttributes redirect) {
         if (bukanAdmin(session)) {
             return "redirect:/login";
         }
-
         Product product = cariProduk(id);
         if (product == null) {
-            redirect.addFlashAttribute("pesanError", "Produk tidak ditemukan.");
-            return "redirect:/product";
+            return kembali(redirect, "pesanError", "Produk tidak ditemukan.");
         }
-
         if (jumlah == null || jumlah <= 0) {
-            redirect.addFlashAttribute("pesanError", "Jumlah stok yang ditambahkan harus lebih dari 0.");
-            return "redirect:/product";
+            return kembali(redirect, "pesanError", "Jumlah stok yang ditambahkan harus lebih dari 0.");
         }
 
         int stokLama = product.getStok() != null ? product.getStok() : 0;
         product.setStok(stokLama + jumlah);
         productService.simpanProduct(product);
 
-        redirect.addFlashAttribute("pesanSukses", "Stok berhasil ditambahkan.");
         redirect.addFlashAttribute("tipeNotif", "tambah");
-        return "redirect:/product";
+        return kembali(redirect, "pesanSukses", "Stok berhasil ditambahkan.");
     }
 
     @PostMapping("/hapus/{id}")
-    public String hapusProduct(
-            @PathVariable Long id,
-            HttpSession session,
-            RedirectAttributes redirect) {
+    public String hapusProduct(@PathVariable Long id, HttpSession session, RedirectAttributes redirect) {
         if (bukanAdmin(session)) {
             return "redirect:/login";
         }
-
         Product product = cariProduk(id);
         if (product == null) {
-            redirect.addFlashAttribute("pesanError", "Produk tidak ditemukan.");
-            return "redirect:/product";
+            return kembali(redirect, "pesanError", "Produk tidak ditemukan.");
         }
 
         String fotoProduk = product.getFotoProduk();
         try {
             productService.hapusProduct(id);
             hapusFileFoto(fotoProduk);
-            redirect.addFlashAttribute("pesanSukses", "Produk berhasil dihapus.");
             redirect.addFlashAttribute("tipeNotif", "hapus");
+            return kembali(redirect, "pesanSukses", "Produk berhasil dihapus.");
         } catch (Exception e) {
-            redirect.addFlashAttribute("pesanError", "Produk tidak bisa dihapus karena sudah memiliki riwayat transaksi.");
+            return kembali(redirect, "pesanError", "Produk tidak bisa dihapus karena sudah memiliki riwayat transaksi.");
         }
-
-        return "redirect:/product";
     }
 
     private boolean bukanAdmin(HttpSession session) {
-        return !"admin".equals(session.getAttribute("role"));
+        return !"admin".equalsIgnoreCase((String) session.getAttribute("role"));
+    }
+
+    private String kembali(RedirectAttributes redirect, String kunci, String pesan) {
+        redirect.addFlashAttribute(kunci, pesan);
+        return "redirect:/product";
     }
 
     private Product cariProduk(Long id) {
-        if (id == null) {
-            return null;
-        }
-        return productService.cariById(id).orElse(null);
+        return id == null ? null : productService.cariById(id).orElse(null);
     }
 
     private String validasiInput(String name, BigDecimal price, Long categoryId) {
@@ -312,11 +254,12 @@ public class ProductController {
     }
 
     private void hapusFileFoto(String namaFoto) {
-        if (namaFoto != null && !namaFoto.isBlank() && productService.hitungPenggunaFoto(namaFoto) == 0) {
-            try {
-                Files.deleteIfExists(folderProduct.resolve(namaFoto).normalize());
-            } catch (IOException ignored) {
-            }
+        if (namaFoto == null || namaFoto.isBlank() || productService.hitungPenggunaFoto(namaFoto) != 0) {
+            return;
+        }
+        try {
+            Files.deleteIfExists(folderProduct.resolve(namaFoto).normalize());
+        } catch (IOException ignored) {
         }
     }
 }

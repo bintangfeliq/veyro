@@ -13,6 +13,7 @@ import com.example.veyro.model.Product;
 import com.example.veyro.repository.ProductRepository;
 
 @Service
+@SuppressWarnings("null")
 public class ProductService {
 
     private final ProductRepository productRepository;
@@ -39,7 +40,7 @@ public class ProductService {
     }
 
     public Page<Product> cariSemuaProduct(int page, int size) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by("id").ascending());
+        Pageable pageable = PageRequest.of(page, size, Sort.by("id").descending());
         return productRepository.findAll(pageable);
     }
 

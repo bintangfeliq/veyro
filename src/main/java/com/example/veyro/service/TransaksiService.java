@@ -3,6 +3,7 @@ package com.example.veyro.service;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -11,6 +12,7 @@ import java.util.UUID;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,6 +25,7 @@ import com.example.veyro.repository.ProductRepository;
 import com.example.veyro.repository.TransaksiRepository;
 
 @Service
+@SuppressWarnings("null")
 public class TransaksiService {
 
     private final TransaksiRepository transaksiRepository;
@@ -40,7 +43,10 @@ public class TransaksiService {
         if (productId == null || jumlah == null || productId.isEmpty() || productId.size() != jumlah.size()) {
             throw new IllegalArgumentException("Produk atau jumlah tidak valid.");
         }
-        if (kasir == null || !"kasir".equals(kasir.getRole())) {
+        if (kasir == null) {
+            throw new IllegalArgumentException("Akun kasir tidak valid.");
+        }
+        if (kasir.getRole() == null || !"kasir".equalsIgnoreCase(kasir.getRole().trim())) {
             throw new IllegalArgumentException("Akun kasir tidak valid.");
         }
         if (bayar == null || bayar.compareTo(BigDecimal.ZERO) < 0) {
@@ -49,6 +55,7 @@ public class TransaksiService {
         if (!List.of("Tunai", "QRIS", "Transfer").contains(metodePembayaran)) {
             throw new IllegalArgumentException("Metode pembayaran tidak valid.");
         }
+
         Map<Long, Integer> daftarProduk = new LinkedHashMap<>();
         for (int i = 0; i < productId.size(); i++) {
             Long idProduk = productId.get(i);
@@ -56,13 +63,21 @@ public class TransaksiService {
             if (idProduk == null || jumlahProduk == null || jumlahProduk <= 0) {
                 throw new IllegalArgumentException("Produk atau jumlah tidak valid.");
             }
-            daftarProduk.merge(idProduk, jumlahProduk, (jumlahLama, jumlahBaru) -> jumlahLama + jumlahBaru);
+            if (daftarProduk.containsKey(idProduk)) {
+                daftarProduk.put(idProduk, daftarProduk.get(idProduk) + jumlahProduk);
+            } else {
+                daftarProduk.put(idProduk, jumlahProduk);
+            }
         }
 
         Map<Product, Integer> produkDibeli = new LinkedHashMap<>();
         BigDecimal total = BigDecimal.ZERO;
         for (Map.Entry<Long, Integer> item : daftarProduk.entrySet()) {
-            Product product = productRepository.findById(item.getKey()).orElseThrow(() -> new IllegalArgumentException("Produk tidak ditemukan."));
+            Optional<Product> optProduct = productRepository.findById(item.getKey());
+            if (optProduct.isEmpty()) {
+                throw new IllegalArgumentException("Produk tidak ditemukan.");
+            }
+            Product product = optProduct.get();
             int jumlahProduk = item.getValue();
             if (product.getStok() == null || product.getStok() < jumlahProduk) {
                 throw new IllegalArgumentException("Stok produk " + product.getName() + " tidak mencukupi.");
@@ -74,6 +89,7 @@ public class TransaksiService {
             BigDecimal subtotal = product.getPrice().multiply(BigDecimal.valueOf(jumlahProduk));
             total = total.add(subtotal);
         }
+
         if (bayar.compareTo(total) < 0) {
             throw new IllegalArgumentException("Uang pembayaran kurang.");
         }
@@ -99,9 +115,11 @@ public class TransaksiService {
             detail.setHarga(product.getPrice());
             detail.setSubtotal(product.getPrice().multiply(BigDecimal.valueOf(jumlahProduk)));
             detailTransaksiRepository.save(detail);
+
             product.setStok(product.getStok() - jumlahProduk);
             productRepository.save(product);
         }
+
         return transaksi;
     }
 
@@ -118,7 +136,7 @@ public class TransaksiService {
     }
 
     public List<Transaksi> cariSemuaTransaksiTerbaru() {
-        return transaksiRepository.findAllByOrderByTanggalTransaksiDesc();
+        return transaksiRepository.findAll(Sort.by("id").descending());
     }
 
     public List<Transaksi> cariTransaksiFilterList(LocalDateTime start, LocalDateTime end) {
@@ -133,16 +151,32 @@ public class TransaksiService {
         return detailTransaksiRepository.findByTransaksiIn(transaksiList);
     }
 
-    @Transactional(readOnly = true)
-    public List<DetailTransaksi> cariDetailByTransaksi(Transaksi transaksi) {
-        if (transaksi == null) {
+    public Map<Long, List<DetailTransaksi>> kelompokkanDetail(List<Transaksi> transaksiList) {
+        Map<Long, List<DetailTransaksi>> hasil = new HashMap<>();
+        for (DetailTransaksi detail : cariDetailByTransaksiIn(transaksiList)) {
+            if (detail.getTransaksi() == null || detail.getTransaksi().getId() == null) {
+                continue;
+            }
+            Long idTransaksi = detail.getTransaksi().getId();
+            if (!hasil.containsKey(idTransaksi)) {
+                hasil.put(idTransaksi, new ArrayList<>());
+            }
+            hasil.get(idTransaksi).add(detail);
+        }
+        return hasil;
+    }
+
+    public List<Transaksi> cariTransaksiByKasir(User kasir) {
+        if (kasir == null) {
             return new ArrayList<>();
         }
-        return detailTransaksiRepository.findByTransaksi(transaksi);
+        return transaksiRepository.findByKasirOrderByTanggalTransaksiDesc(kasir);
     }
 
-    public Optional<Transaksi> cariById(Long id) {
-        return transaksiRepository.findById(id);
+    public Page<Transaksi> cariTransaksiByKasirPage(User kasir, Pageable pageable) {
+        if (kasir == null) {
+            return Page.empty(pageable);
+        }
+        return transaksiRepository.findByKasir(kasir, pageable);
     }
-
 }

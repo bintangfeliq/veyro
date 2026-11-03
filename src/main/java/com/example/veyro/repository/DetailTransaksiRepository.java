@@ -9,6 +9,4 @@ import com.example.veyro.model.Transaksi;
 
 public interface DetailTransaksiRepository extends JpaRepository<DetailTransaksi, Long> {
     List<DetailTransaksi> findByTransaksiIn(List<Transaksi> transaksiList);
-    List<DetailTransaksi> findByTransaksi(Transaksi transaksi);
 }
-
