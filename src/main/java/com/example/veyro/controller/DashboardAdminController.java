@@ -20,7 +20,6 @@ import jakarta.servlet.http.HttpSession;
 
 @Controller
 @RequestMapping("/admin")
-@SuppressWarnings("null")
 public class DashboardAdminController {
 
     private final ProductService productService;
@@ -38,7 +37,6 @@ public class DashboardAdminController {
         }
         List<Product> produkList = productService.semuaProduct();
         List<Transaksi> transaksiList = transaksiService.semuaTransaksi();
-
         List<Product> produkStokMenipis = new ArrayList<>();
         for (Product p : produkList) {
             if (p.getStok() != null && p.getStok() <= 5) {

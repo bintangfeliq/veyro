@@ -25,7 +25,6 @@ import com.example.veyro.repository.ProductRepository;
 import com.example.veyro.repository.TransaksiRepository;
 
 @Service
-@SuppressWarnings("null")
 public class TransaksiService {
 
     private final TransaksiRepository transaksiRepository;

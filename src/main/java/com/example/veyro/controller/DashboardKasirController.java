@@ -20,7 +20,6 @@ import jakarta.servlet.http.HttpSession;
 
 @Controller
 @RequestMapping("/kasir")
-@SuppressWarnings("null")
 public class DashboardKasirController {
 
     private final ProductService productService;

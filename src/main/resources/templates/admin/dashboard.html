@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard - Veyro - Admin</title>
+    <title>Dashboard - Veyro</title>
     <link rel="icon" type="image/png" th:href="@{/images/logoBrow.png}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -19,10 +19,8 @@
     <div class="admin-layout">
         <div th:replace="~{admin/fragments :: sidebar('dashboard')}"></div>
         <div th:replace="~{admin/fragments :: overlay}"></div>
-
         <div class="admin-main">
-            <div
-                th:replace="~{admin/fragments :: header('Dashboard', 'Ringkasan performa toko, penjualan, dan inventaris')}">
+            <div th:replace="~{admin/fragments :: header('Dashboard', 'Ringkasan performa toko, penjualan, dan inventaris')}">
             </div>
 
             <div class="admin-content">
@@ -30,29 +28,17 @@
 
                 <div class="banner-card">
                     <div class="banner-content">
-                        <h2 class="banner-title">
-                            Selamat Datang, <span
-                                th:text="${currentUser != null ? currentUser.username : 'Admin'}">Admin</span>!
+                        <h2 class="banner-title">Selamat Datang, <span th:text="${currentUser != null ? currentUser.username : 'Admin'}">Admin</span>!
                         </h2>
-                        <p class="banner-subtitle">
-                            Semua sistem operasional kasir Veyro berjalan normal. Pantau transaksi dan persediaan secara
-                            berkala
-                        </p>
+                        <p class="banner-subtitle">Semua sistem operasional kasir Veyro berjalan normal. Pantau transaksi dan persediaan secara berkala</p>
                         <div class="banner-actions">
-                            <a th:href="@{/product/tambah}" class="btn-banner btn-banner-primary">
-                                <i class="bi bi-plus-circle"></i>
-                                <span>Tambah Produk</span>
-                            </a>
-                            <a th:href="@{/admin/transaksi}" class="btn-banner btn-banner-secondary">
-                                <i class="bi bi-receipt"></i>
-                                <span>Lihat Semua Transaksi</span>
-                            </a>
+                            <a th:href="@{/product/tambah}" class="btn-banner btn-banner-primary"><i class="bi bi-plus-circle"></i><span>Tambah Produk</span></a>
+                            <a th:href="@{/admin/transaksi}" class="btn-banner btn-banner-secondary"><i class="bi bi-receipt"></i><span>Lihat Semua Transaksi</span></a>
                         </div>
                     </div>
                     <div class="banner-stat-box">
                         <span class="banner-stat-label">Pendapatan Hari Ini</span>
-                        <div class="banner-stat-value"
-                            th:text="'Rp ' + ${#numbers.formatDecimal(totalPenjualan, 0, 'POINT', 0, 'COMMA')}">Rp 0
+                        <div class="banner-stat-value" th:text="'Rp ' + ${#numbers.formatDecimal(totalPenjualan, 0, 'POINT', 0, 'COMMA')}">Rp 0
                         </div>
                     </div>
                 </div>
@@ -106,15 +92,11 @@
                                 <h3 class="card-title">Transaksi Terbaru</h3>
                                 <p class="card-subtitle">5 pesanan terakhir yang masuk</p>
                             </div>
-                            <a th:href="@{/admin/transaksi}" class="card-action-link">
-                                <span>Lihat Semua</span>
-                                <i class="bi bi-arrow-right"></i>
-                            </a>
+                            <a th:href="@{/admin/transaksi}" class="card-action-link"><span>Lihat Semua</span><i class="bi bi-arrow-right"></i></a>
                         </div>
 
                         <div th:if="${#lists.isEmpty(transaksiTerbaru)}" class="empty-state">
-                            <img th:src="@{/images/transaksikosong.png}" src="/images/transaksikosong.png"
-                                alt="Belum Ada Transaksi" class="empty-img">
+                            <img th:src="@{/images/transaksikosong.png}" src="/images/transaksikosong.png" alt="Belum Ada Transaksi" class="empty-img">
                             <div class="empty-title">Belum Ada Transaksi</div>
                             <div class="empty-subtitle">Transaksi baru dari kasir akan langsung tampil di sini.</div>
                         </div>
@@ -123,7 +105,6 @@
                             <table class="veyro-table">
                                 <thead>
                                     <tr>
-                                        <th>ID</th>
                                         <th>Tanggal</th>
                                         <th>Kasir</th>
                                         <th>Total</th>
@@ -132,22 +113,10 @@
                                 </thead>
                                 <tbody>
                                     <tr th:each="trx : ${transaksiTerbaru}">
-                                        <td class="font-mono text-mint" th:text="'#' + ${trx.id}">#1</td>
-                                        <td th:text="${#temporals.format(trx.tanggalTransaksi, 'dd MMM yyyy HH:mm')}">20 Okt 2026
-                                        </td>
-                                        <td>
-                                            <span class="badge-subtle"
-                                                th:text="${trx.kasir != null ? trx.kasir.username : 'Kasir'}">Kasir</span>
-                                        </td>
-                                        <td class="fw-bold"
-                                            th:text="'Rp ' + ${#numbers.formatDecimal(trx.total, 0, 'POINT', 0, 'COMMA')}">
-                                            Rp 0</td>
-                                        <td>
-                                            <span class="badge-status success">
-                                                <i class="bi bi-check-circle-fill"></i>
-                                                <span>Selesai</span>
-                                            </span>
-                                        </td>
+                                        <td th:text="${#temporals.format(trx.tanggalTransaksi, 'dd MMM yyyy HH:mm')}">20 Okt 2026</td>
+                                        <td><span class="badge-subtle" th:text="${trx.kasir != null ? trx.kasir.username : 'Kasir'}">Kasir</span></td>
+                                        <td class="fw-bold" th:text="'Rp ' + ${#numbers.formatDecimal(trx.total, 0, 'POINT', 0, 'COMMA')}">Rp 0</td>
+                                        <td><span class="badge-status success"><i class="bi bi-check-circle-fill"></i><span>Selesai</span></span></td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -158,17 +127,12 @@
                         <div class="card-header-clean">
                             <div class="card-title-group">
                                 <h3 class="card-title">Stok Menipis</h3>
-                                <p class="card-subtitle">Produk dengan sisa stok &le; 5 unit</p>
                             </div>
-                            <a th:href="@{/product}" class="card-action-link">
-                                <span>Katalog</span>
-                                <i class="bi bi-arrow-right"></i>
-                            </a>
+                            <a th:href="@{/product}" class="card-action-link"><span>Katalog</span><i class="bi bi-arrow-right"></i></a>
                         </div>
 
                         <div th:if="${#lists.isEmpty(produkStokMenipis)}" class="empty-state">
-                            <img th:src="@{/images/stokaman.png}" src="/images/stokaman.png" alt="Semua Stok Aman"
-                                class="empty-img">
+                            <img th:src="@{/images/stokaman.png}" src="/images/stokaman.png" alt="Semua Stok Aman" class="empty-img">
                             <div class="empty-title">Semua Stok Aman</div>
                             <div class="empty-subtitle">Tidak ada produk yang perlu di-restock saat ini.</div>
                         </div>
@@ -176,25 +140,16 @@
                         <div th:if="${!#lists.isEmpty(produkStokMenipis)}" class="stock-alert-list">
                             <div th:each="item : ${produkStokMenipis}" class="stock-alert-item">
                                 <div class="stock-alert-left">
-                                    <div class="stock-product-icon"
-                                        th:text="${item.category != null and item.category.icon != null and !item.category.icon.isEmpty() ? item.category.icon : '📦'}">
-                                        📦</div>
+                                    <div class="stock-product-icon" th:text="${item.category != null and item.category.icon != null and !item.category.icon.isEmpty() ? item.category.icon : '📦'}">📦</div>
                                     <div class="stock-product-info">
                                         <div class="stock-product-name" th:text="${item.name}">Nama Produk</div>
-                                        <div class="stock-product-cat"
-                                            th:text="${item.category != null ? item.category.name : 'Umum'}">Kategori
+                                        <div class="stock-product-cat" th:text="${item.category != null ? item.category.name : 'Umum'}">Kategori
                                         </div>
                                     </div>
                                 </div>
                                 <div class="stock-alert-right">
-                                    <span class="badge-status danger">
-                                        <i class="bi bi-exclamation-triangle-fill"></i>
-                                        <span th:text="'Sisa ' + ${item.stok}">Sisa 0</span>
-                                    </span>
-                                    <a th:href="@{/product}" class="btn-restock">
-                                        <i class="bi bi-pencil-square"></i>
-                                        <span>Kelola</span>
-                                    </a>
+                                    <span class="badge-status danger"><i class="bi bi-exclamation-triangle-fill"></i><span th:text="'Sisa ' + ${item.stok}">Sisa 0</span></span>
+                                    <a th:href="@{/product}" class="btn-restock"><i class="bi bi-pencil-square"></i><span>Kelola</span> </a>
                                 </div>
                             </div>
                         </div>

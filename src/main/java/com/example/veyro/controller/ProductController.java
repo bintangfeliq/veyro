@@ -28,7 +28,6 @@ import jakarta.servlet.http.HttpSession;
 
 @Controller
 @RequestMapping("/product")
-@SuppressWarnings("null")
 public class ProductController {
 
     private final ProductService productService;
@@ -63,10 +62,7 @@ public class ProductController {
     }
 
     @PostMapping("/simpan")
-    public String simpanProduct(@RequestParam(required = false) String code, @RequestParam String name,
-            @RequestParam BigDecimal price, @RequestParam Integer stock, @RequestParam Long categoryId,
-            @RequestParam(value = "foto", required = false) MultipartFile foto,
-            HttpSession session, RedirectAttributes redirect) {
+    public String simpanProduct(@RequestParam(required = false) String code, @RequestParam String name, @RequestParam BigDecimal price, @RequestParam Integer stock, @RequestParam Long categoryId, @RequestParam(value = "foto", required = false) MultipartFile foto, HttpSession session, RedirectAttributes redirect) {
         if (bukanAdmin(session)) {
             return "redirect:/login";
         }
@@ -108,10 +104,7 @@ public class ProductController {
     }
 
     @PostMapping("/update")
-    public String updateProduct(@RequestParam Long id, @RequestParam(required = false) String code,
-            @RequestParam String name, @RequestParam BigDecimal price, @RequestParam Long categoryId,
-            @RequestParam(value = "foto", required = false) MultipartFile foto,
-            HttpSession session, RedirectAttributes redirect) {
+    public String updateProduct(@RequestParam Long id, @RequestParam(required = false) String code, @RequestParam String name, @RequestParam BigDecimal price, @RequestParam Long categoryId, @RequestParam(value = "foto", required = false) MultipartFile foto, HttpSession session, RedirectAttributes redirect) {
         if (bukanAdmin(session)) {
             return "redirect:/login";
         }

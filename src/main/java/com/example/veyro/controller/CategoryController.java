@@ -16,7 +16,6 @@ import jakarta.servlet.http.HttpSession;
 
 @Controller
 @RequestMapping("/category")
-@SuppressWarnings("null")
 public class CategoryController {
 
     private final CategoryService categoryService;
@@ -37,8 +36,7 @@ public class CategoryController {
     }
 
     @PostMapping("/simpan")
-    public String simpanCategory(@RequestParam(required = false) String name, @RequestParam(required = false) String icon,
-            RedirectAttributes redirect, HttpSession session) {
+    public String simpanCategory(@RequestParam(required = false) String name, @RequestParam(required = false) String icon, RedirectAttributes redirect, HttpSession session) {
         if (bukanAdmin(session)) {
             return "redirect:/login";
         }

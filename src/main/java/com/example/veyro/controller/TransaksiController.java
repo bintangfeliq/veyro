@@ -18,7 +18,6 @@ import jakarta.servlet.http.HttpSession;
 
 @Controller
 @RequestMapping("/transaksi")
-@SuppressWarnings("null")
 public class TransaksiController {
 
     private final TransaksiService transaksiService;
@@ -30,9 +29,7 @@ public class TransaksiController {
     }
 
     @PostMapping("/simpan")
-    public String simpanTransaksi(@RequestParam List<Long> productId, @RequestParam List<Integer> jumlah,
-            @RequestParam BigDecimal bayar, @RequestParam String metodePembayaran,
-            HttpSession session, RedirectAttributes redirectAttributes) {
+    public String simpanTransaksi(@RequestParam List<Long> productId, @RequestParam List<Integer> jumlah, @RequestParam BigDecimal bayar, @RequestParam String metodePembayaran, HttpSession session, RedirectAttributes redirectAttributes) {
         String role = (String) session.getAttribute("role");
         if (role == null || !"kasir".equalsIgnoreCase(role.trim())) {
             return "redirect:/login";

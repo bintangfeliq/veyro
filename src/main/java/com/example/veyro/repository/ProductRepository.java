@@ -6,10 +6,7 @@ import com.example.veyro.model.Product;
 
 public interface ProductRepository extends JpaRepository<Product, Long> {
     Optional<Product> findByCodeIgnoreCase(String code);
-
     Optional<Product> findByCodeIgnoreCaseAndIdNot(String code, Long id);
-
     boolean existsByCategoryId(Long categoryId);
-
     long countByFotoProduk(String fotoProduk);
 }

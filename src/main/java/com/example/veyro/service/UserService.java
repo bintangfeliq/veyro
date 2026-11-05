@@ -10,7 +10,6 @@ import com.example.veyro.model.User;
 import com.example.veyro.repository.UserRepository;
 
 @Service
-@SuppressWarnings("null")
 public class UserService {
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();

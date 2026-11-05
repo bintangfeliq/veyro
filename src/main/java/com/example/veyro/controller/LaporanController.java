@@ -30,7 +30,6 @@ import jakarta.servlet.http.HttpSession;
 
 @Controller
 @RequestMapping("/admin")
-@SuppressWarnings("null")
 public class LaporanController {
 
     private final TransaksiService transaksiService;
@@ -76,9 +75,7 @@ public class LaporanController {
     }
 
     @GetMapping("/laporan")
-    public String laporan(@RequestParam(defaultValue = "1") int page, @RequestParam(required = false) String tipeFilter,
-            @RequestParam(required = false) String bulan, @RequestParam(required = false) String tanggalMulai,
-            @RequestParam(required = false) String tanggalSelesai, HttpSession session, Model model) {
+    public String laporan(@RequestParam(defaultValue = "1") int page, @RequestParam(required = false) String tipeFilter, @RequestParam(required = false) String bulan, @RequestParam(required = false) String tanggalMulai, @RequestParam(required = false) String tanggalSelesai, HttpSession session, Model model) {
         if (!"admin".equalsIgnoreCase((String) session.getAttribute("role"))) {
             return "redirect:/login";
         }
@@ -96,7 +93,6 @@ public class LaporanController {
         LocalDateTime start = null;
         LocalDateTime end = null;
         String periodeLabel = "Semua Waktu";
-
         if ("bulan".equalsIgnoreCase(tipeFilter)) {
             if (bulan == null || bulan.isBlank()) {
                 bulan = LocalDate.now().toString().substring(0, 7);
@@ -277,23 +273,19 @@ public class LaporanController {
         model.addAttribute("totalQrisTransferRingkas", formatRingkas(totalQrisTransfer));
         model.addAttribute("totalTransaksi", semuaFilter.size());
         model.addAttribute("totalProdukTerjualHariIni", totalProdukTerjualHariIni);
-
         model.addAttribute("daftarTransaksi", daftarTransaksi);
         model.addAttribute("detailsPerTransaksi", detailsPerTransaksi);
         model.addAttribute("currentPage", page);
         model.addAttribute("totalPages", transaksiPage.getTotalPages());
-
         model.addAttribute("tipeFilter", tipeFilter);
         model.addAttribute("bulan", bulan);
         model.addAttribute("tanggalMulai", tanggalMulai);
         model.addAttribute("tanggalSelesai", tanggalSelesai);
         model.addAttribute("periodeLabel", periodeLabel);
-
         model.addAttribute("kategoriStats", kategoriStats);
         model.addAttribute("chartLabelsJson", chartLabelsJson);
         model.addAttribute("chartDataNominalJson", chartDataNominalJson);
         model.addAttribute("chartDataJumlahJson", chartDataJumlahJson);
-
         model.addAttribute("currentUser", session.getAttribute("user"));
         model.addAttribute("activeMenu", "laporan");
 

@@ -10,7 +10,6 @@ import com.example.veyro.repository.CategoryRepository;
 import com.example.veyro.repository.ProductRepository;
 
 @Service
-@SuppressWarnings("null")
 public class CategoryService {
 
     private final CategoryRepository categoryRepository;

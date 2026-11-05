@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kasir POS - Veyro</title>
+    <title>Kasir - Veyro</title>
     <link rel="icon" type="image/png" th:href="@{/images/logoBrow.png}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -15,25 +15,17 @@
 </head>
 
 <body class="kasir-body">
-
+    <div id="toastContainer" class="veyro-toast-container"></div>
     <nav class="kasir-navbar">
         <div class="kasir-navbar-left">
-            <a th:href="@{/kasir/dashboard}" class="kasir-brand">
-                <img th:src="@{/images/sideAtas.png}" alt="Veyro Logo" class="kasir-brand-img">
-            </a>
+            <a th:href="@{/kasir/dashboard}" class="kasir-brand"><img th:src="@{/images/sideAtas.png}" alt="Veyro Logo" class="kasir-brand-img"></a>
             <div class="kasir-nav-divider"></div>
             <ul class="kasir-nav-pills">
                 <li class="kasir-nav-pill-item" th:classappend="${activeMenu == 'kasir' or activeMenu == null ? 'active' : ''}">
-                    <a th:href="@{/kasir/dashboard}">
-                        <i class="bi bi-grid-1x2-fill"></i>
-                        <span>Kasir POS</span>
-                    </a>
+                    <a th:href="@{/kasir/dashboard}"><i class="bi bi-grid-1x2-fill"></i><span>Kasir POS</span></a>
                 </li>
                 <li class="kasir-nav-pill-item" th:classappend="${activeMenu == 'riwayat' ? 'active' : ''}">
-                    <a th:href="@{/kasir/riwayat}">
-                        <i class="bi bi-receipt-cutoff"></i>
-                        <span>Riwayat Transaksi</span>
-                    </a>
+                    <a th:href="@{/kasir/riwayat}"><i class="bi bi-receipt-cutoff"></i><span>Riwayat Transaksi</span></a>
                 </li>
             </ul>
         </div>
@@ -46,31 +38,19 @@
 
             <div class="dropdown kasir-profile-dropdown">
                 <button type="button" class="kasir-profile-trigger" data-bs-toggle="dropdown" aria-expanded="false">
-                    <img th:if="${currentUser != null and currentUser.foto != null and !currentUser.foto.isEmpty()}"
-                        th:src="@{'/uploads/profil/' + ${currentUser.foto}}"
-                        alt="Foto Profil"
-                        class="kasir-chip-img"
-                        onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-                    <div th:style="${currentUser != null and currentUser.foto != null and !currentUser.foto.isEmpty()} ? 'display: none;' : 'display: flex;'"
-                        class="kasir-chip-avatar"
-                        th:text="${currentUser != null and currentUser.name != null and !currentUser.name.isEmpty() ? #strings.substring(currentUser.name, 0, 1).toUpperCase() : (currentUser != null and currentUser.username != null ? #strings.substring(currentUser.username, 0, 1).toUpperCase() : 'K')}">K</div>
-                    <span class="kasir-chip-name"
-                        th:text="${currentUser != null and currentUser.name != null and !currentUser.name.isEmpty() ? currentUser.name : (currentUser != null ? currentUser.username : 'Kasir')}">Kasir</span>
+                    <img th:if="${currentUser != null and currentUser.foto != null and !currentUser.foto.isEmpty()}" th:src="@{'/uploads/profil/' + ${currentUser.foto}}" alt="Foto Profil" class="kasir-chip-img" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <div th:style="${currentUser != null and currentUser.foto != null and !currentUser.foto.isEmpty()} ? 'display: none;' : 'display: flex;'" class="kasir-chip-avatar" th:text="${currentUser != null and currentUser.name != null and !currentUser.name.isEmpty() ? #strings.substring(currentUser.name, 0, 1).toUpperCase() : (currentUser != null and currentUser.username != null ? #strings.substring(currentUser.username, 0, 1).toUpperCase() : 'K')}">K</div>
+                    <span class="kasir-chip-name" th:text="${currentUser != null and currentUser.name != null and !currentUser.name.isEmpty() ? currentUser.name : (currentUser != null ? currentUser.username : 'Kasir')}">Kasir</span>
                     <i class="bi bi-chevron-down kasir-profile-chevron"></i>
                 </button>
 
                 <div class="dropdown-menu dropdown-menu-end kasir-dropdown-menu">
                     <div class="kasir-dropdown-header">
-                        <div class="kasir-dropdown-title"
-                            th:text="${currentUser != null and currentUser.name != null and !currentUser.name.isEmpty() ? currentUser.name : (currentUser != null ? currentUser.username : 'Kasir')}">Kasir</div>
-                        <div class="kasir-dropdown-sub">Kasir POS</div>
+                        <div class="kasir-dropdown-title" th:text="${currentUser != null and currentUser.name != null and !currentUser.name.isEmpty() ? currentUser.name : (currentUser != null ? currentUser.username : 'Kasir')}">Kasir</div>
+                        <div class="kasir-dropdown-sub">Kasir</div>
                     </div>
                     <div class="kasir-dropdown-divider"></div>
-                    <form th:action="@{/logout}" method="post" class="m-0">
-                        <button type="submit" class="kasir-dropdown-logout">
-                            <i class="bi bi-box-arrow-right"></i>
-                            <span>Logout</span>
-                        </button>
+                    <form th:action="@{/logout}" method="post" class="m-0"><button type="submit" class="kasir-dropdown-logout"><i class="bi bi-box-arrow-right"></i><span>Logout</span></button>
                     </form>
                 </div>
             </div>
@@ -78,7 +58,6 @@
     </nav>
 
     <div class="container-fluid px-4 py-3">
-
         <div th:if="${pesanError}" class="alert alert-danger alert-dismissible fade show d-flex align-items-center mb-3" style="background-color: var(--veyro-danger-subtle); border: 1px solid var(--veyro-danger); color: #991b1b;" role="alert">
             <i class="bi bi-exclamation-triangle-fill fs-5 me-2"></i>
             <div>
@@ -88,76 +67,45 @@
         </div>
 
         <div class="row g-4">
-
-            <div class="col-12 col-md-8 col-lg-8">
+            <div class="col-12 col-md-9 col-lg-9" id="areaProduk">
                 <div class="catalog-section-card">
-
                     <div class="catalog-header-bar">
                         <div>
                             <h2 class="catalog-title">Katalog Produk</h2>
-                            <span class="catalog-subtitle">Pilih produk untuk ditambahkan ke keranjang</span>
                         </div>
                         <div class="search-box-wrap">
                             <i class="bi bi-search search-icon"></i>
-                            <input type="text" id="searchProduct" class="form-control search-input-pos"
-                                placeholder="Cari nama atau kode barang..."
-                                autocomplete="off" onkeyup="filterProducts()">
+                            <input type="text" id="searchProduct" class="form-control search-input-pos" placeholder="Cari nama atau kode barang" autocomplete="off" onkeyup="filterProducts()">
                         </div>
                     </div>
 
                     <div class="category-filter-bar" id="categoryFilterBar">
-                        <button type="button" class="category-filter-btn active" data-cat-id="all" onclick="selectCategory('all', this)">
-                            <span class="cat-badge-dot"></span>
-                            <span>Semua Produk</span>
-                        </button>
-                        <button type="button" class="category-filter-btn" th:each="cat : ${semuaCategory}"
-                            th:attr="data-cat-id=${cat.id}"
-                            th:onclick="'selectCategory(' + ${cat.id} + ', this)'">
-                            <span th:text="${cat.icon != null and !cat.icon.isEmpty() ? cat.icon : '📦'}">📦</span>
-                            <span th:text="${cat.name}">Kategori</span>
-                        </button>
+                        <button type="button" class="category-filter-btn active" data-cat-id="all" onclick="selectCategory('all', this)"><span class="cat-emoji">🛍️</span><span class="cat-name">Semua</span></button>
+                        <button type="button" class="category-filter-btn" th:each="cat : ${semuaCategory}" th:attr="data-cat-id=${cat.id}" th:onclick="'selectCategory(' + ${cat.id} + ', this)'"><span class="cat-emoji" th:text="${cat.icon != null and !cat.icon.isEmpty() ? cat.icon : '📦'}">📦</span><span class="cat-name" th:text="${cat.name}" th:title="${cat.name}">Kategori</span></button>
                     </div>
 
                     <div class="row g-3" id="productGrid">
-                        <div class="col-6 col-sm-6 col-md-4 col-xl-3 product-item-col"
-                            th:each="p : ${semuaProduct}"
-                            th:attr="data-id=${p.id}, data-code=${p.code}, data-name=${p.name}, data-price=${p.price}, data-stock=${p.stok != null ? p.stok : 0}, data-cat-id=${p.category != null ? p.category.id : 0}">
-                            <div class="product-pos-card"
-                                th:classappend="${p.stok == null or p.stok <= 0 ? 'stok-habis' : ''}"
-                                th:onclick="${p.stok != null and p.stok > 0} ? 'handleCardClick(' + ${p.id} + ')' : ''">
+                        <div class="col-6 col-sm-4 product-item-col" th:each="p : ${semuaProduct}" th:attr="data-id=${p.id}, data-code=${p.code}, data-name=${p.name}, data-price=${p.price}, data-stock=${p.stok != null ? p.stok : 0}, data-cat-id=${p.category != null ? p.category.id : 0}">
+                            <div class="product-pos-card" th:classappend="${p.stok == null or p.stok <= 0 ? 'stok-habis' : ''}" th:onclick="${p.stok != null and p.stok > 0} ? 'handleCardClick(' + ${p.id} + ')' : ''">
                                 <div class="product-img-wrap">
-                                    <img th:if="${p.fotoProduk != null and !p.fotoProduk.isEmpty()}"
-                                        th:src="@{'/uploads/product/' + ${p.fotoProduk}}"
-                                        th:alt="${p.name}"
-                                        class="product-pos-img"
-                                        onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-                                    <div class="product-img-fallback"
-                                        th:style="${p.fotoProduk != null and !p.fotoProduk.isEmpty()} ? 'display: none;' : 'display: flex;'">
+                                    <img th:if="${p.fotoProduk != null and !p.fotoProduk.isEmpty()}" th:src="@{'/uploads/product/' + ${p.fotoProduk}}" th:alt="${p.name}" class="product-pos-img" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                    <div class="product-img-fallback" th:style="${p.fotoProduk != null and !p.fotoProduk.isEmpty()} ? 'display: none;' : 'display: flex;'">
                                         <span th:text="${p.category != null and p.category.icon != null and !p.category.icon.isEmpty() ? p.category.icon : '📦'}">📦</span>
                                     </div>
                                     <span th:if="${p.stok == null or p.stok <= 0}" class="product-stock-tag stock-empty">Habis</span>
-                                    <span th:if="${p.stok != null and p.stok > 0 and p.stok <= 5}" class="product-stock-tag stock-low"
-                                        th:text="'Sisa ' + ${p.stok}">Sisa 2</span>
-                                    <span th:if="${p.stok != null and p.stok > 5}" class="product-stock-tag stock-ok"
-                                        th:text="'Stok ' + ${p.stok}">Stok 10</span>
+                                    <span th:if="${p.stok != null and p.stok > 0 and p.stok <= 5}" class="product-stock-tag stock-low" th:text="'Sisa ' + ${p.stok}">Sisa 2</span>
+                                    <span th:if="${p.stok != null and p.stok > 5}" class="product-stock-tag stock-ok" th:text="'Stok ' + ${p.stok}">Stok 10</span>
                                 </div>
                                 <div class="product-pos-body">
                                     <div class="product-meta-top">
-                                        <span class="product-cat-label"
-                                            th:text="${p.category != null ? p.category.name : 'Lainnya'}">Kategori</span>
+                                        <span class="product-cat-label" th:text="${p.category != null ? p.category.name : 'Lainnya'}">Kategori</span>
                                         <span class="product-pos-code" th:text="${p.code}">PRD001</span>
                                     </div>
                                     <div class="product-pos-title" th:text="${p.name}" th:title="${p.name}">Nama Produk</div>
                                     <div class="product-pos-footer">
-                                        <div class="product-pos-price"
-                                            th:text="'Rp ' + ${#numbers.formatDecimal(p.price, 0, 'POINT', 0, 'COMMA')}">Rp 0</div>
-                                        <button th:if="${p.stok != null and p.stok > 0}" type="button" class="btn-add-icon"
-                                            th:onclick="'event.stopPropagation(); addToCart(' + ${p.id} + ')'" title="Tambah ke Keranjang">
-                                            <i class="bi bi-plus-lg"></i>
-                                        </button>
-                                        <button th:if="${p.stok == null or p.stok <= 0}" type="button" class="btn-add-icon disabled" disabled title="Stok Habis">
-                                            <i class="bi bi-slash-circle"></i>
-                                        </button>
+                                        <div class="product-pos-price" th:text="'Rp ' + ${#numbers.formatDecimal(p.price, 0, 'POINT', 0, 'COMMA')}">Rp 0</div>
+                                        <button th:if="${p.stok != null and p.stok > 0}" type="button" class="btn-add-icon" th:onclick="'event.stopPropagation(); addToCart(' + ${p.id} + ')'" title="Tambah ke Keranjang"><i class="bi bi-plus-lg"></i></button>
+                                        <button th:if="${p.stok == null or p.stok <= 0}" type="button" class="btn-add-icon disabled" disabled title="Stok Habis"><i class="bi bi-slash-circle"></i></button>
                                     </div>
                                 </div>
                             </div>
@@ -173,15 +121,13 @@
                 </div>
             </div>
 
-            <div class="col-12 col-md-4 col-lg-4" id="keranjang">
+            <div class="col-12 col-md-3 col-lg-3" id="keranjang">
                 <div class="cart-card">
                     <div class="cart-header">
-                        <h2 class="cart-title">Keranjang Belanja</h2>
+                        <h2 class="cart-title">Pembayaran</h2>
                         <div class="d-flex align-items-center gap-2">
                             <span id="cartCountBadge" class="cart-count-pill">0 barang</span>
-                            <button type="button" class="btn-clear-cart" id="btnClearCart" onclick="clearCart()" style="display: none;" title="Kosongkan Keranjang">
-                                <i class="bi bi-trash3"></i>
-                            </button>
+                            <button type="button" class="btn-clear-cart" id="btnClearCart" onclick="clearCart()" style="display: none;" title="Kosongkan Keranjang"><i class="bi bi-trash3"></i></button>
                         </div>
                     </div>
 
@@ -190,25 +136,17 @@
                             <img th:src="@{/images/produkosong.png}" src="/images/produkosong.png" alt="Keranjang Kosong" class="cart-empty-img">
                             <p class="cart-empty-desc">Belum ada produk di keranjang</p>
                         </div>
-
                         <div id="cartItemsContainer" class="cart-items-list" style="display: none;"></div>
                     </div>
 
                     <div class="cart-footer">
                         <div class="payment-summary-dashed">
-                            <div class="payment-summary-heading">Ringkasan Pembayaran</div>
-
-                            <div class="cart-summary-row">
-                                <span>Subtotal</span>
-                                <span class="cart-summary-val" id="cartSubtotalText">Rp 0</span>
-                            </div>
                             <div class="cart-summary-row">
                                 <span>Jumlah Barang</span>
                                 <span class="cart-summary-val" id="cartItemCount">0 barang</span>
                             </div>
 
                             <div class="payment-summary-divider"></div>
-
                             <div class="cart-total-row">
                                 <span class="cart-total-label">Total Pembayaran</span>
                                 <span class="cart-total-value" id="cartTotalText">Rp 0</span>
@@ -219,38 +157,25 @@
                                     <label class="cash-inline-label" for="inputBayarTunai">Uang Dibayar</label>
                                     <div class="cash-input-wrap">
                                         <span class="cash-input-prefix">Rp</span>
-                                        <input type="text" id="inputBayarTunai" class="cash-inline-input"
-                                            inputmode="numeric" autocomplete="off" placeholder="0"
-                                            oninput="formatInputTunai(this)">
+                                        <input type="text" id="inputBayarTunai" class="cash-inline-input" inputmode="numeric" autocomplete="off" placeholder="0" oninput="formatInputTunai(this)">
                                     </div>
                                 </div>
                                 <div class="cart-summary-row">
                                     <span>Uang Kembalian</span>
                                     <span class="cash-change-value" id="textKembalian">Rp 0</span>
                                 </div>
-                                <div id="peringatanKurang" class="cash-warning-text d-none">
-                                    Nominal uang belum mencukupi.
-                                </div>
+                                <div id="peringatanKurang" class="cash-warning-text d-none">Nominal uang belum mencukupi</div>
                             </div>
 
                             <div class="payment-method-heading">Metode Pembayaran</div>
-
                             <div class="payment-method-grid">
-                                <button type="button" class="payment-icon-card active" id="tabTunai" onclick="switchPayment('Tunai')" title="Tunai">
-                                    <i class="bi bi-cash-coin"></i>
-                                </button>
-                                <button type="button" class="payment-icon-card" id="tabQRIS" onclick="switchPayment('QRIS')" title="QRIS">
-                                    <i class="bi bi-qr-code-scan"></i>
-                                </button>
-                                <button type="button" class="payment-icon-card" id="tabTransfer" onclick="switchPayment('Transfer')" title="Transfer Bank">
-                                    <i class="bi bi-bank"></i>
-                                </button>
+                                <button type="button" class="payment-icon-card active" id="tabTunai" onclick="switchPayment('Tunai')" title="Tunai"><i class="bi bi-cash-coin"></i></button>
+                                <button type="button" class="payment-icon-card" id="tabQRIS" onclick="switchPayment('QRIS')" title="QRIS"><i class="bi bi-qr-code-scan"></i></button>
+                                <button type="button" class="payment-icon-card" id="tabTransfer" onclick="switchPayment('Transfer')" title="Transfer Bank"><i class="bi bi-bank"></i></button>
                             </div>
                         </div>
 
-                        <button type="button" class="btn-checkout-pos" id="btnCheckout" onclick="prosesTombolBayar()" disabled>
-                            <span id="btnCheckoutLabel">Bayar Sekarang</span>
-                        </button>
+                        <button type="button" class="btn-checkout-pos" id="btnCheckout" onclick="prosesTombolBayar()" disabled><span id="btnCheckoutLabel">Bayar Sekarang</span></button>
                     </div>
                 </div>
             </div>
@@ -305,13 +230,11 @@
             <div class="modal-content receipt-modal-shell">
                 <div class="printable-area receipt-paper" id="areaStruk">
                     <div class="receipt-store-header">
-                        <div class="receipt-store-name">VEYRO STORE</div>
-                        <div class="receipt-store-sub">Point of Sale Retail System</div>
-                        <div class="receipt-store-sub">Telp: (021) 8890-1234</div>
+                        <div class="receipt-store-name">VEYRO</div>
+                        <div class="receipt-store-sub">Detail Pembelian Kamu</div>
                     </div>
 
                     <div class="receipt-line-double"></div>
-
                     <div class="receipt-meta-block">
                         <div class="receipt-meta-row">
                             <span>No. Struk</span>
@@ -337,7 +260,6 @@
                     </div>
 
                     <div class="receipt-line-single"></div>
-
                     <div class="receipt-totals-block">
                         <div class="receipt-total-main">
                             <span>TOTAL</span>
@@ -354,23 +276,18 @@
                     </div>
 
                     <div class="receipt-line-double"></div>
-
                     <div class="receipt-footer-block">
                         <div>*** TERIMA KASIH ***</div>
                         <div>BARANG YANG SUDAH DIBELI</div>
-                        <div>TIDAK DAPAT DITUKAR/DIKEMBALIKAN</div>
+                        <div>TIDAK DAPAT DITUKAR ATAU DIKEMBALIKAN</div>
                         <div class="receipt-barcode"></div>
                         <div class="receipt-barcode-code" th:text="${transaksiSuksesKode != null ? transaksiSuksesKode : 'TRX'}">TRX12345</div>
                     </div>
                 </div>
 
                 <div class="receipt-modal-actions no-print">
-                    <button type="button" class="btn-receipt-print" onclick="window.print()">
-                        <i class="bi bi-printer me-1"></i>Cetak Struk
-                    </button>
-                    <button type="button" class="btn-receipt-done" data-bs-dismiss="modal">
-                        Selesai
-                    </button>
+                    <button type="button" class="btn-receipt-print" onclick="window.print()"><i class="bi bi-printer me-1"></i>Cetak Struk</button>
+                    <button type="button" class="btn-receipt-done" data-bs-dismiss="modal">Selesai</button>
                 </div>
             </div>
         </div>
@@ -458,6 +375,32 @@
             addToCart(productId);
         }
 
+        function tampilkanToastStok(pesan) {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = 'veyro-toast';
+            toast.innerHTML =
+                '<div class="veyro-toast-icon"><i class="bi bi-exclamation-triangle-fill"></i></div>' +
+                '<div class="veyro-toast-body">' +
+                '<span class="veyro-toast-tag">Stok Tidak Cukup</span>' +
+                '<p class="veyro-toast-msg"></p>' +
+                '</div>' +
+                '<button type="button" class="veyro-toast-close" aria-label="Tutup"><i class="bi bi-x"></i></button>' +
+                '<div class="veyro-toast-progress"></div>';
+            toast.querySelector('.veyro-toast-msg').textContent = pesan;
+            container.appendChild(toast);
+
+            function tutupToast() {
+                toast.classList.add('hide');
+                setTimeout(function () {
+                    toast.remove();
+                }, 300);
+            }
+
+            toast.querySelector('.veyro-toast-close').addEventListener('click', tutupToast);
+            setTimeout(tutupToast, 3000);
+        }
+
         function addToCart(productId) {
             const prod = getProductFromElement(productId);
             if (!prod || prod.stock <= 0) {
@@ -469,7 +412,7 @@
                 if (existing.qty < prod.stock) {
                     existing.qty++;
                 } else {
-                    alert('Jumlah di keranjang sudah mencapai batas stok tersedia (' + prod.stock + ').');
+                    tampilkanToastStok('Jumlah di keranjang sudah mencapai batas stok tersedia (' + prod.stock + ').');
                     return;
                 }
             } else {
@@ -493,7 +436,7 @@
 
             const nextQty = item.qty + delta;
             if (nextQty > item.stock) {
-                alert('Jumlah tidak boleh melebihi stok yang tersedia (' + item.stock + ').');
+                tampilkanToastStok('Jumlah tidak boleh melebihi stok yang tersedia (' + item.stock + ').');
                 return;
             }
             if (nextQty <= 0) {
@@ -524,7 +467,6 @@
             const itemsContainer = document.getElementById('cartItemsContainer');
             const cartCountBadge = document.getElementById('cartCountBadge');
             const cartItemCount = document.getElementById('cartItemCount');
-            const cartSubtotalText = document.getElementById('cartSubtotalText');
             const btnClearCart = document.getElementById('btnClearCart');
             const cartTotalText = document.getElementById('cartTotalText');
             const btnCheckout = document.getElementById('btnCheckout');
@@ -541,7 +483,6 @@
                 itemsContainer.style.display = 'none';
                 itemsContainer.innerHTML = '';
                 btnClearCart.style.display = 'none';
-                cartSubtotalText.textContent = formatRupiah(0);
                 cartTotalText.textContent = formatRupiah(0);
                 if (inputBayar) inputBayar.value = '';
                 if (textKembalian) {
@@ -588,7 +529,6 @@
 
             itemsContainer.innerHTML = html;
             const total = calculateTotal();
-            cartSubtotalText.textContent = formatRupiah(total);
             cartTotalText.textContent = formatRupiah(total);
             btnCheckout.disabled = false;
 

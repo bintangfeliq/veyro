@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="id" xmlns:th="http://www.thymeleaf.org">
 
 <head>
@@ -19,42 +19,31 @@
     <div class="admin-layout">
         <div th:replace="~{admin/fragments :: sidebar('transaksi')}"></div>
         <div th:replace="~{admin/fragments :: overlay}"></div>
-
         <div class="admin-main">
-            <div
-                th:replace="~{admin/fragments :: header('Riwayat Transaksi', 'Daftar seluruh riwayat transaksi penjualan kasir')}">
+            <div th:replace="~{admin/fragments :: header('Riwayat Transaksi', 'Daftar seluruh riwayat transaksi penjualan kasir')}">
             </div>
 
             <div class="admin-content">
                 <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4">
                     <div>
-                        <h3 class="fw-bold mb-1" style="color: var(--veyro-text); font-size: 20px;">Riwayat Transaksi
-                        </h3>
-                        <p class="small mb-0" style="color: var(--veyro-text-muted);">Daftar seluruh transaksi penjualan
-                        </p>
+                        <h3 class="fw-bold mb-1" style="color: var(--veyro-text); font-size: 20px;">Riwayat Transaksi</h3>
+                        <p class="small mb-0" style="color: var(--veyro-text-muted);">Daftar seluruh transaksi penjualan</p>
                     </div>
                 </div>
 
-                <div
-                    style="background-color: var(--veyro-card); border: 1px solid var(--veyro-border); border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(15, 81, 50, 0.04);">
-
-                    <div class="p-3 border-bottom d-flex flex-wrap align-items-center justify-content-between gap-3"
-                        style="border-color: var(--veyro-border) !important;">
-                        <h5 class="fw-bold mb-0" style="color: var(--veyro-sidebar-green); font-size: 16px;">Daftar
-                            Transaksi</h5>
+                <div style="background-color: var(--veyro-card); border: 1px solid var(--veyro-border); border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(15, 81, 50, 0.04);">
+                    <div class="p-3 border-bottom d-flex flex-wrap align-items-center justify-content-between gap-3" style="border-color: var(--veyro-border) !important;">
+                        <h5 class="fw-bold mb-0" style="color: var(--veyro-sidebar-green); font-size: 16px;">Daftar Transaksi</h5>
                         <div class="search-box-wrap" style="max-width: 320px;">
                             <i class="bi bi-search search-icon"></i>
-                            <input type="text" id="searchRiwayat" class="form-control form-control-sm search-input-pos"
-                                placeholder="Cari kode transaksi / kasir / metode..." onkeyup="filterRiwayat()">
+                            <input type="text" id="searchRiwayat" class="form-control form-control-sm search-input-pos" placeholder="Cari kode transaksi, kasir, dan metode pembayaran" onkeyup="filterRiwayat()">
                         </div>
                     </div>
 
                     <div th:if="${#lists.isEmpty(daftarTransaksi)}" class="text-center py-5">
-                        <img th:src="@{/images/transaksikosong.png}" src="/images/transaksikosong.png"
-                            alt="Belum Ada Transaksi" style="max-width: 170px; opacity: 0.85;">
+                        <img th:src="@{/images/transaksikosong.png}" src="/images/transaksikosong.png" alt="Belum Ada Transaksi" style="max-width: 170px; opacity: 0.85;">
                         <h6 class="mt-3 fw-bold" style="color: var(--veyro-text);">Belum Ada Transaksi</h6>
-                        <p class="small mb-0" style="color: var(--veyro-text-muted);">Transaksi yang dilakukan oleh
-                            kasir akan otomatis tercatat di sini.</p>
+                        <p class="small mb-0" style="color: var(--veyro-text-muted);">Transaksi yang dilakukan oleh kasir akan otomatis tercatat di sini.</p>
                     </div>
 
                     <div th:if="${!#lists.isEmpty(daftarTransaksi)}" class="table-responsive">
@@ -73,51 +62,18 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr th:each="trx, iter : ${daftarTransaksi}" class="riwayat-row"
-                                    th:attr="data-search=${trx.kodeTransaksi + ' ' + (trx.kasir != null ? trx.kasir.username : '') + ' ' + trx.metodePembayaran}">
-                                    <td class="ps-3" style="color: var(--veyro-text-muted);"
-                                        th:text="${(currentPage - 1) * 15 + iter.count}">1</td>
-                                    <td>
-                                        <span class="font-mono fw-semibold" style="color: var(--veyro-sidebar-green);"
-                                            th:text="${trx.kodeTransaksi}">TRX12345</span>
-                                    </td>
-                                    <td>
-                                        <span
-                                            th:text="${#temporals.format(trx.tanggalTransaksi, 'dd MMM yyyy, HH:mm')}">01
-                                            Nov 2026, 10:00</span>
-                                    </td>
-                                    <td>
-                                        <span class="badge-subtle"
-                                            th:text="${trx.kasir != null and trx.kasir.name != null and !trx.kasir.name.isEmpty() ? trx.kasir.name : (trx.kasir != null ? trx.kasir.username : 'Kasir')}">Kasir</span>
-                                    </td>
-                                    <td>
-                                        <span th:if="${trx.metodePembayaran == 'Tunai'}" class="badge-subtle-tunai">
-                                            <i class="bi bi-cash me-1"></i>Tunai
-                                        </span>
-                                        <span th:if="${trx.metodePembayaran == 'QRIS'}" class="badge-subtle-qris">
-                                            <i class="bi bi-qr-code me-1"></i>QRIS
-                                        </span>
-                                        <span th:if="${trx.metodePembayaran == 'Transfer'}"
-                                            class="badge-subtle-transfer">
-                                            <i class="bi bi-bank me-1"></i>Transfer
-                                        </span>
-                                    </td>
-                                    <td class="fw-bold" style="color: var(--veyro-sidebar-green);"
-                                        th:text="'Rp ' + ${#numbers.formatDecimal(trx.total, 0, 'POINT', 0, 'COMMA')}">
-                                        Rp 0</td>
-                                    <td style="color: var(--veyro-text-muted);"
-                                        th:text="'Rp ' + ${#numbers.formatDecimal(trx.pembayaran, 0, 'POINT', 0, 'COMMA')}">
-                                        Rp 0</td>
-                                    <td class="fw-semibold" style="color: var(--veyro-mint-dark);"
-                                        th:text="'Rp ' + ${#numbers.formatDecimal(trx.kembalian, 0, 'POINT', 0, 'COMMA')}">
-                                        Rp 0</td>
-                                    <td class="text-end pe-3">
-                                        <button type="button" class="btn btn-sm"
-                                            style="background-color: var(--veyro-bg); border: 1px solid var(--veyro-border); color: var(--veyro-sidebar-green); font-size: 11.5px; font-weight: 600;"
-                                            data-bs-toggle="modal" th:data-bs-target="'#modalStruk_' + ${trx.id}">
-                                            <i class="bi bi-receipt me-1"></i>Lihat Struk
-                                        </button>
-                                    </td>
+                                <tr th:each="trx, iter : ${daftarTransaksi}" class="riwayat-row" th:attr="data-search=${trx.kodeTransaksi + ' ' + (trx.kasir != null ? trx.kasir.username : '') + ' ' + trx.metodePembayaran}">
+                                    <td class="ps-3" style="color: var(--veyro-text-muted);" th:text="${(currentPage - 1) * 15 + iter.count}">1</td>
+                                    <td><span class="font-mono fw-semibold" style="color: var(--veyro-sidebar-green);" th:text="${trx.kodeTransaksi}">TRX12345</span></td>
+                                    <td><span th:text="${#temporals.format(trx.tanggalTransaksi, 'dd MMM yyyy, HH:mm')}">01 Nov 2026, 10:00</span></td>
+                                    <td><span class="badge-subtle" th:text="${trx.kasir != null and trx.kasir.name != null and !trx.kasir.name.isEmpty() ? trx.kasir.name : (trx.kasir != null ? trx.kasir.username : 'Kasir')}">Kasir</span></td>
+                                    <td><span th:if="${trx.metodePembayaran == 'Tunai'}" class="badge-subtle-tunai"><i class="bi bi-cash me-1"></i>Tunai</span>
+                                        <span th:if="${trx.metodePembayaran == 'QRIS'}" class="badge-subtle-qris"><i class="bi bi-qr-code me-1"></i>QRIS</span>
+                                        <span th:if="${trx.metodePembayaran == 'Transfer'}" class="badge-subtle-transfer"><i class="bi bi-bank me-1"></i>Transfer</span></td>
+                                    <td class="fw-bold" style="color: var(--veyro-sidebar-green);" th:text="'Rp ' + ${#numbers.formatDecimal(trx.total, 0, 'POINT', 0, 'COMMA')}"> Rp 0</td>
+                                    <td style="color: var(--veyro-text-muted);" th:text="'Rp ' + ${#numbers.formatDecimal(trx.pembayaran, 0, 'POINT', 0, 'COMMA')}">Rp 0</td>
+                                    <td class="fw-semibold" style="color: var(--veyro-mint-dark);" th:text="'Rp ' + ${#numbers.formatDecimal(trx.kembalian, 0, 'POINT', 0, 'COMMA')}">Rp 0</td>
+                                    <td class="text-end pe-3"><button type="button" class="btn btn-sm" style="background-color: var(--veyro-bg); border: 1px solid var(--veyro-border); color: var(--veyro-sidebar-green); font-size: 11.5px; font-weight: 600;" data-bs-toggle="modal" th:data-bs-target="'#modalStruk_' + ${trx.id}"><i class="bi bi-receipt me-1"></i>Lihat Struk</button></td>
                                 </tr>
                             </tbody>
                         </table>
@@ -126,18 +82,13 @@
                     <div th:if="${totalPages > 1}" class="veyro-pagination-wrapper px-3 pb-3">
                         <ul class="veyro-pagination">
                             <li class="page-item" th:classappend="${currentPage <= 1} ? 'disabled' : ''">
-                                <a class="page-link" th:href="@{/admin/transaksi(page=${currentPage - 1})}">
-                                    <i class="bi bi-chevron-left"></i>
-                                </a>
+                                <a class="page-link" th:href="@{/admin/transaksi(page=${currentPage - 1})}"><i class="bi bi-chevron-left"></i></a>
                             </li>
-                            <li th:each="p : ${#numbers.sequence(1, totalPages)}" class="page-item"
-                                th:classappend="${p == currentPage} ? 'active' : ''">
+                            <li th:each="p : ${#numbers.sequence(1, totalPages)}" class="page-item" th:classappend="${p == currentPage} ? 'active' : ''">
                                 <a class="page-link" th:href="@{/admin/transaksi(page=${p})}" th:text="${p}">1</a>
                             </li>
                             <li class="page-item" th:classappend="${currentPage >= totalPages} ? 'disabled' : ''">
-                                <a class="page-link" th:href="@{/admin/transaksi(page=${currentPage + 1})}">
-                                    <i class="bi bi-chevron-right"></i>
-                                </a>
+                                <a class="page-link" th:href="@{/admin/transaksi(page=${currentPage + 1})}"><i class="bi bi-chevron-right"></i></a>
                             </li>
                         </ul>
                     </div>
@@ -153,9 +104,8 @@
                 <div class="modal-content receipt-modal-shell">
                     <div class="printable-area receipt-paper" th:id="'strukContent_' + ${trx.id}">
                         <div class="receipt-store-header">
-                            <div class="receipt-store-name">VEYRO STORE</div>
-                            <div class="receipt-store-sub">Point of Sale Retail System</div>
-                            <div class="receipt-store-sub">Telp: (021) 8890-1234</div>
+                            <div class="receipt-store-name">VEYRO</div>
+                            <div class="receipt-store-sub">Detail Pemabayaran Kamu</div>
                         </div>
 
                         <div class="receipt-line-double"></div>
@@ -167,14 +117,11 @@
                             </div>
                             <div class="receipt-meta-row">
                                 <span>Tanggal</span>
-                                <span
-                                    th:text="${#temporals.format(trx.tanggalTransaksi, 'dd/MM/yyyy HH:mm')}">01/11/2026
-                                    10:00</span>
+                                <span th:text="${#temporals.format(trx.tanggalTransaksi, 'dd/MM/yyyy HH:mm')}">01/11/2026 10:00</span>
                             </div>
                             <div class="receipt-meta-row">
                                 <span>Kasir</span>
-                                <span
-                                    th:text="${trx.kasir != null and trx.kasir.name != null ? trx.kasir.name : (trx.kasir != null ? trx.kasir.username : 'Kasir')}">Kasir</span>
+                                <span th:text="${trx.kasir != null and trx.kasir.name != null ? trx.kasir.name : (trx.kasir != null ? trx.kasir.username : 'Kasir')}">Kasir</span>
                             </div>
                             <div class="receipt-meta-row">
                                 <span>Metode</span>
@@ -186,59 +133,43 @@
 
                         <div class="receipt-items-block">
                             <div class="receipt-item-entry" th:each="d : ${detailsPerTransaksi.get(trx.id)}">
-                                <div class="receipt-item-title"
-                                    th:text="${d.produk != null ? d.produk.name : 'Produk'}">Nama Barang</div>
+                                <div class="receipt-item-title" th:text="${d.produk != null ? d.produk.name : 'Produk'}">Nama Barang</div>
                                 <div class="receipt-item-calc">
-                                    <span
-                                        th:text="${d.jumlah} + ' x ' + ${#numbers.formatDecimal(d.harga, 0, 'POINT', 0, 'COMMA')}">1
-                                        x 0</span>
-                                    <span
-                                        th:text="'Rp ' + ${#numbers.formatDecimal(d.subtotal, 0, 'POINT', 0, 'COMMA')}">Rp
-                                        0</span>
+                                    <span th:text="${d.jumlah} + ' x ' + ${#numbers.formatDecimal(d.harga, 0, 'POINT', 0, 'COMMA')}">1 x 0</span>
+                                    <span th:text="'Rp ' + ${#numbers.formatDecimal(d.subtotal, 0, 'POINT', 0, 'COMMA')}">Rp 0</span>
                                 </div>
                             </div>
                         </div>
 
                         <div class="receipt-line-single"></div>
-
                         <div class="receipt-totals-block">
                             <div class="receipt-total-main">
                                 <span>TOTAL</span>
-                                <span th:text="'Rp ' + ${#numbers.formatDecimal(trx.total, 0, 'POINT', 0, 'COMMA')}">Rp
-                                    0</span>
+                                <span th:text="'Rp ' + ${#numbers.formatDecimal(trx.total, 0, 'POINT', 0, 'COMMA')}">Rp0</span>
                             </div>
                             <div class="receipt-meta-row">
                                 <span>BAYAR</span>
-                                <span
-                                    th:text="'Rp ' + ${#numbers.formatDecimal(trx.pembayaran, 0, 'POINT', 0, 'COMMA')}">Rp
-                                    0</span>
+                                <span th:text="'Rp ' + ${#numbers.formatDecimal(trx.pembayaran, 0, 'POINT', 0, 'COMMA')}">Rp0</span>
                             </div>
                             <div class="receipt-meta-row">
                                 <span>KEMBALI</span>
-                                <span
-                                    th:text="'Rp ' + ${#numbers.formatDecimal(trx.kembalian, 0, 'POINT', 0, 'COMMA')}">Rp
-                                    0</span>
+                                <span th:text="'Rp ' + ${#numbers.formatDecimal(trx.kembalian, 0, 'POINT', 0, 'COMMA')}">R0</span>
                             </div>
                         </div>
 
                         <div class="receipt-line-double"></div>
-
                         <div class="receipt-footer-block">
                             <div>*** TERIMA KASIH ***</div>
                             <div>BARANG YANG SUDAH DIBELI</div>
-                            <div>TIDAK DAPAT DITUKAR/DIKEMBALIKAN</div>
+                            <div>TIDAK DAPAT DITUKAR ATAU DIKEMBALIKAN</div>
                             <div class="receipt-barcode"></div>
                             <div class="receipt-barcode-code" th:text="${trx.kodeTransaksi}">TRX12345</div>
                         </div>
                     </div>
 
                     <div class="receipt-modal-actions no-print">
-                        <button type="button" class="btn-receipt-print" onclick="window.print()">
-                            <i class="bi bi-printer me-1"></i>Cetak Struk
-                        </button>
-                        <button type="button" class="btn-receipt-done" data-bs-dismiss="modal">
-                            Tutup
-                        </button>
+                        <button type="button" class="btn-receipt-print" onclick="window.print()"><i class="bi bi-printer me-1"></i>Cetak Struk</button>
+                        <button type="button" class="btn-receipt-done" data-bs-dismiss="modal">Tutup</button>
                     </div>
                 </div>
             </div>

@@ -16,7 +16,6 @@ import jakarta.servlet.http.HttpSession;
 
 @Controller
 @RequestMapping("/admin")
-@SuppressWarnings("null")
 public class RiwayatTransaksiAdmin {
 
     private final TransaksiService transaksiService;

@@ -26,7 +26,6 @@ import jakarta.servlet.http.HttpSession;
 
 @Controller
 @RequestMapping("/admin")
-@SuppressWarnings("null")
 public class PegawaiController {
 
     private final UserService userService;
@@ -54,9 +53,7 @@ public class PegawaiController {
     }
 
     @PostMapping("/pegawai/simpan")
-    public String simpanKasir(@RequestParam String name, @RequestParam String username, @RequestParam String password,
-            @RequestParam(value = "foto", required = false) MultipartFile foto,
-            HttpSession session, RedirectAttributes redirect) {
+    public String simpanKasir(@RequestParam String name, @RequestParam String username, @RequestParam String password, @RequestParam(value = "foto", required = false) MultipartFile foto, HttpSession session, RedirectAttributes redirect) {
         if (bukanAdmin(session)) {
             return "redirect:/login";
         }
@@ -85,10 +82,7 @@ public class PegawaiController {
     }
 
     @PostMapping("/pegawai/update")
-    public String updateKasir(@RequestParam Long id, @RequestParam String name, @RequestParam String username,
-            @RequestParam(value = "password", required = false) String password,
-            @RequestParam(value = "foto", required = false) MultipartFile foto,
-            HttpSession session, RedirectAttributes redirect) {
+    public String updateKasir(@RequestParam Long id, @RequestParam String name, @RequestParam String username, @RequestParam(value = "password", required = false) String password, @RequestParam(value = "foto", required = false) MultipartFile foto, HttpSession session, RedirectAttributes redirect) {
         if (bukanAdmin(session)) {
             return "redirect:/login";
         }
@@ -137,9 +131,7 @@ public class PegawaiController {
     }
 
     @PostMapping("/profil/foto")
-    public String fotoAdmin(@RequestParam("foto") MultipartFile foto,
-            @RequestParam(value = "redirectUrl", required = false) String redirectUrl,
-            HttpSession session, RedirectAttributes redirect) {
+    public String fotoAdmin(@RequestParam("foto") MultipartFile foto, @RequestParam(value = "redirectUrl", required = false) String redirectUrl, HttpSession session, RedirectAttributes redirect) {
         User admin = (User) session.getAttribute("user");
         if (bukanAdmin(session) || admin == null) {
             return "redirect:/login";
@@ -158,8 +150,7 @@ public class PegawaiController {
     }
 
     @PostMapping("/profil/foto/hapus")
-    public String hapusFotoAdmin(@RequestParam(value = "redirectUrl", required = false) String redirectUrl,
-            HttpSession session, RedirectAttributes redirect) {
+    public String hapusFotoAdmin(@RequestParam(value = "redirectUrl", required = false) String redirectUrl, HttpSession session, RedirectAttributes redirect) {
         User admin = (User) session.getAttribute("user");
         if (bukanAdmin(session) || admin == null) {
             return "redirect:/login";
