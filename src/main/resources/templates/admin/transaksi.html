@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="id" xmlns:th="http://www.thymeleaf.org">
 
 <head>
@@ -8,9 +8,12 @@
     <link rel="icon" type="image/png" th:href="@{/images/logoBrow.png}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+    <noscript><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"></noscript>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" media="print" onload="this.media='all'">
+    <noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"></noscript>
     <link rel="stylesheet" th:href="@{/css/admin.css}">
 </head>
 
@@ -31,6 +34,8 @@
                     </div>
                 </div>
 
+                <div th:replace="~{admin/fragments :: filterPeriode(@{/admin/transaksi})}"></div>
+
                 <div style="background-color: var(--veyro-card); border: 1px solid var(--veyro-border); border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(15, 81, 50, 0.04);">
                     <div class="p-3 border-bottom d-flex flex-wrap align-items-center justify-content-between gap-3" style="border-color: var(--veyro-border) !important;">
                         <h5 class="fw-bold mb-0" style="color: var(--veyro-sidebar-green); font-size: 16px;">Daftar Transaksi</h5>
@@ -41,11 +46,12 @@
                     </div>
 
                     <div th:if="${#lists.isEmpty(daftarTransaksi)}" class="text-center py-5">
-                        <img th:src="@{/images/transaksikosong.png}" src="/images/transaksikosong.png" alt="Belum Ada Transaksi" style="max-width: 170px; opacity: 0.85;">
+                        <img th:src="@{/images/transaksikosong.webp}" src="/images/transaksikosong.webp" alt="Belum Ada Transaksi" style="max-width: 170px; opacity: 0.85;">
                         <h6 class="mt-3 fw-bold" style="color: var(--veyro-text);">Belum Ada Transaksi</h6>
                         <p class="small mb-0" style="color: var(--veyro-text-muted);">Transaksi yang dilakukan oleh kasir akan otomatis tercatat di sini.</p>
                     </div>
 
+                    <div id="ajaxTableContainer">
                     <div th:if="${!#lists.isEmpty(daftarTransaksi)}" class="table-responsive">
                         <table class="veyro-table-kasir" id="tabelRiwayat">
                             <thead>
@@ -82,15 +88,16 @@
                     <div th:if="${totalPages > 1}" class="veyro-pagination-wrapper px-3 pb-3">
                         <ul class="veyro-pagination">
                             <li class="page-item" th:classappend="${currentPage <= 1} ? 'disabled' : ''">
-                                <a class="page-link" th:href="@{/admin/transaksi(page=${currentPage - 1})}"><i class="bi bi-chevron-left"></i></a>
+                                <a class="page-link" th:href="@{/admin/transaksi(page=${currentPage - 1}, tipeFilter=${tipeFilter}, bulan=${bulan}, tanggalMulai=${tanggalMulai}, tanggalSelesai=${tanggalSelesai})}"><i class="bi bi-chevron-left"></i></a>
                             </li>
                             <li th:each="p : ${#numbers.sequence(1, totalPages)}" class="page-item" th:classappend="${p == currentPage} ? 'active' : ''">
-                                <a class="page-link" th:href="@{/admin/transaksi(page=${p})}" th:text="${p}">1</a>
+                                <a class="page-link" th:href="@{/admin/transaksi(page=${p}, tipeFilter=${tipeFilter}, bulan=${bulan}, tanggalMulai=${tanggalMulai}, tanggalSelesai=${tanggalSelesai})}" th:text="${p}">1</a>
                             </li>
                             <li class="page-item" th:classappend="${currentPage >= totalPages} ? 'disabled' : ''">
-                                <a class="page-link" th:href="@{/admin/transaksi(page=${currentPage + 1})}"><i class="bi bi-chevron-right"></i></a>
+                                <a class="page-link" th:href="@{/admin/transaksi(page=${currentPage + 1}, tipeFilter=${tipeFilter}, bulan=${bulan}, tanggalMulai=${tanggalMulai}, tanggalSelesai=${tanggalSelesai})}"><i class="bi bi-chevron-right"></i></a>
                             </li>
                         </ul>
+                    </div>
                     </div>
 
                 </div>
@@ -98,6 +105,7 @@
         </div>
     </div>
 
+    <div id="ajaxModalContainer">
     <th:block th:each="trx : ${daftarTransaksi}">
         <div class="modal fade" th:id="'modalStruk_' + ${trx.id}" tabindex="-1" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered receipt-modal-dialog">
@@ -175,24 +183,11 @@
             </div>
         </div>
     </th:block>
+    </div>
 
     <th:block th:replace="~{admin/fragments :: scripts}"></th:block>
-
-    <script>
-        function filterRiwayat() {
-            const query = (document.getElementById('searchRiwayat').value || '').toLowerCase().trim();
-            const rows = document.querySelectorAll('.riwayat-row');
-
-            rows.forEach(function (row) {
-                const searchData = (row.getAttribute('data-search') || '').toLowerCase();
-                if (query === '' || searchData.includes(query)) {
-                    row.style.display = '';
-                } else {
-                    row.style.display = 'none';
-                }
-            });
-        }
-    </script>
+    <th:block th:replace="~{admin/fragments :: filterPeriodeScript}"></th:block>
+    <th:block th:replace="~{admin/fragments :: ajaxPaginationScript}"></th:block>
 
 </body>
 

@@ -1,11 +1,11 @@
-:root {
+﻿:root {
     --veyro-bg: #ede5d3;
     --veyro-white: #ffffff;
     --veyro-card: #f7f3ea;
     --veyro-border: #dad0bc;
     --veyro-border-light: #e4dac5;
     --veyro-text: #0f172a;
-    --veyro-text-muted: #64748b;
+    --veyro-text-muted: #475569;
     --veyro-sidebar-green: #051610;
     --veyro-sidebar-green-light: #071c14;
     --veyro-sidebar-green-dark: #030d09;
@@ -300,7 +300,8 @@ a {
     gap: 7px;
     background-color: var(--veyro-card);
     border: 1px solid var(--veyro-border);
-    padding: 6px 12px;
+    height: 38px;
+    padding: 0 14px;
     border-radius: 8px;
     font-size: 12px;
     font-weight: 600;
@@ -317,7 +318,8 @@ a {
     gap: 8px;
     background-color: var(--veyro-card);
     border: 1px solid var(--veyro-border);
-    padding: 4px 12px 4px 5px;
+    height: 38px;
+    padding: 0 12px 0 6px;
     border-radius: 8px;
     cursor: pointer;
     transition: all 0.2s ease;
@@ -1389,7 +1391,7 @@ a {
 .veyro-toast-close {
     background: transparent;
     border: none;
-    color: #94a3b8;
+    color: #475569;
     width: 24px;
     height: 24px;
     border-radius: 6px;
@@ -1726,7 +1728,7 @@ a {
 
 .btn-filter-reset:hover {
     background-color: #f1f5f9;
-    border-color: #94a3b8;
+    border-color: #475569;
     color: var(--veyro-text);
     transform: translateY(-2px);
 }

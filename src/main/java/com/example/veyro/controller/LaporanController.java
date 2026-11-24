@@ -3,8 +3,6 @@ package com.example.veyro.controller;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.YearMonth;
-import java.time.format.TextStyle;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -80,65 +78,9 @@ public class LaporanController {
             return "redirect:/login";
         }
 
-        if (tipeFilter == null || tipeFilter.isBlank()) {
-            if (bulan != null && !bulan.isBlank()) {
-                tipeFilter = "bulan";
-            } else if (tanggalMulai != null && !tanggalMulai.isBlank()) {
-                tipeFilter = "custom";
-            } else {
-                tipeFilter = "semua";
-            }
-        }
-
-        LocalDateTime start = null;
-        LocalDateTime end = null;
-        String periodeLabel = "Semua Waktu";
-        if ("bulan".equalsIgnoreCase(tipeFilter)) {
-            if (bulan == null || bulan.isBlank()) {
-                bulan = LocalDate.now().toString().substring(0, 7);
-            }
-            try {
-                String[] parts = bulan.split("-");
-                int thn = Integer.parseInt(parts[0]);
-                int bln = Integer.parseInt(parts[1]);
-                YearMonth ym = YearMonth.of(thn, bln);
-                start = ym.atDay(1).atStartOfDay();
-                end = ym.atEndOfMonth().atTime(23, 59, 59, 999999999);
-                periodeLabel = "Bulan " + ym.getMonth().getDisplayName(TextStyle.FULL, Locale.forLanguageTag("id-ID"))
-                        + " " + thn;
-            } catch (Exception e) {
-                tipeFilter = "semua";
-                start = null;
-                end = null;
-                periodeLabel = "Semua Waktu";
-            }
-        } else if ("custom".equalsIgnoreCase(tipeFilter)) {
-            if (tanggalMulai == null || tanggalMulai.isBlank()) {
-                tanggalMulai = LocalDate.now().withDayOfMonth(1).toString();
-            }
-            if (tanggalSelesai == null || tanggalSelesai.isBlank()) {
-                tanggalSelesai = LocalDate.now().toString();
-            }
-            try {
-                LocalDate tglMulai = LocalDate.parse(tanggalMulai);
-                LocalDate tglSelesai = LocalDate.parse(tanggalSelesai);
-                if (tglMulai.isAfter(tglSelesai)) {
-                    LocalDate temp = tglMulai;
-                    tglMulai = tglSelesai;
-                    tglSelesai = temp;
-                    tanggalMulai = tglMulai.toString();
-                    tanggalSelesai = tglSelesai.toString();
-                }
-                start = tglMulai.atStartOfDay();
-                end = tglSelesai.atTime(23, 59, 59, 999999999);
-                periodeLabel = tanggalMulai + " s/d " + tanggalSelesai;
-            } catch (Exception e) {
-                tipeFilter = "semua";
-                start = null;
-                end = null;
-                periodeLabel = "Semua Waktu";
-            }
-        }
+        TransaksiService.PeriodeFilter filter = transaksiService.uraiPeriode(tipeFilter, bulan, tanggalMulai, tanggalSelesai);
+        LocalDateTime start = filter.start;
+        LocalDateTime end = filter.end;
 
         List<Transaksi> semuaFilter;
         Page<Transaksi> transaksiPage;
@@ -277,11 +219,11 @@ public class LaporanController {
         model.addAttribute("detailsPerTransaksi", detailsPerTransaksi);
         model.addAttribute("currentPage", page);
         model.addAttribute("totalPages", transaksiPage.getTotalPages());
-        model.addAttribute("tipeFilter", tipeFilter);
-        model.addAttribute("bulan", bulan);
-        model.addAttribute("tanggalMulai", tanggalMulai);
-        model.addAttribute("tanggalSelesai", tanggalSelesai);
-        model.addAttribute("periodeLabel", periodeLabel);
+        model.addAttribute("tipeFilter", filter.tipeFilter);
+        model.addAttribute("bulan", filter.bulan);
+        model.addAttribute("tanggalMulai", filter.tanggalMulai);
+        model.addAttribute("tanggalSelesai", filter.tanggalSelesai);
+        model.addAttribute("periodeLabel", filter.periodeLabel);
         model.addAttribute("kategoriStats", kategoriStats);
         model.addAttribute("chartLabelsJson", chartLabelsJson);
         model.addAttribute("chartDataNominalJson", chartDataNominalJson);

@@ -5,7 +5,7 @@
 
     <aside th:fragment="sidebar(activeMenu)" class="admin-sidebar" id="adminSidebar">
         <div class="sidebar-top-header">
-            <a th:href="@{/admin/dashboard}" class="sidebar-logo-link"><img th:src="@{/images/sideAtas.png}" alt="Veyro Logo" class="sidebar-logo-img"></a>
+            <a th:href="@{/admin/dashboard}" class="sidebar-logo-link"><img th:src="@{/images/sideAtas.png}" alt="Veyro Logo" class="sidebar-logo-img" width="120" height="32" fetchpriority="high"></a>
         </div>
 
         <div class="sidebar-curve-body">
@@ -53,7 +53,7 @@
                 </div>
                 <div class="dropdown">
                     <div class="header-user-badge" data-bs-toggle="dropdown" aria-expanded="false" role="button">
-                        <img th:if="${currentUser != null and currentUser.foto != null and !currentUser.foto.isEmpty()}" th:src="@{'/uploads/profil/' + ${currentUser.foto}}" alt="Foto Profil" class="user-avatar-mini-img">
+                        <img th:if="${currentUser != null and currentUser.foto != null and !currentUser.foto.isEmpty()}" th:src="@{'/uploads/profil/' + ${currentUser.foto}}" alt="Foto Profil" class="user-avatar-mini-img" width="28" height="28" decoding="async">
                         <div th:unless="${currentUser != null and currentUser.foto != null and !currentUser.foto.isEmpty()}" class="user-avatar-mini" th:text="${currentUser != null and currentUser.username != null and !currentUser.username.isEmpty() ? #strings.substring(currentUser.username, 0, 1).toUpperCase() : 'A'}">A</div>
                         <span class="user-chip-name" th:text="${currentUser != null and currentUser.username != null ? currentUser.username : 'Admin'}">Admin</span>
                         <i class="bi bi-chevron-down" style="font-size: 11px; color: var(--veyro-text-muted); margin-left: 2px;"></i>
@@ -107,8 +107,173 @@
         </th:block>
     </div>
 
+    <div th:fragment="filterPeriode(actionUrl)" class="laporan-filter-card">
+        <form th:action="${actionUrl}" method="get">
+            <div class="filter-top-bar">
+                <div class="filter-title-wrap">
+                    <i class="bi bi-sliders2 filter-heading-icon"></i>
+                    <h4 class="filter-card-heading">Filter Periode</h4>
+                </div>
+                <div class="filter-active-chip">
+                    <i class="bi bi-calendar3"></i>
+                    <span th:text="${periodeLabel}">Semua Waktu</span>
+                </div>
+            </div>
+            <div class="filter-controls-row">
+                <div class="filter-field-box">
+                    <label for="tipeFilterSelect" class="filter-label">Tipe Periode</label>
+                    <div class="filter-input-wrap">
+                        <i class="bi bi-funnel filter-input-icon"></i>
+                        <select name="tipeFilter" id="tipeFilterSelect" class="filter-select">
+                            <option value="semua" th:selected="${tipeFilter == 'semua'}">Semua</option>
+                            <option value="bulan" th:selected="${tipeFilter == 'bulan'}">Pilih Bulan</option>
+                            <option value="custom" th:selected="${tipeFilter == 'custom'}">Custom Tanggal</option>
+                        </select>
+                    </div>
+                </div>
+                <div id="wrapFilterBulan" class="filter-month-wrapper filter-panel-dynamic" style="display: none;">
+                    <div class="filter-field-box">
+                        <label class="filter-label">Bulan &amp; Tahun</label>
+                        <div class="filter-input-wrap">
+                            <i class="bi bi-calendar-month filter-input-icon"></i>
+                            <input type="month" name="bulan" class="filter-input filter-date-picker" th:value="${bulan}">
+                        </div>
+                    </div>
+                </div>
+                <div id="wrapFilterCustom" class="filter-custom-wrapper filter-panel-dynamic" style="display: none;">
+                    <div class="filter-field-box">
+                        <label for="inputTglMulai" class="filter-label">Dari Tanggal</label>
+                        <div class="filter-input-wrap">
+                            <i class="bi bi-calendar-event filter-input-icon"></i>
+                            <input type="date" name="tanggalMulai" id="inputTglMulai" class="filter-input filter-date-picker" th:value="${tanggalMulai}">
+                        </div>
+                    </div>
+                    <div class="filter-range-arrow">
+                        <i class="bi bi-arrow-right"></i>
+                    </div>
+                    <div class="filter-field-box">
+                        <label for="inputTglSelesai" class="filter-label">Sampai Tanggal</label>
+                        <div class="filter-input-wrap">
+                            <i class="bi bi-calendar-check filter-input-icon"></i>
+                            <input type="date" name="tanggalSelesai" id="inputTglSelesai" class="filter-input filter-date-picker" th:value="${tanggalSelesai}">
+                        </div>
+                    </div>
+                </div>
+                <div class="filter-actions-wrap">
+                    <button type="submit" class="btn-filter-apply"><i class="bi bi-check2-circle"></i><span>Terapkan</span></button>
+                    <a th:href="${actionUrl}" class="btn-filter-reset" title="Kembalikan ke semua data"><i class="bi bi-arrow-counterclockwise"></i><span>Reset</span></a>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <th:block th:fragment="filterPeriodeScript">
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                const select = document.getElementById('tipeFilterSelect');
+                const wrapBulan = document.getElementById('wrapFilterBulan');
+                const wrapCustom = document.getElementById('wrapFilterCustom');
+                function toggleFilter() {
+                    if (!select) return;
+                    if (wrapBulan) wrapBulan.style.display = select.value === 'bulan' ? 'flex' : 'none';
+                    if (wrapCustom) wrapCustom.style.display = select.value === 'custom' ? 'flex' : 'none';
+                }
+                if (select) {
+                    select.addEventListener('change', toggleFilter);
+                    toggleFilter();
+                }
+            });
+        </script>
+    </th:block>
+
+    <th:block th:fragment="ajaxPaginationScript">
+        <script>
+            function filterRiwayat() {
+                const input = document.getElementById('searchRiwayat');
+                if (!input) return;
+                const query = (input.value || '').toLowerCase().trim();
+                document.querySelectorAll('.riwayat-row').forEach(function (row) {
+                    const searchData = (row.getAttribute('data-search') || '').toLowerCase();
+                    row.style.display = (query === '' || searchData.includes(query)) ? '' : 'none';
+                });
+            }
+
+            document.addEventListener('DOMContentLoaded', function () {
+                function muatHalaman(url, simpanHistory) {
+                    fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+                        .then(function (res) {
+                            if (!res.ok) throw new Error('Gagal memuat halaman');
+                            return res.text();
+                        })
+                        .then(function (html) {
+                            const doc = new DOMParser().parseFromString(html, 'text/html');
+                            const tabelBaru = doc.getElementById('ajaxTableContainer');
+                            const tabelLama = document.getElementById('ajaxTableContainer');
+                            if (tabelBaru && tabelLama) {
+                                tabelLama.innerHTML = tabelBaru.innerHTML;
+                            }
+                            const modalBaru = doc.getElementById('ajaxModalContainer');
+                            const modalLama = document.getElementById('ajaxModalContainer');
+                            if (modalBaru && modalLama) {
+                                modalLama.innerHTML = modalBaru.innerHTML;
+                            }
+                            if (simpanHistory) {
+                                window.history.pushState({ ajaxPage: true }, '', url);
+                            }
+                            if (typeof filterRiwayat === 'function') {
+                                filterRiwayat();
+                            }
+                        })
+                        .catch(function () {
+                            window.location.href = url;
+                        });
+                }
+
+                document.addEventListener('click', function (e) {
+                    const link = e.target.closest('.veyro-pagination a.page-link');
+                    if (!link) return;
+                    const item = link.closest('.page-item');
+                    if (item && (item.classList.contains('disabled') || item.classList.contains('active'))) {
+                        e.preventDefault();
+                        return;
+                    }
+                    const href = link.getAttribute('href');
+                    if (!href || href === '#') return;
+                    e.preventDefault();
+                    muatHalaman(link.href, true);
+                });
+
+                window.addEventListener('popstate', function () {
+                    if (document.getElementById('ajaxTableContainer')) {
+                        muatHalaman(window.location.href, false);
+                    }
+                });
+            });
+        </script>
+    </th:block>
+
+    <div th:fragment="modalHapus" class="modal fade" id="modalKonfirmasiHapus" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-sm">
+            <div class="modal-content" style="border-radius: 12px; border: 1px solid var(--veyro-border); background-color: var(--veyro-card);">
+                <div class="modal-body text-center" style="padding: 20px 18px 14px;">
+                    <div class="mx-auto mb-2 d-flex align-items-center justify-content-center" style="width: 42px; height: 42px; border-radius: 10px; background-color: var(--veyro-danger-subtle); color: var(--veyro-danger); font-size: 18px;">
+                        <i class="bi bi-trash3"></i>
+                    </div>
+                    <h6 class="fw-bold mb-1" id="konfirmasiHapusJudul" style="font-size: 15px;">Konfirmasi Hapus</h6>
+                    <p class="text-muted mb-0" style="font-size: 12.5px; line-height: 1.5;">
+                        Hapus <span id="konfirmasiHapusTipe">item</span> <strong id="konfirmasiHapusNama" style="color: var(--veyro-text);"></strong>?
+                    </p>
+                </div>
+                <div class="modal-footer justify-content-center gap-2" style="border-top: 1px solid var(--veyro-border); padding: 12px 18px;">
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal" style="border-radius: 8px; font-size: 12.5px; padding: 7px 14px;">Batal</button>
+                    <button type="button" class="btn btn-danger" id="btnKonfirmasiHapus" style="border-radius: 8px; font-size: 12.5px; padding: 7px 16px; background-color: var(--veyro-danger); border-color: var(--veyro-danger);">Hapus</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <th:block th:fragment="scripts">
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" defer></script>
         <script>
             document.addEventListener('DOMContentLoaded', function () {
                 const hamburgerBtn = document.getElementById('hamburgerBtn');
@@ -168,6 +333,34 @@
                             toast.parentNode.removeChild(toast);
                         }
                     }, 350);
+                }
+
+                const modalHapusEl = document.getElementById('modalKonfirmasiHapus');
+                const btnKonfirmasiHapus = document.getElementById('btnKonfirmasiHapus');
+                const konfirmasiHapusTipe = document.getElementById('konfirmasiHapusTipe');
+                const konfirmasiHapusNama = document.getElementById('konfirmasiHapusNama');
+                let formTargetHapus = null;
+
+                if (modalHapusEl && btnKonfirmasiHapus) {
+                    document.addEventListener('submit', function (e) {
+                        const form = e.target;
+                        if (!form.classList.contains('form-konfirmasi-hapus')) return;
+                        e.preventDefault();
+                        formTargetHapus = form;
+                        konfirmasiHapusTipe.textContent = form.getAttribute('data-tipe') || 'item';
+                        konfirmasiHapusNama.textContent = form.getAttribute('data-name') || '';
+                        bootstrap.Modal.getOrCreateInstance(modalHapusEl).show();
+                    });
+
+                    btnKonfirmasiHapus.addEventListener('click', function () {
+                        if (formTargetHapus) {
+                            formTargetHapus.submit();
+                        }
+                    });
+
+                    modalHapusEl.addEventListener('hidden.bs.modal', function () {
+                        formTargetHapus = null;
+                    });
                 }
             });
         </script>

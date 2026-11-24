@@ -3,21 +3,49 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - Veyro</title>
+    <title>Veyro</title>
+    <meta name="description" content="Veyro adalah sistem kasir POS modern berbasis web. Aplikasi kasir Veyro membantu mengelola transaksi penjualan, stok barang, dan laporan toko secara cepat dan akurat.">
+    <meta name="keywords" content="veyro, kasir veyro, sistem kasir, kasir sistem kasir, aplikasi kasir, sistem kasir veyro, kasir pos, point of sale veyro">
+    <meta name="robots" content="index, follow">
+    <meta name="author" content="Veyro">
+    <meta property="og:type" content="website">
+    <meta property="og:locale" content="id_ID">
+    <meta property="og:site_name" content="Veyro">
+    <meta property="og:title" content="Veyro - Sistem Kasir POS Modern &amp; Aplikasi Kasir Veyro">
+    <meta property="og:description" content="Veyro adalah sistem kasir POS modern berbasis web. Aplikasi kasir Veyro membantu mengelola transaksi penjualan, stok barang, dan laporan toko.">
+    <meta property="og:image" th:content="@{/images/logoBrow.png}" content="/images/logoBrow.png">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="Veyro - Sistem Kasir POS Modern">
+    <meta name="twitter:description" content="Sistem kasir Veyro berbasis web untuk mengelola transaksi penjualan dan stok toko.">
+    <script type="application/ld+json">
+        {
+            "@context": "https://schema.org",
+            "@type": "SoftwareApplication",
+            "name": "Veyro",
+            "alternateName": ["Kasir Veyro", "Sistem Kasir Veyro"],
+            "applicationCategory": "BusinessApplication",
+            "operatingSystem": "Web",
+            "description": "Veyro adalah sistem kasir POS modern berbasis web untuk mengelola transaksi penjualan, stok produk, dan laporan toko.",
+            "keywords": "veyro, kasir veyro, sistem kasir, kasir sistem kasir, aplikasi kasir"
+        }
+    </script>
     <link rel="icon" type="image/png" th:href="@{/images/logoBrow.png}" href="/images/logoBrow.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+    <noscript><link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet"></noscript>
+    <link rel="preload" as="image" href="/images/BGlogin.webp" type="image/webp" fetchpriority="high">
+    <link rel="preload" as="image" href="/images/login_user_raw.webp" type="image/webp" fetchpriority="high">
     <link rel="stylesheet" th:href="@{/css/login.css}" href="/css/login.css">
 </head>
 <body>
-    <div class="center-floating-card">
+    <main class="center-floating-card">
         <div class="card-illustration-area" aria-hidden="true"></div>
         <div class="card-form-area">
             <div class="form-content-box">
                 <h1 class="login-title">LOGIN</h1>
                 <div th:if="${pesanError}" class="error-alert" role="alert">
-                    <svg class="error-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg class="error-icon" width="20" height="20" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
                               d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
                     </svg>
@@ -27,28 +55,28 @@
                     <div class="input-group">
                         <div class="pill-input-wrapper">
                             <span class="pill-icon" aria-hidden="true">
-                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <svg width="20" height="20" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
                                           d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                                 </svg>
                             </span>
                             <input type="text" id="username" name="username" class="pill-input" 
-                                   placeholder="Username" required autofocus>
+                                   placeholder="Username" aria-label="Username" required autofocus>
                         </div>
                     </div>
                     <div class="input-group">
                         <div class="pill-input-wrapper">
                             <span class="pill-icon" aria-hidden="true">
-                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <svg width="20" height="20" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
                                           d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                                 </svg>
                             </span>
                             <input type="password" id="password" name="password" class="pill-input" 
-                                   placeholder="Password" required>
+                                   placeholder="Password" aria-label="Password" required>
                             <button type="button" class="toggle-password-btn" id="togglePasswordBtn" 
-                                    title="Tampilkan / Sembunyikan Password" aria-label="Lihat Password">
-                                <svg id="eyeIcon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    title="Tampilkan / Sembunyikan Password" aria-label="Tampilkan atau sembunyikan kata sandi">
+                                <svg id="eyeIcon" width="20" height="20" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
                                           d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
@@ -63,7 +91,7 @@
                 </form>
             </div>
         </div>
-    </div>
+    </main>
     <script>
         const toggleBtn = document.getElementById('togglePasswordBtn');
         const passwordInput = document.getElementById('password');

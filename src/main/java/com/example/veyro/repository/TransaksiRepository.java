@@ -15,4 +15,5 @@ public interface TransaksiRepository extends JpaRepository<Transaksi, Long> {
     Page<Transaksi> findByTanggalTransaksiBetween(LocalDateTime start, LocalDateTime end, Pageable pageable);
     List<Transaksi> findByKasirOrderByTanggalTransaksiDesc(User kasir);
     Page<Transaksi> findByKasir(User kasir, Pageable pageable);
+    Page<Transaksi> findByKasirAndTanggalTransaksiBetween(User kasir, LocalDateTime start, LocalDateTime end, Pageable pageable);
 }

@@ -44,8 +44,6 @@ public class KategoriDefault {
     }
 
     private boolean isIkonLama(String icon) {
-        return icon.equals("??") || icon.equals("utensils") || icon.equals("cup-soda") 
-                || icon.equals("candy") || icon.equals("bath") || icon.equals("spray-can") 
-                || icon.equals("carrot") || icon.equals("cooking-pot") || icon.equals("package");
+        return icon.equals("??") || icon.equals("utensils") || icon.equals("cup-soda") || icon.equals("candy") || icon.equals("bath") || icon.equals("spray-can")  || icon.equals("carrot") || icon.equals("cooking-pot") || icon.equals("package");
     }
 }

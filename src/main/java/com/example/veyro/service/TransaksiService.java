@@ -1,11 +1,15 @@
 package com.example.veyro.service;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.YearMonth;
+import java.time.format.TextStyle;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
@@ -62,11 +66,7 @@ public class TransaksiService {
             if (idProduk == null || jumlahProduk == null || jumlahProduk <= 0) {
                 throw new IllegalArgumentException("Produk atau jumlah tidak valid.");
             }
-            if (daftarProduk.containsKey(idProduk)) {
-                daftarProduk.put(idProduk, daftarProduk.get(idProduk) + jumlahProduk);
-            } else {
-                daftarProduk.put(idProduk, jumlahProduk);
-            }
+            daftarProduk.put(idProduk, daftarProduk.getOrDefault(idProduk, 0) + jumlahProduk);
         }
 
         Map<Product, Integer> produkDibeli = new LinkedHashMap<>();
@@ -177,5 +177,81 @@ public class TransaksiService {
             return Page.empty(pageable);
         }
         return transaksiRepository.findByKasir(kasir, pageable);
+    }
+
+    public Page<Transaksi> cariTransaksiByKasirFilterPage(User kasir, LocalDateTime start, LocalDateTime end, Pageable pageable) {
+        if (kasir == null) {
+            return Page.empty(pageable);
+        }
+        return transaksiRepository.findByKasirAndTanggalTransaksiBetween(kasir, start, end, pageable);
+    }
+
+    public static class PeriodeFilter {
+        public String tipeFilter;
+        public String bulan;
+        public String tanggalMulai;
+        public String tanggalSelesai;
+        public String periodeLabel;
+        public LocalDateTime start;
+        public LocalDateTime end;
+    }
+
+    public PeriodeFilter uraiPeriode(String tipeFilter, String bulan, String tanggalMulai, String tanggalSelesai) {
+        PeriodeFilter f = new PeriodeFilter();
+        if (tipeFilter == null || tipeFilter.isBlank()) {
+            if (bulan != null && !bulan.isBlank()) {
+                tipeFilter = "bulan";
+            } else if (tanggalMulai != null && !tanggalMulai.isBlank()) {
+                tipeFilter = "custom";
+            } else {
+                tipeFilter = "semua";
+            }
+        }
+        f.tipeFilter = tipeFilter;
+        f.bulan = bulan;
+        f.tanggalMulai = tanggalMulai;
+        f.tanggalSelesai = tanggalSelesai;
+        f.periodeLabel = "Semua Waktu";
+
+        if ("bulan".equalsIgnoreCase(tipeFilter)) {
+            if (f.bulan == null || f.bulan.isBlank()) {
+                f.bulan = LocalDate.now().toString().substring(0, 7);
+            }
+            try {
+                String[] parts = f.bulan.split("-");
+                int thn = Integer.parseInt(parts[0]);
+                int bln = Integer.parseInt(parts[1]);
+                YearMonth ym = YearMonth.of(thn, bln);
+                f.start = ym.atDay(1).atStartOfDay();
+                f.end = ym.atEndOfMonth().atTime(23, 59, 59, 999999999);
+                f.periodeLabel = "Bulan " + ym.getMonth().getDisplayName(TextStyle.FULL, Locale.forLanguageTag("id-ID")) + " " + thn;
+            } catch (Exception e) {
+                f.tipeFilter = "semua";
+            }
+        } else if ("custom".equalsIgnoreCase(tipeFilter)) {
+            if (f.tanggalMulai == null || f.tanggalMulai.isBlank()) {
+                f.tanggalMulai = LocalDate.now().withDayOfMonth(1).toString();
+            }
+            if (f.tanggalSelesai == null || f.tanggalSelesai.isBlank()) {
+                f.tanggalSelesai = LocalDate.now().toString();
+            }
+            try {
+                LocalDate tglMulai = LocalDate.parse(f.tanggalMulai);
+                LocalDate tglSelesai = LocalDate.parse(f.tanggalSelesai);
+                if (tglMulai.isAfter(tglSelesai)) {
+                    LocalDate temp = tglMulai;
+                    tglMulai = tglSelesai;
+                    tglSelesai = temp;
+                    f.tanggalMulai = tglMulai.toString();
+                    f.tanggalSelesai = tglSelesai.toString();
+                }
+                f.start = tglMulai.atStartOfDay();
+                f.end = tglSelesai.atTime(23, 59, 59, 999999999);
+                f.periodeLabel = f.tanggalMulai + " s/d " + f.tanggalSelesai;
+            } catch (Exception e) {
+                f.tipeFilter = "semua";
+            }
+        }
+        return f;
     }
 }

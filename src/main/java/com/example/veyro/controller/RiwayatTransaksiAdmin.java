@@ -25,18 +25,25 @@ public class RiwayatTransaksiAdmin {
     }
 
     @GetMapping("/transaksi")
-    public String transaksi(@RequestParam(defaultValue = "1") int page, HttpSession session, Model model) {
+    public String transaksi(@RequestParam(defaultValue = "1") int page, @RequestParam(required = false) String tipeFilter, @RequestParam(required = false) String bulan, @RequestParam(required = false) String tanggalMulai, @RequestParam(required = false) String tanggalSelesai, HttpSession session, Model model) {
         if (!"admin".equalsIgnoreCase((String) session.getAttribute("role"))) {
             return "redirect:/login";
         }
+        TransaksiService.PeriodeFilter filter = transaksiService.uraiPeriode(tipeFilter, bulan, tanggalMulai, tanggalSelesai);
         PageRequest pageable = PageRequest.of(Math.max(page - 1, 0), 15, Sort.by("id").descending());
-        Page<Transaksi> transaksiPage = transaksiService.cariSemuaTransaksiPage(pageable);
+        Page<Transaksi> transaksiPage = (filter.start != null && filter.end != null)
+                ? transaksiService.cariTransaksiFilterPage(filter.start, filter.end, pageable)
+                : transaksiService.cariSemuaTransaksiPage(pageable);
 
-        model.addAttribute("semuaTransaksi", transaksiService.cariSemuaTransaksiTerbaru());
         model.addAttribute("daftarTransaksi", transaksiPage.getContent());
         model.addAttribute("detailsPerTransaksi", transaksiService.kelompokkanDetail(transaksiPage.getContent()));
         model.addAttribute("currentPage", page);
         model.addAttribute("totalPages", transaksiPage.getTotalPages());
+        model.addAttribute("tipeFilter", filter.tipeFilter);
+        model.addAttribute("bulan", filter.bulan);
+        model.addAttribute("tanggalMulai", filter.tanggalMulai);
+        model.addAttribute("tanggalSelesai", filter.tanggalSelesai);
+        model.addAttribute("periodeLabel", filter.periodeLabel);
         model.addAttribute("currentUser", session.getAttribute("user"));
         model.addAttribute("activeMenu", "transaksi");
         return "admin/transaksi";

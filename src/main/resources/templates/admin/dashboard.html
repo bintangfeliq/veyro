@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="id" xmlns:th="http://www.thymeleaf.org">
 
 <head>
@@ -8,9 +8,12 @@
     <link rel="icon" type="image/png" th:href="@{/images/logoBrow.png}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+    <noscript><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"></noscript>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" media="print" onload="this.media='all'">
+    <noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"></noscript>
     <link rel="stylesheet" th:href="@{/css/admin.css}">
 </head>
 
@@ -96,7 +99,7 @@
                         </div>
 
                         <div th:if="${#lists.isEmpty(transaksiTerbaru)}" class="empty-state">
-                            <img th:src="@{/images/transaksikosong.png}" src="/images/transaksikosong.png" alt="Belum Ada Transaksi" class="empty-img">
+                            <img th:src="@{/images/transaksikosong.webp}" src="/images/transaksikosong.webp" alt="Belum Ada Transaksi" class="empty-img">
                             <div class="empty-title">Belum Ada Transaksi</div>
                             <div class="empty-subtitle">Transaksi baru dari kasir akan langsung tampil di sini.</div>
                         </div>
@@ -132,7 +135,7 @@
                         </div>
 
                         <div th:if="${#lists.isEmpty(produkStokMenipis)}" class="empty-state">
-                            <img th:src="@{/images/stokaman.png}" src="/images/stokaman.png" alt="Semua Stok Aman" class="empty-img">
+                            <img th:src="@{/images/stokaman.webp}" src="/images/stokaman.webp" alt="Semua Stok Aman" class="empty-img">
                             <div class="empty-title">Semua Stok Aman</div>
                             <div class="empty-subtitle">Tidak ada produk yang perlu di-restock saat ini.</div>
                         </div>
@@ -140,7 +143,7 @@
                         <div th:if="${!#lists.isEmpty(produkStokMenipis)}" class="stock-alert-list">
                             <div th:each="item : ${produkStokMenipis}" class="stock-alert-item">
                                 <div class="stock-alert-left">
-                                    <div class="stock-product-icon" th:text="${item.category != null and item.category.icon != null and !item.category.icon.isEmpty() ? item.category.icon : '📦'}">📦</div>
+                                    <div class="stock-product-icon" th:text="${item.category != null and item.category.icon != null and !item.category.icon.isEmpty() ? item.category.icon : 'ðŸ“¦'}">ðŸ“¦</div>
                                     <div class="stock-product-info">
                                         <div class="stock-product-name" th:text="${item.name}">Nama Produk</div>
                                         <div class="stock-product-cat" th:text="${item.category != null ? item.category.name : 'Umum'}">Kategori

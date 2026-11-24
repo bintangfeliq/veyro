@@ -202,7 +202,10 @@ public class PegawaiController {
     }
 
     private String targetRedirect(String redirectUrl) {
-        return redirectUrl != null && !redirectUrl.isBlank() ? "redirect:" + redirectUrl : "redirect:/admin/dashboard";
+        if (redirectUrl != null && redirectUrl.startsWith("/") && !redirectUrl.startsWith("//")) {
+            return "redirect:" + redirectUrl;
+        }
+        return "redirect:/admin/dashboard";
     }
 
     private String simpanFileFoto(MultipartFile foto, RedirectAttributes redirect) {
